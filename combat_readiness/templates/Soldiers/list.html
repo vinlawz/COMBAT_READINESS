@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Soldiers List</title>
+</head>
+<body>
+    <h1>Soldiers</h1>
+    <ul>
+        {% for soldier in soldiers %}
+            <li>{{ soldier.name }} - {{ soldier.rank }}</li>
+        {% empty %}
+            <li>No soldiers available.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
