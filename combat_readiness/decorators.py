@@ -1,12 +1,13 @@
-from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from functools import wraps
 
-def role_required(allowed_roles):
+def allowed_users(allowed_roles=[]):
     def decorator(view_func):
-        @login_required
+        @wraps(view_func)
         def wrapper(request, *args, **kwargs):
-            if request.user.groups.filter(name__in=allowed_roles).exists():
-                return view_func(request, *args, **kwargs)
+            if request.user.is_authenticated and hasattr(request.user, 'role'):
+                if request.user.role in allowed_roles:
+                    return view_func(request, *args, **kwargs)
             raise PermissionDenied  # 403 Forbidden
         return wrapper
     return decorator

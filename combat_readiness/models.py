@@ -1,9 +1,23 @@
 from django.db import models
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db.models.signals import post_migrate
-from django.contrib.auth.models import AbstractUser
 
+# Define User Roles
+USER_ROLES = [
+    ('admin', 'Admin'),
+    ('medical_officer', 'Medical Officer'),
+    ('unit_leader', 'Unit Leader'),
+    ('soldier', 'Soldier'),
+]
 
+# Custom User Model
+class CustomUser(AbstractUser):
+    role = models.CharField(max_length=20, choices=USER_ROLES, default='soldier')
+
+    def __str__(self):
+        return f"{self.username} ({self.get_role_display()})"
+
+# Soldier Model
 class Soldier(models.Model):
     name = models.CharField(max_length=100)
     rank = models.CharField(max_length=50)
@@ -17,6 +31,7 @@ class Soldier(models.Model):
     def __str__(self):
         return self.name
 
+# Equipment Model
 class Equipment(models.Model):
     name = models.CharField(max_length=100)
     category = models.CharField(max_length=100)
@@ -30,6 +45,7 @@ class Equipment(models.Model):
     def __str__(self):
         return self.name
 
+# Readiness Report Model
 class ReadinessReport(models.Model):
     soldier = models.ForeignKey(Soldier, on_delete=models.CASCADE)
     fitness_score = models.IntegerField()
@@ -40,36 +56,16 @@ class ReadinessReport(models.Model):
         ('Fair', 'Fair'),
         ('Poor', 'Poor')
     ])
+    
 
     def __str__(self):
         return f"{self.soldier.name} - {self.overall_readiness}"
-    # Function to create default groups after migrations
+
+# Function to create default groups after migrations
 def create_default_groups(sender, **kwargs):
     roles = ['Admin', 'Medical Officer', 'Unit Leader', 'Soldier']
     for role in roles:
         Group.objects.get_or_create(name=role)
 
 # Connect the signal
-post_migrate.connect(create_default_groups)
-
-from django.contrib.auth.models import AbstractUser
-from django.db import models
-
-USER_ROLES = [
-    ('admin', 'Admin'),
-    ('medical_officer', 'Medical Officer'),
-    ('unit_leader', 'Unit Leader'),
-    ('soldier', 'Soldier'),
-]
-
-class CustomUser(AbstractUser):
-    role = models.CharField(max_length=20, choices=USER_ROLES, default='soldier')
-
-    def __str__(self):
-        return f"{self.username} - {self.role}"
-    
-class CustomUser(AbstractUser):
-    groups = models.ManyToManyField(Group, related_name="customuser_groups")
-    user_permissions = models.ManyToManyField(Permission, related_name="customuser_permissions")
-    def __str__(self):
-        return f"{self.username} ({self.get_role_display()})"
+post_migrate.connect(create_default_groups, sender=Group)

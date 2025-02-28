@@ -2,7 +2,10 @@ from django.shortcuts import render
 from rest_framework import generics
 from .models import Soldier, Equipment, ReadinessReport
 from .serializers import SoldierSerializer, EquipmentSerializer, ReadinessReportSerializer
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from .decorators import allowed_users
+from django.core.exceptions import PermissionDenied
 from .decorators import role_required
 
 # Function-Based Views
@@ -53,3 +56,13 @@ def soldier_list(request):
 def health_dashboard(request):
     # Only Medical Officers can access health data
     return render(request, 'health.html')
+
+@login_required
+def soldiers_list(request):
+    if request.user.role not in ["admin", "unit_leader"]:  # Allow specific roles
+        raise PermissionDenied
+    return render(request, "soldiers_list.html")
+
+@allowed_users(allowed_roles=['admin', 'unit_leader'])
+def soldiers_list(request):
+    return render(request, "soldiers_list.html")
