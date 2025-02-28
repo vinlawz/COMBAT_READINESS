@@ -116,8 +116,8 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 # Redirect after login/logout
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/'  # Redirect after login
+LOGOUT_REDIRECT_URL = '/'  # Redirect after logout
 
 # Custom user model
 AUTH_USER_MODEL = 'combat_readiness.CustomUser'

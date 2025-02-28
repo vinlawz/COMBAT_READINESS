@@ -1,68 +1,62 @@
-from django.shortcuts import render
-from rest_framework import generics
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, TemplateView
+from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Soldier, Equipment, ReadinessReport
-from .serializers import SoldierSerializer, EquipmentSerializer, ReadinessReportSerializer
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from .decorators import allowed_users
-from django.core.exceptions import PermissionDenied
-from .decorators import role_required
 
-# Function-Based Views
-def soldier_list(request):
-    soldiers = Soldier.objects.all()
-    return render(request, 'soldiers/list.html', {'soldiers': soldiers})
+# 🚀 Home Page View
+class HomeView(TemplateView):
+    template_name = 'home.html'
 
-def equipment_list(request):
-    equipment = Equipment.objects.all()
-    return render(request, 'equipment/list.html', {'equipment': equipment})
+# 🚀 Soldier Views
+class SoldierListView(LoginRequiredMixin, ListView):
+    model = Soldier
+    template_name = 'soldiers/list.html'
+    context_object_name = 'soldiers'
 
-def home(request):
-    return render(request, 'home.html')
+class SoldierCreateView(CreateView):
+    model = Soldier
+    template_name = 'soldiers/create.html'
+    fields = ['name', 'rank', 'unit']
+    success_url = reverse_lazy('soldier-list')  # Ensure correct URL name
 
-# API Views for Soldier
-class SoldierListCreateView(generics.ListCreateAPIView):
-    queryset = Soldier.objects.all()
-    serializer_class = SoldierSerializer
+class SoldierRetrieveUpdateDeleteView(LoginRequiredMixin, DetailView, UpdateView, DeleteView):
+    model = Soldier
+    template_name = 'soldiers/detail.html'
+    fields = ['name', 'rank', 'unit']
+    success_url = reverse_lazy('soldier-list')  # Fixed!
 
-class SoldierRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Soldier.objects.all()
-    serializer_class = SoldierSerializer
+# 🚀 Equipment Views
+class EquipmentListView(LoginRequiredMixin, ListView):
+    model = Equipment
+    template_name = 'equipment/list.html'
+    context_object_name = 'equipment'
 
-# API Views for Equipment
-class EquipmentListCreateView(generics.ListCreateAPIView):
-    queryset = Equipment.objects.all()
-    serializer_class = EquipmentSerializer
+class EquipmentCreateView(LoginRequiredMixin, CreateView):
+    model = Equipment
+    template_name = 'equipment/create.html'
+    fields = ['name', 'category', 'condition', 'assigned_to']
+    success_url = reverse_lazy('equipment-list')  # Fixed!
 
-class EquipmentRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Equipment.objects.all()
-    serializer_class = EquipmentSerializer
+class EquipmentRetrieveUpdateDeleteView(LoginRequiredMixin, DetailView, UpdateView, DeleteView):
+    model = Equipment
+    template_name = 'equipment/detail.html'
+    fields = ['name', 'category', 'condition', 'assigned_to']
+    success_url = reverse_lazy('equipment-list')  # Fixed!
 
-# API Views for ReadinessReport
-class ReadinessReportListCreateView(generics.ListCreateAPIView):
-    queryset = ReadinessReport.objects.all()
-    serializer_class = ReadinessReportSerializer
+# 🚀 Readiness Reports
+class ReadinessReportListView(LoginRequiredMixin, ListView):
+    model = ReadinessReport
+    template_name = 'reports/list.html'
+    context_object_name = 'reports'
 
-class ReadinessReportRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = ReadinessReport.objects.all()
-    serializer_class = ReadinessReportSerializer
+class ReadinessReportCreateView(LoginRequiredMixin, CreateView):
+    model = ReadinessReport
+    template_name = 'reports/create.html'
+    fields = ['soldier', 'fitness_score', 'last_training_date', 'overall_readiness']
+    success_url = reverse_lazy('readiness-list')  # Fixed!
 
-@role_required(['Admin', 'Unit Leader'])
-def soldier_list(request):
-    # Only Admin & Unit Leaders can see this page
-    return render(request, 'soldiers.html')
-
-@role_required(['Medical Officer'])
-def health_dashboard(request):
-    # Only Medical Officers can access health data
-    return render(request, 'health.html')
-
-@login_required
-def soldiers_list(request):
-    if request.user.role not in ["admin", "unit_leader"]:  # Allow specific roles
-        raise PermissionDenied
-    return render(request, "soldiers_list.html")
-
-@allowed_users(allowed_roles=['admin', 'unit_leader'])
-def soldiers_list(request):
-    return render(request, "soldiers_list.html")
+class ReadinessReportRetrieveUpdateDeleteView(LoginRequiredMixin, DetailView, UpdateView, DeleteView):
+    model = ReadinessReport
+    template_name = 'reports/detail.html'
+    fields = ['soldier', 'fitness_score', 'last_training_date', 'overall_readiness']
+    success_url = reverse_lazy('readiness-list')  # Fixed!
