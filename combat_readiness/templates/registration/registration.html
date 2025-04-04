@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Military Asset Tracking</title>
+    <title>Register - Military Asset Tracking</title>
     <style>
         body {
             background: url('https://wallpapercave.com/w/wp2728082') no-repeat center center fixed;
@@ -49,13 +49,34 @@
 </head>
 <body>
     <div class="container">
-        <h2>Login</h2>
-        <form method="post">
+        <h2>Register</h2>
+        <form method="POST">
             {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Login</button>
+            
+            <div class="form-group">
+                <label for="id_username">Username</label>
+                <input type="text" name="username" id="id_username" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="id_email">Email</label>
+                <input type="email" name="email" id="id_email" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="id_password1">Password</label>
+                <input type="password" name="password1" id="id_password1" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="id_password2">Confirm Password</label>
+                <input type="password" name="password2" id="id_password2" class="form-control" required>
+            </div>
+
+            <button type="submit">Register</button>
         </form>
-        <a href="{% url 'password_reset' %}">Forgot Password?</a>
+
+        <a href="{% url 'login' %}">Already have an account? Login here</a>
     </div>
 </body>
 </html>

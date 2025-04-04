@@ -1,9 +1,11 @@
+<!-- profile_edit.html -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Military Asset Tracking</title>
+    <title>Edit Profile - Military Asset Tracking</title>
     <style>
         body {
             background: url('https://wallpapercave.com/w/wp2728082') no-repeat center center fixed;
@@ -19,10 +21,20 @@
             border-radius: 10px;
             display: inline-block;
             margin-top: 50px;
+            width: 400px;
         }
         h2 {
             text-transform: uppercase;
             margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-control {
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            border: none;
         }
         button {
             background: #ffcc00;
@@ -38,24 +50,17 @@
         button:hover {
             background: #d4a500;
         }
-        a {
-            color: #ffcc00;
-            text-decoration: none;
-            font-weight: bold;
-            display: block;
-            margin-top: 10px;
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Login</h2>
-        <form method="post">
+        <h2>Edit Your Profile</h2>
+        <form method="POST">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit">Login</button>
+            <button type="submit">Update Profile</button>
         </form>
-        <a href="{% url 'password_reset' %}">Forgot Password?</a>
+        <a href="{% url 'profile' %}">Cancel</a>
     </div>
 </body>
 </html>

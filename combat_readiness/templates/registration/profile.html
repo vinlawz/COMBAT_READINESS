@@ -1,9 +1,11 @@
+<!-- profile.html -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Military Asset Tracking</title>
+    <title>Your Profile - Military Asset Tracking</title>
     <style>
         body {
             background: url('https://wallpapercave.com/w/wp2728082') no-repeat center center fixed;
@@ -19,43 +21,33 @@
             border-radius: 10px;
             display: inline-block;
             margin-top: 50px;
+            width: 400px;
         }
         h2 {
             text-transform: uppercase;
             margin-bottom: 20px;
         }
-        button {
-            background: #ffcc00;
-            color: #000;
-            font-size: 1.2em;
-            font-weight: bold;
-            padding: 10px 20px;
-            border: none;
+        .profile-info {
+            margin-bottom: 20px;
+        }
+        .btn {
+            background-color: #ffcc00;
+            color: black;
+            padding: 10px;
             border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        button:hover {
-            background: #d4a500;
-        }
-        a {
-            color: #ffcc00;
             text-decoration: none;
-            font-weight: bold;
-            display: block;
-            margin-top: 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Login</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Login</button>
-        </form>
-        <a href="{% url 'password_reset' %}">Forgot Password?</a>
+        <h2>Your Profile</h2>
+        <div class="profile-info">
+            <p><strong>Username:</strong> {{ user.username }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Role:</strong> {{ user.role }}</p>
+        </div>
+        <a href="{% url 'profile-edit' %}" class="btn">Edit Profile</a>
     </div>
 </body>
 </html>
