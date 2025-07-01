@@ -9,7 +9,8 @@ from .views import (
     SoldierListView, SoldierCreateView, SoldierRetrieveUpdateDeleteView,
     EquipmentListView, EquipmentCreateView, EquipmentRetrieveUpdateDeleteView,
     ReadinessReportListView, ReadinessReportCreateView, ReadinessReportRetrieveUpdateDeleteView,
-    HomeView, RegisterView, ProfileView, ProfileEditView, AdminDashboardView, MedicalOfficerDashboardView
+    HomeView, RegisterView, ProfileView, profile_edit_view, AdminDashboardView, MedicalOfficerDashboardView,
+    dashboard_view
 )
 
 urlpatterns = [
@@ -46,11 +47,13 @@ urlpatterns = [
 
     # 🔐 Profile URLs
     path('accounts/profile/', ProfileView.as_view(), name='profile'),  # View profile
-    path('accounts/profile/edit/', ProfileEditView.as_view(), name='profile-edit'),  # Edit profile
+    path('accounts/profile/edit/', profile_edit_view, name='profile-edit'),  # Edit profile
 
     # 🚨 Role-based Access Control (RBAC) URLs
     path('admin/dashboard/', AdminDashboardView.as_view(), name='admin-dashboard'),  # Admin Dashboard (Admin role required)
     path('medical-officer/dashboard/', MedicalOfficerDashboardView.as_view(), name='medical-officer-dashboard'),  # Medical Officer Dashboard (Medical Officer role required)
+
+    path('dashboard/', dashboard_view, name='dashboard'),
 ]
 
 # Serve media files in development

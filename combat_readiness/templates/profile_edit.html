@@ -1,66 +1,27 @@
 <!-- profile_edit.html -->
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Profile - Military Asset Tracking</title>
-    <style>
-        body {
-            background: url('https://wallpapercave.com/w/wp2728082') no-repeat center center fixed;
-            background-size: cover;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-        }
-        .container {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 30px;
-            border-radius: 10px;
-            display: inline-block;
-            margin-top: 50px;
-            width: 400px;
-        }
-        h2 {
-            text-transform: uppercase;
-            margin-bottom: 20px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-control {
-            padding: 10px;
-            width: 100%;
-            border-radius: 5px;
-            border: none;
-        }
-        button {
-            background: #ffcc00;
-            color: #000;
-            font-size: 1.2em;
-            font-weight: bold;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        button:hover {
-            background: #d4a500;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>Edit Your Profile</h2>
-        <form method="POST">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Update Profile</button>
-        </form>
-        <a href="{% url 'profile' %}">Cancel</a>
+{% extends "base.html" %}
+{% block title %}Edit Profile | Combat Readiness{% endblock %}
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height:70vh;">
+  <div class="col-md-6 col-lg-4">
+    <div class="card bg-dark bg-opacity-75 shadow-lg text-white p-4">
+      <h2 class="mb-4 text-center text-uppercase">Edit Your Profile</h2>
+      <div class="text-center mb-3">
+        <img src="{{ request.user.profile.profile_image.url }}" alt="Profile Image" class="rounded-circle border border-3 border-warning" style="width:120px;height:120px;object-fit:cover;">
+      </div>
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ user_form.as_p }}
+        {{ profile_form.as_p }}
+        <div class="d-grid mb-2">
+          <button type="submit" class="btn btn-warning fw-bold text-uppercase">Update Profile</button>
+        </div>
+        <div class="text-center">
+          <a href="{% url 'profile' %}" class="text-warning">Cancel</a>
+        </div>
+      </form>
     </div>
-</body>
-</html>
+  </div>
+</div>
+{% endblock %}

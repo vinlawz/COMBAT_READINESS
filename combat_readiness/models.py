@@ -35,10 +35,12 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=CustomUser)
 def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
+    if hasattr(instance, 'profile'):
+        instance.profile.save()
 
 # 🚀 Soldier Model
 class Soldier(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, null=True, blank=True, related_name='soldier')
     name = models.CharField(max_length=100)
     rank = models.CharField(max_length=50)
     unit = models.CharField(max_length=100)

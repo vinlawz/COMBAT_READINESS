@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% load dashboard_extras %}
+{% block title %}Dashboard | Combat Readiness{% endblock %}
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+{% block content %}
+<div class="mb-4 text-center">
+    <h1 class="display-5 fw-bold">Dashboard</h1>
+</div>
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-lg-3">
+        <div class="card bg-dark bg-opacity-75 border-primary shadow-sm text-center">
+            <div class="card-body">
+                <h2 class="card-title display-6">{{ soldier_count }}</h2>
+                <p class="card-text text-muted">Total Soldiers</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card bg-dark bg-opacity-75 border-success shadow-sm text-center">
+            <div class="card-body">
+                <h2 class="card-title display-6">{{ equipment_count }}</h2>
+                <p class="card-text text-muted">Total Equipment</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card bg-dark bg-opacity-75 h-100">
+            <div class="card-body">
+                <h5 class="card-title">Soldiers by Status</h5>
+                <canvas id="soldierStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-dark bg-opacity-75 h-100">
+            <div class="card-body">
+                <h5 class="card-title">Equipment by Condition</h5>
+                <canvas id="equipmentConditionChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-dark bg-opacity-75 h-100">
+            <div class="card-body">
+                <h5 class="card-title">Readiness Breakdown</h5>
+                <canvas id="readinessChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card bg-dark bg-opacity-75 h-100">
+            <div class="card-body">
+                <h5 class="card-title">Recent Soldiers</h5>
+                <ul class="list-group list-group-flush">
+                    {% for soldier in recent_soldiers %}
+                        <li class="list-group-item bg-transparent d-flex align-items-center">
+                            {% if soldier.user and soldier.user.profile.profile_image %}
+                                <img src="{{ soldier.user.profile.profile_image.url }}" alt="Profile Image" class="rounded-circle me-2" style="width:32px;height:32px;border:2px solid #ffcc00;">
+                            {% endif %}
+                            <span>{{ soldier.name }} - {{ soldier.rank }} <span class="badge bg-secondary ms-2">{{ soldier.status }}</span></span>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item bg-transparent">No recent soldiers.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card bg-dark bg-opacity-75 h-100">
+            <div class="card-body">
+                <h5 class="card-title">Recent Equipment</h5>
+                <ul class="list-group list-group-flush">
+                    {% for item in recent_equipment %}
+                        <li class="list-group-item bg-transparent">{{ item.name }} - {{ item.category }} <span class="badge bg-info ms-2">{{ item.condition }}</span></li>
+                    {% empty %}
+                        <li class="list-group-item bg-transparent">No recent equipment.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    // Data for charts from Django context
+    const soldierStatusData = {
+        labels: ["Active", "Reserve", "Retired"],
+        datasets: [{
+            data: [
+                {{ soldier_status_counts.Active|default:0 }},
+                {{ soldier_status_counts.Reserve|default:0 }},
+                {{ soldier_status_counts.Retired|default:0 }}
+            ],
+            backgroundColor: ["#007bff", "#ffc107", "#6c757d"]
+        }]
+    };
+    const equipmentConditionData = {
+        labels: ["New", "Good", "Needs Repair"],
+        datasets: [{
+            data: [
+                {{ equipment_condition_counts.New|default:0 }},
+                {{ equipment_condition_counts.Good|default:0 }},
+                {{ equipment_condition_counts|dict_get:"Needs Repair"|default:0 }}
+            ],
+            backgroundColor: ["#28a745", "#17a2b8", "#dc3545"]
+        }]
+    };
+    const readinessData = {
+        labels: ["Excellent", "Good", "Fair", "Poor"],
+        datasets: [{
+            data: [
+                {{ readiness_breakdown.Excellent|default:0 }},
+                {{ readiness_breakdown.Good|default:0 }},
+                {{ readiness_breakdown.Fair|default:0 }},
+                {{ readiness_breakdown.Poor|default:0 }}
+            ],
+            backgroundColor: ["#28a745", "#007bff", "#ffc107", "#dc3545"]
+        }]
+    };
+    // Render charts
+    new Chart(document.getElementById('soldierStatusChart'), {
+        type: 'pie',
+        data: soldierStatusData,
+        options: { responsive: true }
+    });
+    new Chart(document.getElementById('equipmentConditionChart'), {
+        type: 'pie',
+        data: equipmentConditionData,
+        options: { responsive: true }
+    });
+    new Chart(document.getElementById('readinessChart'), {
+        type: 'pie',
+        data: readinessData,
+        options: { responsive: true }
+    });
+</script>
+{% endblock %} 

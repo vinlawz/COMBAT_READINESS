@@ -1,61 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Military Asset Tracking</title>
-    <style>
-        body {
-            background: url('https://wallpapercave.com/w/wp2728082') no-repeat center center fixed;
-            background-size: cover;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-        }
-        .container {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 30px;
-            border-radius: 10px;
-            display: inline-block;
-            margin-top: 50px;
-        }
-        h2 {
-            text-transform: uppercase;
-            margin-bottom: 20px;
-        }
-        button {
-            background: #ffcc00;
-            color: #000;
-            font-size: 1.2em;
-            font-weight: bold;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        button:hover {
-            background: #d4a500;
-        }
-        a {
-            color: #ffcc00;
-            text-decoration: none;
-            font-weight: bold;
-            display: block;
-            margin-top: 10px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>Login</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Login</button>
-        </form>
-        <a href="{% url 'password_reset' %}">Forgot Password?</a>
+{% extends "base.html" %}
+{% block title %}Login | Combat Readiness{% endblock %}
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height:70vh;">
+  <div class="col-md-6 col-lg-4">
+    <div class="card bg-dark bg-opacity-75 shadow-lg text-white p-4">
+      <h2 class="text-center mb-4 text-uppercase">Login</h2>
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="d-grid mb-2">
+          <button type="submit" class="btn btn-warning fw-bold text-uppercase">Login</button>
+        </div>
+      </form>
+      <div class="text-center mt-3">
+        <a href="{% url 'password_reset' %}" class="text-warning">Forgot Password?</a>
+      </div>
     </div>
-</body>
-</html>
+  </div>
+</div>
+{% endblock %}

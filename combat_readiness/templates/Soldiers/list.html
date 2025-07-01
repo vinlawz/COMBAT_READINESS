@@ -1,16 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Soldiers List</title>
-</head>
-<body>
-    <h1>Soldiers</h1>
-    <ul>
+{% extends "base.html" %}
+{% block title %}Soldiers | Combat Readiness{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="mb-4 text-center">Soldiers</h1>
+  <div class="table-responsive">
+    <table class="table table-striped table-hover align-middle bg-dark bg-opacity-75 text-white">
+      <thead class="table-dark">
+        <tr>
+          <th>Name</th>
+          <th>Rank</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
         {% for soldier in soldiers %}
-            <li>{{ soldier.name }} - {{ soldier.rank }}</li>
+          <tr>
+            <td>{{ soldier.name }}</td>
+            <td><span class="badge bg-primary">{{ soldier.rank }}</span></td>
+            <td><span class="badge bg-secondary">{{ soldier.status }}</span></td>
+          </tr>
         {% empty %}
-            <li>No soldiers available.</li>
+          <tr><td colspan="3" class="text-center">No soldiers available.</td></tr>
         {% endfor %}
-    </ul>
-</body>
-</html>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

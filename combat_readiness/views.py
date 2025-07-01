@@ -6,6 +6,9 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView, D
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from .models import Soldier, Equipment, ReadinessReport, CustomUser
+from django.contrib.auth.decorators import login_required
+from .fprms import UserProfileEditForm, UserProfileForm
+from django.contrib import messages
 
 # 🚀 Register View
 class RegisterView(CreateView):
@@ -81,7 +84,7 @@ class ReadinessReportRetrieveUpdateDeleteView(LoginRequiredMixin, DetailView, Up
 # 🚀 Profile View (Display User Profile)
 class ProfileView(LoginRequiredMixin, DetailView):
     model = CustomUser
-    template_name = 'profile.html'
+    template_name = 'registration/profile.html'
     context_object_name = 'user'
 
     def get_object(self):
@@ -89,15 +92,24 @@ class ProfileView(LoginRequiredMixin, DetailView):
         return self.request.user
 
 # 🚀 Profile Edit View (Edit User Profile)
-class ProfileEditView(LoginRequiredMixin, UpdateView):
-    model = CustomUser
-    template_name = 'profile_edit.html'
-    fields = ['username', 'email', 'role']  # Fields you want the user to edit
-    success_url = reverse_lazy('profile')
-
-    def get_object(self):
-        # Ensure that the profile being edited belongs to the logged-in user
-        return self.request.user
+def profile_edit_view(request):
+    user = request.user
+    profile = user.profile
+    if request.method == 'POST':
+        user_form = UserProfileEditForm(request.POST, instance=user)
+        profile_form = UserProfileForm(request.POST, request.FILES, instance=profile)
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(request, 'Your profile was updated successfully!')
+            return redirect('profile')
+    else:
+        user_form = UserProfileEditForm(instance=user)
+        profile_form = UserProfileForm(instance=profile)
+    return render(request, 'profile_edit.html', {
+        'user_form': user_form,
+        'profile_form': profile_form,
+    })
 
 # 🚀 Role-based Access Control (RBAC) Mixins
 class AdminRequiredMixin(LoginRequiredMixin):
@@ -119,3 +131,44 @@ class AdminDashboardView(AdminRequiredMixin, TemplateView):
 # Example of Restricting Access to Medical Officer Views
 class MedicalOfficerDashboardView(MedicalOfficerRequiredMixin, TemplateView):
     template_name = 'medical_officer_dashboard.html'
+
+@login_required
+def dashboard_view(request):
+    from .models import Soldier, Equipment, ReadinessReport
+    # Total counts
+    soldier_count = Soldier.objects.count()
+    equipment_count = Equipment.objects.count()
+
+    # Soldiers by status
+    soldier_status_counts = {
+        status: Soldier.objects.filter(status=status).count()
+        for status in ['Active', 'Reserve', 'Retired']
+    }
+
+    # Equipment by condition
+    equipment_condition_counts = {
+        condition: Equipment.objects.filter(condition=condition).count()
+        for condition in ['New', 'Good', 'Needs Repair']
+    }
+
+    # 5 most recent soldiers
+    recent_soldiers = Soldier.objects.order_by('-id')[:5]
+
+    # 5 most recent equipment
+    recent_equipment = Equipment.objects.order_by('-id')[:5]
+
+    # Readiness report breakdown
+    readiness_breakdown = {
+        status: ReadinessReport.objects.filter(overall_readiness=status).count()
+        for status in ['Excellent', 'Good', 'Fair', 'Poor']
+    }
+
+    return render(request, 'dashboard.html', {
+        'soldier_count': soldier_count,
+        'equipment_count': equipment_count,
+        'soldier_status_counts': soldier_status_counts,
+        'equipment_condition_counts': equipment_condition_counts,
+        'recent_soldiers': recent_soldiers,
+        'recent_equipment': recent_equipment,
+        'readiness_breakdown': readiness_breakdown,
+    })

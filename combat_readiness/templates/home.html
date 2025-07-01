@@ -1,70 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Military Asset Tracking</title>
-    <style>
-        body {
-            background: url('https://wallpapercave.com/wp/wp14241925.jpg') no-repeat center center fixed;
-            background-size: cover;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-        }
-        h1 {
-            font-size: 2.8em;
-            text-transform: uppercase;
-            font-weight: bold;
-            text-shadow: 3px 3px 12px rgba(0, 0, 0, 0.9);
-            margin-bottom: 10px;
-        }
-        p {
-            font-size: 1.2em;
-            font-weight: bold;
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
-        }
-        nav {
-            margin-top: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 20px;
-            border-radius: 10px;
-            display: inline-block;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
-            margin: 10px 0;
-        }
-        a {
-            color: #ffcc00;
-            font-size: 1.3em;
-            text-decoration: none;
-            font-weight: bold;
-            padding: 12px 24px;
-            border: 2px solid #ffcc00;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            display: inline-block;
-            text-transform: uppercase;
-        }
-        a:hover {
-            background: #ffcc00;
-            color: #000;
-        }
-    </style>
-</head>
-<body>
-    <h1>Military Asset Tracking System</h1>
-    <p>Efficiently manage soldiers, equipment, and mission-critical assets with precision and security.</p>
-    <nav>
-        <ul>
-            <li><a href="{% url 'soldier-list' %}">View Soldiers</a></li>
-            <li><a href="{% url 'equipment-list' %}">View Equipment</a></li>
-        </ul>
-    </nav>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Home | Combat Readiness{% endblock %}
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height:60vh;">
+  <div class="col-md-8 col-lg-6 text-center">
+    <div class="card bg-dark bg-opacity-75 text-white shadow-lg p-4">
+      <h1 class="display-4 fw-bold mb-3">Military Asset Tracking System</h1>
+      <p class="lead mb-4">Efficiently manage soldiers, equipment, and mission-critical assets with precision and security.</p>
+      <div class="d-grid gap-3">
+        <a href="{% url 'soldier-list' %}" class="btn btn-warning btn-lg fw-bold text-uppercase"><i class="fa-solid fa-users me-2"></i>View Soldiers</a>
+        <a href="{% url 'equipment-list' %}" class="btn btn-warning btn-lg fw-bold text-uppercase"><i class="fa-solid fa-boxes-stacked me-2"></i>View Equipment</a>
+        <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg fw-bold text-uppercase"><i class="fa-solid fa-chart-pie me-2"></i>Dashboard</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

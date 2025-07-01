@@ -1,53 +1,20 @@
 <!-- profile.html -->
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Profile - Military Asset Tracking</title>
-    <style>
-        body {
-            background: url('https://wallpapercave.com/w/wp2728082') no-repeat center center fixed;
-            background-size: cover;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-        }
-        .container {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 30px;
-            border-radius: 10px;
-            display: inline-block;
-            margin-top: 50px;
-            width: 400px;
-        }
-        h2 {
-            text-transform: uppercase;
-            margin-bottom: 20px;
-        }
-        .profile-info {
-            margin-bottom: 20px;
-        }
-        .btn {
-            background-color: #ffcc00;
-            color: black;
-            padding: 10px;
-            border-radius: 5px;
-            text-decoration: none;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>Your Profile</h2>
-        <div class="profile-info">
-            <p><strong>Username:</strong> {{ user.username }}</p>
-            <p><strong>Email:</strong> {{ user.email }}</p>
-            <p><strong>Role:</strong> {{ user.role }}</p>
-        </div>
-        <a href="{% url 'profile-edit' %}" class="btn">Edit Profile</a>
+{% extends "base.html" %}
+{% block title %}Your Profile | Combat Readiness{% endblock %}
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height:70vh;">
+  <div class="col-md-6 col-lg-4">
+    <div class="card bg-dark bg-opacity-75 shadow-lg text-white p-4 text-center">
+      <h2 class="mb-4 text-uppercase">Your Profile</h2>
+      <img src="{{ user.profile.profile_image.url }}" alt="Profile Image" class="rounded-circle mb-3 border border-3 border-warning" style="width:120px;height:120px;object-fit:cover;">
+      <div class="mb-3">
+        <p class="mb-1"><strong>Username:</strong> {{ user.username }}</p>
+        <p class="mb-1"><strong>Email:</strong> {{ user.email }}</p>
+        <p class="mb-1"><strong>Role:</strong> {{ user.role }}</p>
+      </div>
+      <a href="{% url 'profile-edit' %}" class="btn btn-warning fw-bold text-uppercase"><i class="fa-solid fa-user-pen me-1"></i>Edit Profile</a>
     </div>
-</body>
-</html>
+  </div>
+</div>
+{% endblock %}

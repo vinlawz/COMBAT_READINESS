@@ -1,16 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Equipment List</title>
-</head>
-<body>
-    <h1>Equipment List</h1>
-    <ul>
+{% extends "base.html" %}
+{% block title %}Equipment | Combat Readiness{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="mb-4 text-center">Equipment List</h1>
+  <div class="table-responsive">
+    <table class="table table-striped table-hover align-middle bg-dark bg-opacity-75 text-white">
+      <thead class="table-dark">
+        <tr>
+          <th>Name</th>
+          <th>Category</th>
+          <th>Condition</th>
+        </tr>
+      </thead>
+      <tbody>
         {% for item in equipment %}
-            <li>{{ item.name }} - {{ item.category }} - {{ item.condition }}</li>
+          <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.category }}</td>
+            <td>
+              {% if item.condition == "New" %}
+                <span class="badge bg-success">New</span>
+              {% elif item.condition == "Good" %}
+                <span class="badge bg-info text-dark">Good</span>
+              {% elif item.condition == "Needs Repair" %}
+                <span class="badge bg-danger">Needs Repair</span>
+              {% else %}
+                <span class="badge bg-secondary">{{ item.condition }}</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="3" class="text-center">No equipment available.</td></tr>
         {% endfor %}
-    </ul>
-</body>
-</html>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
