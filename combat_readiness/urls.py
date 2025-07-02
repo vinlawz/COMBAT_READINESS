@@ -10,7 +10,7 @@ from .views import (
     EquipmentListView, EquipmentCreateView, EquipmentRetrieveUpdateDeleteView,
     ReadinessReportListView, ReadinessReportCreateView, ReadinessReportRetrieveUpdateDeleteView,
     HomeView, RegisterView, ProfileView, profile_edit_view, AdminDashboardView, MedicalOfficerDashboardView,
-    dashboard_view
+    dashboard_view, MissionListView, MissionDetailView, MissionCreateView, MissionUpdateView, MissionDeleteView
 )
 
 urlpatterns = [
@@ -50,10 +50,17 @@ urlpatterns = [
     path('accounts/profile/edit/', profile_edit_view, name='profile-edit'),  # Edit profile
 
     # 🚨 Role-based Access Control (RBAC) URLs
-    path('admin/dashboard/', AdminDashboardView.as_view(), name='admin-dashboard'),  # Admin Dashboard (Admin role required)
+    path('dashboard/admin/', AdminDashboardView.as_view(), name='admin-dashboard'),  # Admin Dashboard (Admin role required)
     path('medical-officer/dashboard/', MedicalOfficerDashboardView.as_view(), name='medical-officer-dashboard'),  # Medical Officer Dashboard (Medical Officer role required)
 
     path('dashboard/', dashboard_view, name='dashboard'),
+
+    # 📝 Mission URLs
+    path('missions/', MissionListView.as_view(), name='mission-list'),
+    path('missions/create/', MissionCreateView.as_view(), name='mission-create'),
+    path('missions/<int:pk>/', MissionDetailView.as_view(), name='mission-detail'),
+    path('missions/<int:pk>/edit/', MissionUpdateView.as_view(), name='mission-edit'),
+    path('missions/<int:pk>/delete/', MissionDeleteView.as_view(), name='mission-delete'),
 ]
 
 # Serve media files in development

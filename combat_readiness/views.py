@@ -1,18 +1,22 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from .models import Soldier, Equipment, ReadinessReport, CustomUser
+from .models import Soldier, Equipment, ReadinessReport, CustomUser, Mission, Notification
 from django.contrib.auth.decorators import login_required
-from .fprms import UserProfileEditForm, UserProfileForm
+from .fprms import UserProfileEditForm, UserProfileForm, MissionForm
 from django.contrib import messages
+from django.utils.decorators import method_decorator
+from django.db import models
+from django.conf import settings
 
 # 🚀 Register View
 class RegisterView(CreateView):
     model = User
+    
     form_class = UserCreationForm
     template_name = 'registration/register.html'
     success_url = reverse_lazy('home')  # Redirect to home after successful registration
@@ -134,7 +138,7 @@ class MedicalOfficerDashboardView(MedicalOfficerRequiredMixin, TemplateView):
 
 @login_required
 def dashboard_view(request):
-    from .models import Soldier, Equipment, ReadinessReport
+    from .models import Soldier, Equipment, ReadinessReport, Mission
     # Total counts
     soldier_count = Soldier.objects.count()
     equipment_count = Equipment.objects.count()
@@ -163,6 +167,9 @@ def dashboard_view(request):
         for status in ['Excellent', 'Good', 'Fair', 'Poor']
     }
 
+    # Up to 3 current/planned missions
+    dashboard_missions = Mission.objects.filter(status__in=['Active', 'Planned']).order_by('start_date')[:3]
+
     return render(request, 'dashboard.html', {
         'soldier_count': soldier_count,
         'equipment_count': equipment_count,
@@ -171,4 +178,120 @@ def dashboard_view(request):
         'recent_soldiers': recent_soldiers,
         'recent_equipment': recent_equipment,
         'readiness_breakdown': readiness_breakdown,
+        'dashboard_missions': dashboard_missions,
     })
+
+# 🚀 Mission Views
+class MissionListView(LoginRequiredMixin, ListView):
+    model = Mission
+    template_name = 'missions/list.html'
+    context_object_name = 'missions'
+    queryset = Mission.objects.order_by('-start_date')
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        status = self.request.GET.get('status')
+        priority = self.request.GET.get('priority')
+        search = self.request.GET.get('search')
+        if status:
+            qs = qs.filter(status=status)
+        if priority:
+            qs = qs.filter(priority=priority)
+        if search:
+            qs = qs.filter(models.Q(name__icontains=search) | models.Q(location__icontains=search))
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['filter_status'] = self.request.GET.get('status', '')
+        context['filter_priority'] = self.request.GET.get('priority', '')
+        context['filter_search'] = self.request.GET.get('search', '')
+        context['status_choices'] = Mission.STATUS_CHOICES
+        context['priority_choices'] = Mission.PRIORITY_CHOICES
+        return context
+
+class MissionDetailView(LoginRequiredMixin, DetailView):
+    model = Mission
+    template_name = 'missions/detail.html'
+    context_object_name = 'mission'
+
+class MissionCreateView(LoginRequiredMixin, CreateView):
+    model = Mission
+    form_class = MissionForm
+    template_name = 'missions/create.html'
+    success_url = reverse_lazy('mission-list')
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.role in ['admin', 'unit_leader', 'medical_officer']:
+            return redirect('mission-list')
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        response = super().form_valid(form)
+        # Notify assigned soldiers
+        mission = self.object
+        for soldier in mission.assigned_soldiers.all():
+            if soldier.user:
+                Notification.objects.create(
+                    recipient=soldier.user,
+                    message=f'You have been assigned to the mission: {mission.name}',
+                    link=reverse('mission-detail', args=[mission.pk]),
+                    type='info'
+                )
+        messages.success(self.request, 'Mission created successfully!')
+        return response
+
+class MissionUpdateView(LoginRequiredMixin, UpdateView):
+    model = Mission
+    form_class = MissionForm
+    template_name = 'missions/edit.html'
+    success_url = reverse_lazy('mission-list')
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.role in ['admin', 'unit_leader', 'medical_officer']:
+            return redirect('mission-list')
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        mission = self.object
+        # Notify newly assigned soldiers only
+        old_soldiers = set(mission.assigned_soldiers.model.objects.filter(missions=mission.pk))
+        new_soldiers = set(form.cleaned_data['assigned_soldiers'])
+        for soldier in new_soldiers - old_soldiers:
+            if soldier.user:
+                Notification.objects.create(
+                    recipient=soldier.user,
+                    message=f'You have been assigned to the mission: {mission.name}',
+                    link=reverse('mission-detail', args=[mission.pk]),
+                    type='info'
+                )
+        messages.success(self.request, 'Mission updated successfully!')
+        return response
+
+class MissionDeleteView(LoginRequiredMixin, DeleteView):
+    model = Mission
+    template_name = 'missions/delete.html'
+    success_url = reverse_lazy('mission-list')
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.role in ['admin', 'unit_leader', 'medical_officer']:
+            return redirect('mission-list')
+        return super().dispatch(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, 'Mission deleted successfully!')
+        return super().delete(request, *args, **kwargs)
+
+def notifications_context(request):
+    if request.user.is_authenticated:
+        unread_count = request.user.notifications.filter(is_read=False).count()
+        recent_notifications = request.user.notifications.all()[:5]
+    else:
+        unread_count = 0
+        recent_notifications = []
+    return {
+        'unread_count': unread_count,
+        'recent_notifications': recent_notifications,
+    }

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Missions | Combat Readiness{% endblock %}
+{% block content %}
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <h1 class="fw-bold">Missions</h1>
+    {% if user.role == 'admin' or user.role == 'unit_leader' or user.role == 'medical_officer' %}
+        <a href="{% url 'mission-create' %}" class="btn btn-success"><i class="fa fa-plus"></i> New Mission</a>
+    {% endif %}
+</div>
+<form method="get" class="row g-2 mb-4">
+    <div class="col-md-3">
+        <input type="text" name="search" class="form-control" placeholder="Search by name or location" value="{{ filter_search }}">
+    </div>
+    <div class="col-md-3">
+        <select name="status" class="form-select">
+            <option value="">All Statuses</option>
+            {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if filter_status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="priority" class="form-select">
+            <option value="">All Priorities</option>
+            {% for value, label in priority_choices %}
+                <option value="{{ value }}" {% if filter_priority == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <button type="submit" class="btn btn-primary w-100"><i class="fa fa-filter"></i> Filter</button>
+    </div>
+</form>
+{% if missions %}
+<table class="table table-dark table-hover table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for mission in missions %}
+        <tr>
+            <td><a href="{% url 'mission-detail' mission.pk %}">{{ mission.name }}</a></td>
+            <td>{{ mission.status }}</td>
+            <td>{{ mission.priority }}</td>
+            <td>{{ mission.start_date }}</td>
+            <td>{{ mission.end_date|default:'-' }}</td>
+            <td>
+                <a href="{% url 'mission-detail' mission.pk %}" class="btn btn-sm btn-primary">View</a>
+                {% if user.role == 'admin' or user.role == 'unit_leader' or user.role == 'medical_officer' %}
+                    <a href="{% url 'mission-edit' mission.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+    <div class="alert alert-info">No missions yet.</div>
+{% endif %}
+{% endblock %} 

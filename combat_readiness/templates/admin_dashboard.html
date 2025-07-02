@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard | Combat Readiness{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h1 class="fw-bold mb-4">Admin Dashboard</h1>
+    <div class="alert alert-success">Welcome, Admin! Use the links below to manage the system.</div>
+    <ul class="list-group">
+        <li class="list-group-item"><a href="{% url 'mission-list' %}"><i class="fa fa-bullseye"></i> Manage Missions</a></li>
+        <li class="list-group-item"><a href="{% url 'soldier-list' %}"><i class="fa fa-users"></i> Manage Soldiers</a></li>
+        <li class="list-group-item"><a href="{% url 'equipment-list' %}"><i class="fa fa-boxes-stacked"></i> Manage Equipment</a></li>
+        <li class="list-group-item"><a href="/admin/"><i class="fa fa-cogs"></i> Django Admin Panel</a></li>
+    </ul>
+</div>
+{% endblock %} 

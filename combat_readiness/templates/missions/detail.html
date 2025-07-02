@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Mission: {{ mission.name }} | Combat Readiness{% endblock %}
+{% block content %}
+<a href="{% url 'mission-list' %}" class="btn btn-secondary mb-3">&larr; Back to Missions</a>
+<div class="card bg-dark text-light mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">{{ mission.name }}</h2>
+        {% if user.role == 'admin' or user.role == 'unit_leader' or user.role == 'medical_officer' %}
+            <a href="{% url 'mission-edit' mission.pk %}" class="btn btn-warning">Edit Mission</a>
+            <a href="{% url 'mission-delete' mission.pk %}" class="btn btn-danger ms-2">Delete Mission</a>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <p><strong>Status:</strong> {{ mission.status }}</p>
+        <p><strong>Priority:</strong> {{ mission.priority }}</p>
+        <p><strong>Start Date:</strong> {{ mission.start_date }}</p>
+        <p><strong>End Date:</strong> {{ mission.end_date|default:'-' }}</p>
+        <p><strong>Location:</strong> {{ mission.location|default:'-' }}</p>
+        <p><strong>Description:</strong><br>{{ mission.description }}</p>
+        <p><strong>Notes:</strong><br>{{ mission.notes|default:'-' }}</p>
+        <p><strong>Created By:</strong> {{ mission.created_by }}</p>
+        <hr>
+        <h5>Assigned Soldiers</h5>
+        {% if mission.assigned_soldiers.all %}
+            <ul>
+            {% for soldier in mission.assigned_soldiers.all %}
+                <li>{{ soldier.name }} ({{ soldier.rank }})</li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No soldiers assigned.</p>
+        {% endif %}
+        <h5>Assigned Equipment</h5>
+        {% if mission.assigned_equipment.all %}
+            <ul>
+            {% for eq in mission.assigned_equipment.all %}
+                <li>{{ eq.name }} ({{ eq.category }})</li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No equipment assigned.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

@@ -1,7 +1,7 @@
 # forms.py
 
 from django import forms
-from .models import CustomUser, UserProfile
+from .models import CustomUser, UserProfile, Mission
 
 class UserProfileEditForm(forms.ModelForm):
     class Meta:
@@ -12,3 +12,8 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ['profile_image', 'bio']
+
+class MissionForm(forms.ModelForm):
+    class Meta:
+        model = Mission
+        exclude = ['created_by']

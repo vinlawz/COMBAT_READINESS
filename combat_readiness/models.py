@@ -82,6 +82,56 @@ class ReadinessReport(models.Model):
     def __str__(self):
         return f"{self.soldier.name} - {self.overall_readiness}"
 
+# 🚀 Mission/Operation Model
+class Mission(models.Model):
+    STATUS_CHOICES = [
+        ('Planned', 'Planned'),
+        ('Active', 'Active'),
+        ('Completed', 'Completed'),
+        ('Cancelled', 'Cancelled'),
+    ]
+    PRIORITY_CHOICES = [
+        ('Low', 'Low'),
+        ('Normal', 'Normal'),
+        ('High', 'High'),
+        ('Critical', 'Critical'),
+    ]
+    name = models.CharField(max_length=200)
+    description = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Planned')
+    start_date = models.DateField()
+    end_date = models.DateField(null=True, blank=True)
+    location = models.CharField(max_length=200, blank=True)
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='Normal')
+    assigned_soldiers = models.ManyToManyField('Soldier', blank=True, related_name='missions')
+    assigned_equipment = models.ManyToManyField('Equipment', blank=True, related_name='missions')
+    created_by = models.ForeignKey('CustomUser', on_delete=models.SET_NULL, null=True, related_name='created_missions')
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.status})"
+
+# 🚨 Notification Model
+class Notification(models.Model):
+    NOTIFICATION_TYPES = [
+        ('info', 'Info'),
+        ('warning', 'Warning'),
+        ('success', 'Success'),
+        ('danger', 'Danger'),
+    ]
+    recipient = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='notifications')
+    message = models.CharField(max_length=255)
+    link = models.URLField(blank=True, null=True)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    type = models.CharField(max_length=10, choices=NOTIFICATION_TYPES, default='info')
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"To {self.recipient.username}: {self.message[:30]}..."
+
 # ✅ Create Default Groups Automatically After Migrations
 def create_default_groups(sender, **kwargs):
     roles = ['Admin', 'Medical Officer', 'Unit Leader', 'Soldier']

@@ -7,15 +7,87 @@
     <title>{% block title %}Combat Readiness{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
     <style>
         body {
-            background: url('{% static "img/camo-bg.jpg" %}') no-repeat center center fixed;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Orbitron', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%), url('{% static "img/camo-bg.jpg" %}') no-repeat center center fixed;
+            background-blend-mode: overlay;
             background-size: cover;
+            color: #e0e0ff;
         }
-        .navbar-brand { font-weight: bold; letter-spacing: 1px; }
-        .profile-img-nav { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid #ffc107; margin-left: 10px; }
-        .container-main { min-height: 80vh; padding-top: 30px; }
-        footer { background: #222; color: #fff; text-align: center; padding: 16px 0; margin-top: 40px; }
+        .cyberpunk-glow {
+            text-shadow: 0 0 8px #00fff7, 0 0 16px #ff00cc, 0 0 2px #fff;
+        }
+        .navbar {
+            background: rgba(20, 10, 40, 0.95) !important;
+            border-bottom: 2px solid #00fff7;
+            box-shadow: 0 0 16px #00fff7, 0 0 32px #ff00cc44;
+        }
+        .navbar-brand, .nav-link, .dropdown-item {
+            color: #fff !important;
+            font-family: 'Orbitron', 'Segoe UI', Arial, sans-serif;
+            letter-spacing: 2px;
+            transition: color 0.2s, text-shadow 0.2s;
+        }
+        .navbar-brand.cyberpunk-glow, .nav-link.active, .nav-link:hover, .dropdown-item:hover {
+            color: #00fff7 !important;
+            text-shadow: 0 0 8px #00fff7, 0 0 16px #ff00cc;
+        }
+        .profile-img-nav {
+            width: 32px; height: 32px; border-radius: 50%; object-fit: cover;
+            border: 2px solid #ff00cc; margin-left: 10px; box-shadow: 0 0 8px #ff00cc;
+        }
+        .container-main {
+            min-height: 80vh; padding-top: 30px;
+            background: rgba(20, 10, 40, 0.7);
+            border-radius: 18px;
+            box-shadow: 0 0 32px #00fff7cc, 0 0 8px #ff00cc99;
+            margin-top: 32px;
+        }
+        .btn, .dropdown-menu {
+            background: #1a0033;
+            color: #00fff7;
+            border: 1.5px solid #ff00cc;
+            box-shadow: 0 0 8px #00fff7, 0 0 4px #ff00cc;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover, .dropdown-menu .dropdown-item:hover {
+            background: #ff00cc;
+            color: #fff;
+            box-shadow: 0 0 16px #ff00cc, 0 0 8px #00fff7;
+        }
+        .alert {
+            background: linear-gradient(90deg, #ff00cc 0%, #00fff7 100%);
+            color: #222;
+            border: none;
+            box-shadow: 0 0 8px #00fff7, 0 0 8px #ff00cc;
+        }
+        footer {
+            background: rgba(20, 10, 40, 0.95);
+            color: #00fff7;
+            text-align: center;
+            padding: 16px 0;
+            margin-top: 40px;
+            border-top: 2px solid #ff00cc;
+            box-shadow: 0 0 16px #ff00cc, 0 0 32px #00fff744;
+            font-family: 'Orbitron', 'Segoe UI', Arial, sans-serif;
+            letter-spacing: 2px;
+        }
+        /* Neon grid overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            background: repeating-linear-gradient(0deg, transparent, transparent 47px, #00fff733 48px, transparent 49px),
+                        repeating-linear-gradient(90deg, transparent, transparent 47px, #ff00cc33 48px, transparent 49px);
+            z-index: 0;
+            opacity: 0.25;
+        }
+        .container-main, nav, footer { position: relative; z-index: 1; }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
@@ -28,33 +100,64 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}"><i class="fa-solid fa-chart-pie me-1"></i>Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'soldier-list' %}"><i class="fa-solid fa-users me-1"></i>Soldiers</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'equipment-list' %}"><i class="fa-solid fa-boxes-stacked me-1"></i>Equipment</a></li>
         {% if user.is_authenticated %}
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <span><i class="fa-solid fa-user me-1"></i>{{ user.username }}</span>
-            {% if user.profile.profile_image %}
-              <img src="{{ user.profile.profile_image.url }}" alt="Profile" class="profile-img-nav ms-2">
-            {% endif %}
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-            <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fa-solid fa-id-badge me-1"></i>Profile</a></li>
-            <li><a class="dropdown-item" href="{% url 'profile-edit' %}"><i class="fa-solid fa-user-pen me-1"></i>Edit Profile</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li>
-              <form method="post" action="{% url 'logout' %}" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" class="dropdown-item" style="background:none;border:none;padding:0;width:100%;text-align:left;">
-                  <i class="fa-solid fa-right-from-bracket me-1"></i>Logout
-                </button>
-              </form>
-            </li>
-          </ul>
-        </li>
+          {% if user.role == 'admin' or user.role == 'medical_officer' or user.role == 'unit_leader' %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}"><i class="fa-solid fa-chart-pie me-1"></i>Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'soldier-list' %}"><i class="fa-solid fa-users me-1"></i>Soldiers</a></li>
+          {% endif %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'mission-list' %}"><i class="fa-solid fa-bullseye me-1"></i>Missions</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'equipment-list' %}"><i class="fa-solid fa-boxes-stacked me-1"></i>Equipment</a></li>
+          {% if user.role == 'admin' %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'admin-dashboard' %}"><i class="fa-solid fa-user-shield me-1"></i>Admin</a></li>
+          {% endif %}
+          <li class="nav-item dropdown">
+            <a class="nav-link position-relative" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fa-solid fa-bell"></i>
+              {% if unread_count > 0 %}
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ unread_count }}</span>
+              {% endif %}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" style="min-width: 320px;">
+              <li class="dropdown-header">Notifications</li>
+              {% if recent_notifications %}
+                {% for n in recent_notifications %}
+                  <li>
+                    <a class="dropdown-item d-flex justify-content-between align-items-center {% if not n.is_read %}fw-bold{% endif %}" href="{{ n.link|default:'#' }}">
+                      <span>{{ n.message }}</span>
+                      <small class="text-muted ms-2">{{ n.created_at|date:"M d, H:i" }}</small>
+                    </a>
+                  </li>
+                {% endfor %}
+              {% else %}
+                <li><span class="dropdown-item text-muted">No notifications</span></li>
+              {% endif %}
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-center" href="#">View all notifications</a></li>
+            </ul>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <span><i class="fa-solid fa-user me-1"></i>{{ user.username }}</span>
+              {% if user.profile.profile_image %}
+                <img src="{{ user.profile.profile_image.url }}" alt="Profile" class="profile-img-nav ms-2">
+              {% endif %}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+              <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fa-solid fa-id-badge me-1"></i>Profile</a></li>
+              <li><a class="dropdown-item" href="{% url 'profile-edit' %}"><i class="fa-solid fa-user-pen me-1"></i>Edit Profile</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="dropdown-item" style="background:none;border:none;padding:0;width:100%;text-align:left;">
+                    <i class="fa-solid fa-right-from-bracket me-1"></i>Logout
+                  </button>
+                </form>
+              </li>
+            </ul>
+          </li>
         {% else %}
-        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}"><i class="fa-solid fa-sign-in-alt me-1"></i>Login</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'login' %}"><i class="fa-solid fa-sign-in-alt me-1"></i>Login</a></li>
         {% endif %}
       </ul>
     </div>
@@ -72,7 +175,7 @@
     {% block content %}{% endblock %}
 </div>
 <footer>
-    &copy; {{ year|default:2025 }} Combat Readiness. All rights reserved.
+    &copy; {{ year|default:2025 }} Combat Readiness. Stay Sharp Soldier.
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 {% block extra_js %}{% endblock %}
