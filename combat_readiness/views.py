@@ -20,12 +20,13 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth.tokens import default_token_generator
 from django.http import HttpResponse
 from django.contrib.auth.views import LoginView
+from .forms import CustomUserCreationForm
 
 #  Register View
 class RegisterView(CreateView):
     model = CustomUser
     
-    form_class = UserCreationForm
+    form_class = CustomUserCreationForm
     template_name = 'registration/register.html'
     success_url = reverse_lazy('login')  # Redirect to login after registration
 
