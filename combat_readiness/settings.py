@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'combat_readiness',  # Ensure this is your main app
+    'readiness',         # Added readiness app
 ]
 
 MIDDLEWARE = [

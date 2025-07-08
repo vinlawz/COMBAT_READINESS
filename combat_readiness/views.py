@@ -12,26 +12,45 @@ from django.contrib import messages
 from django.utils.decorators import method_decorator
 from django.db import models
 from django.conf import settings
+from django.core.mail import send_mail
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.template.loader import render_to_string
+from django.contrib.sites.shortcuts import get_current_site
+from django.contrib.auth.tokens import default_token_generator
+from django.http import HttpResponse
+from django.contrib.auth.views import LoginView
 
-# 🚀 Register View
+#  Register View
 class RegisterView(CreateView):
-    model = User
+    model = CustomUser
     
     form_class = UserCreationForm
     template_name = 'registration/register.html'
-    success_url = reverse_lazy('home')  # Redirect to home after successful registration
+    success_url = reverse_lazy('login')  # Redirect to login after registration
 
     def form_valid(self, form):
-        # Auto-login user after registration
-        response = super().form_valid(form)
-        login(self.request, form.save())
-        return response
+        user = form.save(commit=False)
+        user.is_verified = False
+        user.save()
+        # Send verification email (mock)
+        current_site = get_current_site(self.request)
+        subject = 'Verify your account'
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        verification_link = self.request.build_absolute_uri(
+            reverse('verify', kwargs={'uidb64': uid, 'token': token})
+        )
+        message = f'Click the link to verify your account: {verification_link}'
+        send_mail(subject, message, 'noreply@combatreadiness.com', [user.email], fail_silently=True)
+        messages.info(self.request, 'Registration successful! Please check your email to verify your account.')
+        return redirect('login')
 
-# 🚀 Home Page View
+#  Home Page View
 class HomeView(TemplateView):
     template_name = 'home.html'
 
-# 🚀 Soldier Views
+#  Soldier Views
 class SoldierListView(LoginRequiredMixin, ListView):
     model = Soldier
     template_name = 'soldiers/list.html'
@@ -43,11 +62,21 @@ class SoldierCreateView(LoginRequiredMixin, CreateView):
     fields = ['name', 'rank', 'unit']
     success_url = reverse_lazy('soldier-list')  # Ensure correct URL name
 
-class SoldierRetrieveUpdateDeleteView(LoginRequiredMixin, DetailView, UpdateView, DeleteView):
+class SoldierDetailView(LoginRequiredMixin, DetailView):
     model = Soldier
     template_name = 'soldiers/detail.html'
+    context_object_name = 'soldier'
+
+class SoldierUpdateView(LoginRequiredMixin, UpdateView):
+    model = Soldier
+    template_name = 'soldiers/edit.html'
     fields = ['name', 'rank', 'unit']
-    success_url = reverse_lazy('soldier-list')  # Fixed!
+    success_url = reverse_lazy('soldier-list')
+
+class SoldierDeleteView(LoginRequiredMixin, DeleteView):
+    model = Soldier
+    template_name = 'soldiers/delete.html'
+    success_url = reverse_lazy('soldier-list')
 
 # 🚀 Equipment Views
 class EquipmentListView(LoginRequiredMixin, ListView):
@@ -295,3 +324,27 @@ def notifications_context(request):
         'unread_count': unread_count,
         'recent_notifications': recent_notifications,
     }
+
+def verify_view(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = CustomUser.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+        user = None
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_verified = True
+        user.save()
+        messages.success(request, 'Your account has been verified! You can now log in.')
+        return redirect('login')
+    else:
+        return HttpResponse('Verification link is invalid or expired.', status=400)
+
+class CustomLoginView(LoginView):
+    template_name = 'registration/login.html'
+
+    def form_valid(self, form):
+        user = form.get_user()
+        if not user.is_verified:
+            messages.error(self.request, 'Your account is not verified. Please check your email.')
+            return redirect('login')
+        return super().form_valid(form)
