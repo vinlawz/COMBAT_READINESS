@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Soldier Details | Combat Readiness{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center align-items-center" style="min-height:70vh;">
+    <div class="col-md-6 col-lg-5">
+      <div class="card bg-dark bg-opacity-75 shadow-lg text-white p-4 text-center">
+        <h2 class="mb-4 text-uppercase">Soldier Details</h2>
+        <div class="mb-3">
+          <p class="mb-1"><strong>Name:</strong> {{ soldier.name }}</p>
+          <p class="mb-1"><strong>Rank:</strong> <span class="badge bg-primary">{{ soldier.rank }}</span></p>
+          <p class="mb-1"><strong>Unit:</strong> {{ soldier.unit }}</p>
+          <p class="mb-1"><strong>Status:</strong> <span class="badge bg-secondary">{{ soldier.status }}</span></p>
+          {% if soldier.user %}
+            <p class="mb-1"><strong>Linked User:</strong> {{ soldier.user.username }} ({{ soldier.user.get_role_display }})</p>
+          {% endif %}
+        </div>
+        <a href="{% url 'soldier-list' %}" class="btn btn-warning fw-bold text-uppercase mt-3">Back to List</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 
