@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Audit Log | Combat Readiness{% endblock %}
+{% block extra_head %}
+<style>
+  .audit-table {
+    background: rgba(20, 10, 40, 0.85);
+    color: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 8px #00fff7, 0 0 4px #ff00cc;
+  }
+  .audit-table th {
+    color: #00fff7;
+    background: #1a0033;
+    border-bottom: 2px solid #ff00cc;
+  }
+  .audit-table td {
+    vertical-align: middle;
+  }
+  .filter-form label {
+    color: #00fff7;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+  .filter-form .form-control, .filter-form .form-select {
+    background: #1a0033;
+    color: #00fff7;
+    border: 1.5px solid #ff00cc;
+    box-shadow: 0 0 8px #00fff7, 0 0 4px #ff00cc;
+  }
+  .filter-form .form-control:focus, .filter-form .form-select:focus {
+    background: #222;
+    color: #fff;
+    border-color: #00fff7;
+    box-shadow: 0 0 16px #ff00cc, 0 0 8px #00fff7;
+  }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="mb-4 cyberpunk-glow"><i class="fa-solid fa-clipboard-list me-2"></i>Audit Log</h1>
+  <form class="row g-3 mb-3 filter-form" method="get" action="">
+    <div class="col-md-3">
+      <label for="model">Model</label>
+      <input type="text" class="form-control" id="model" name="model" value="{{ request.GET.model }}">
+    </div>
+    <div class="col-md-2">
+      <label for="action">Action</label>
+      <select class="form-select" id="action" name="action">
+        <option value="">Any</option>
+        <option value="create" {% if request.GET.action == 'create' %}selected{% endif %}>Create</option>
+        <option value="update" {% if request.GET.action == 'update' %}selected{% endif %}>Update</option>
+        <option value="delete" {% if request.GET.action == 'delete' %}selected{% endif %}>Delete</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label for="user">User</label>
+      <input type="text" class="form-control" id="user" name="user" value="{{ request.GET.user }}">
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+      <button type="submit" class="btn btn-warning w-100"><i class="fa-solid fa-search"></i> Filter</button>
+    </div>
+  </form>
+  <div class="table-responsive">
+    <table class="table audit-table table-hover align-middle">
+      <thead>
+        <tr>
+          <th>User</th><th>Action</th><th>Model</th><th>Object</th><th>Changes</th><th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in audit_logs %}
+          <tr>
+            <td>{{ log.user|default:'—' }}</td>
+            <td>{{ log.get_action_display }}</td>
+            <td>{{ log.model }}</td>
+            <td>{{ log.object_repr }}</td>
+            <td><pre class="mb-0 text-info" style="white-space:pre-wrap;word-break:break-all;">{{ log.changes }}</pre></td>
+            <td>{{ log.timestamp|date:"Y-m-d H:i:s" }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6" class="text-center text-secondary">No audit log entries found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %} 

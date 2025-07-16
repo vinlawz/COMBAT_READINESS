@@ -88,8 +88,18 @@ LOGOUT_REDIRECT_URL = '/'
 # Custom user model
 AUTH_USER_MODEL = 'combat_readiness.CustomUser'  # Ensure it's defined in models.py
 
-# Email Backend (for password reset)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Email (Gmail SMTP)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')  # Set in your environment
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')  # Set in your environment
+
+# Twilio SMS
+TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN')
+TWILIO_PHONE_NUMBER = os.environ.get('TWILIO_PHONE_NUMBER')
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
@@ -100,7 +110,7 @@ USE_TZ = True
 # Static and Media Files
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    BASE_DIR / "staticfiles",  # or os.path.join(BASE_DIR, "staticfiles")
+    BASE_DIR / "static",
 ]
 
 MEDIA_URL = '/media/'
@@ -108,3 +118,5 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')

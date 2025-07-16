@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Logged Out | Combat Readiness{% endblock %}
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height:70vh;">
+  <div class="col-md-6 col-lg-4">
+    <div class="card bg-dark bg-opacity-75 shadow-lg text-white p-4 text-center">
+      <h2 class="mb-4 text-uppercase cyberpunk-glow"><i class="fa-solid fa-right-from-bracket me-2"></i>Logged Out</h2>
+      <p class="lead">You have been securely logged out.</p>
+      <a href="{% url 'login' %}" class="btn btn-warning fw-bold text-uppercase mt-3"><i class="fa-solid fa-sign-in-alt me-2"></i>Login Again</a>
+      <a href="{% url 'home' %}" class="btn btn-outline-info fw-bold text-uppercase mt-3 ms-2"><i class="fa-solid fa-house me-2"></i>Home</a>
+    </div>
+  </div>
+</div>
+{% endblock %} 

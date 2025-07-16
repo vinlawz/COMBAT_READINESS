@@ -11,12 +11,21 @@ from .views import (
     ReadinessReportListView, ReadinessReportCreateView, ReadinessReportRetrieveUpdateDeleteView,
     HomeView, RegisterView, ProfileView, profile_edit_view, AdminDashboardView, MedicalOfficerDashboardView,
     dashboard_view, MissionListView, MissionDetailView, MissionCreateView, MissionUpdateView, MissionDeleteView,
-    verify_view, CustomLoginView
+    verify_view, CustomLoginView, DashboardView, MarkAllNotificationsReadView, CalendarView, MissionEventsJsonView, AdvancedSearchView, ExportMissionsCSVView, ExportReadinessCSVView, AuditLogView, NotificationsJsonView, BulkAssignEquipmentView, NotificationsListView, BulkMarkNotificationsReadView
 )
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', HomeView.as_view(), name='home'),
+    path('dashboard/', DashboardView.as_view(), name='dashboard'),
+    path('dashboard/mark-all-notifications-read/', MarkAllNotificationsReadView.as_view(), name='mark_all_notifications_read'),
+    path('calendar/', CalendarView.as_view(), name='calendar'),
+    path('calendar/events/', MissionEventsJsonView.as_view(), name='mission_events_json'),
+    path('search/', AdvancedSearchView.as_view(), name='advanced_search'),
+    path('export/missions/', ExportMissionsCSVView.as_view(), name='export_missions_csv'),
+    path('export/readiness/', ExportReadinessCSVView.as_view(), name='export_readiness_csv'),
+    path('audit-log/', AuditLogView.as_view(), name='audit_log'),
+    path('notifications/json/', NotificationsJsonView.as_view(), name='notifications_json'),
+    path('', DashboardView.as_view(), name='home'),
 
     #  Soldier URLs
     path('soldiers/', SoldierListView.as_view(), name='soldier-list'),  # List soldiers
@@ -29,6 +38,7 @@ urlpatterns = [
     path('equipment/', EquipmentListView.as_view(), name='equipment-list'),  # List equipment
     path('equipment/create/', EquipmentCreateView.as_view(), name='equipment-create'),  # Create equipment
     path('equipment/<int:pk>/', EquipmentRetrieveUpdateDeleteView.as_view(), name='equipment-detail'),  # Equipment detail
+    path('equipment/bulk-assign/', BulkAssignEquipmentView.as_view(), name='equipment-bulk-assign'),  # Bulk assign equipment
 
     #  Readiness Report URLs
     path('reports/', ReadinessReportListView.as_view(), name='readiness-list'),  # List reports
@@ -60,8 +70,6 @@ urlpatterns = [
     path('dashboard/admin/', AdminDashboardView.as_view(), name='admin-dashboard'),  # Admin Dashboard (Admin role required)
     path('medical-officer/dashboard/', MedicalOfficerDashboardView.as_view(), name='medical-officer-dashboard'),  # Medical Officer Dashboard (Medical Officer role required)
 
-    path('dashboard/', dashboard_view, name='dashboard'),
-
     # Mission URLs
     path('missions/', MissionListView.as_view(), name='mission-list'),
     path('missions/create/', MissionCreateView.as_view(), name='mission-create'),
@@ -72,6 +80,10 @@ urlpatterns = [
     # Readiness URLs
     path('readiness/', include(('readiness.urls', 'readiness'), namespace='readiness')),
     path('verify/<uidb64>/<token>/', verify_view, name='verify'),
+
+    # Notifications URLs
+    path('notifications/', NotificationsListView.as_view(), name='notifications-list'),
+    path('notifications/bulk-mark-read/', BulkMarkNotificationsReadView.as_view(), name='notifications-bulk-mark-read'),
 ]
 
 # Serve media files in development

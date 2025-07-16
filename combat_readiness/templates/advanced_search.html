@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+{% block title %}Advanced Search | Combat Readiness{% endblock %}
+{% block extra_head %}
+<style>
+  .nav-tabs .nav-link.active {
+    background: #1a0033;
+    color: #00fff7;
+    border-bottom: 2px solid #ff00cc;
+    font-weight: bold;
+    text-shadow: 0 0 8px #00fff7, 0 0 16px #ff00cc;
+  }
+  .nav-tabs .nav-link {
+    color: #fff;
+    letter-spacing: 1px;
+    font-family: 'Orbitron', 'Segoe UI', Arial, sans-serif;
+  }
+  .search-form label {
+    color: #00fff7;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+  .search-form .form-control, .search-form .form-select {
+    background: #1a0033;
+    color: #00fff7;
+    border: 1.5px solid #ff00cc;
+    box-shadow: 0 0 8px #00fff7, 0 0 4px #ff00cc;
+  }
+  .search-form .form-control:focus, .search-form .form-select:focus {
+    background: #222;
+    color: #fff;
+    border-color: #00fff7;
+    box-shadow: 0 0 16px #ff00cc, 0 0 8px #00fff7;
+  }
+  .table {
+    background: rgba(20, 10, 40, 0.85);
+    color: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 8px #00fff7, 0 0 4px #ff00cc;
+  }
+  .table th {
+    color: #00fff7;
+    background: #1a0033;
+    border-bottom: 2px solid #ff00cc;
+  }
+  .table td {
+    vertical-align: middle;
+  }
+  .export-btn {
+    background: #1a0033;
+    color: #ffc107;
+    border: 1.5px solid #ffc107;
+    box-shadow: 0 0 8px #ffc107, 0 0 4px #00fff7;
+    font-family: 'Orbitron', 'Segoe UI', Arial, sans-serif;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    margin-right: 8px;
+  }
+  .export-btn:hover {
+    background: #ffc107;
+    color: #1a0033;
+    box-shadow: 0 0 16px #ffc107, 0 0 8px #00fff7;
+  }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="mb-4 cyberpunk-glow"><i class="fa-solid fa-magnifying-glass me-2"></i>Advanced Search</h1>
+  <ul class="nav nav-tabs mb-4" id="searchTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="missions-tab" data-bs-toggle="tab" data-bs-target="#missions" type="button" role="tab">Missions</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="soldiers-tab" data-bs-toggle="tab" data-bs-target="#soldiers" type="button" role="tab">Soldiers</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="equipment-tab" data-bs-toggle="tab" data-bs-target="#equipment" type="button" role="tab">Equipment</button>
+    </li>
+  </ul>
+  <div class="tab-content" id="searchTabsContent">
+    <!-- Missions Tab -->
+    <div class="tab-pane fade show active" id="missions" role="tabpanel">
+      <form class="row g-3 mb-3 search-form" method="get" action="">
+        <input type="hidden" name="tab" value="missions">
+        <div class="col-md-3">
+          <label for="m_name">Name</label>
+          <input type="text" class="form-control" id="m_name" name="m_name" value="{{ request.GET.m_name }}">
+        </div>
+        <div class="col-md-2">
+          <label for="m_status">Status</label>
+          <select class="form-select" id="m_status" name="m_status">
+            <option value="">Any</option>
+            {% for val, label in mission_status_choices %}
+              <option value="{{ val }}" {% if request.GET.m_status == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label for="m_priority">Priority</label>
+          <select class="form-select" id="m_priority" name="m_priority">
+            <option value="">Any</option>
+            {% for val, label in mission_priority_choices %}
+              <option value="{{ val }}" {% if request.GET.m_priority == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label for="m_location">Location</label>
+          <input type="text" class="form-control" id="m_location" name="m_location" value="{{ request.GET.m_location }}">
+        </div>
+        <div class="col-md-1">
+          <label for="m_start">Start</label>
+          <input type="date" class="form-control" id="m_start" name="m_start" value="{{ request.GET.m_start }}">
+        </div>
+        <div class="col-md-1">
+          <label for="m_end">End</label>
+          <input type="date" class="form-control" id="m_end" name="m_end" value="{{ request.GET.m_end }}">
+        </div>
+        <div class="col-md-1 d-flex align-items-end">
+          <button type="submit" class="btn btn-warning w-100"><i class="fa-solid fa-search"></i></button>
+        </div>
+      </form>
+      <div class="mb-2">
+        <a href="{% url 'export_missions_csv' %}?{{ request.GET.urlencode }}" class="btn export-btn"><i class="fa-solid fa-file-csv me-2"></i>Export Missions (CSV)</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Name</th><th>Status</th><th>Priority</th><th>Start</th><th>End</th><th>Location</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for m in mission_results %}
+              <tr>
+                <td>{{ m.name }}</td>
+                <td>{{ m.status }}</td>
+                <td>{{ m.priority }}</td>
+                <td>{{ m.start_date }}</td>
+                <td>{{ m.end_date|default:'—' }}</td>
+                <td>{{ m.location }}</td>
+                <td><a href="{% url 'mission-detail' m.id %}" class="btn btn-sm btn-outline-info"><i class="fa-solid fa-eye"></i></a></td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="7" class="text-center text-secondary">No missions found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- Soldiers Tab -->
+    <div class="tab-pane fade" id="soldiers" role="tabpanel">
+      <form class="row g-3 mb-3 search-form" method="get" action="">
+        <input type="hidden" name="tab" value="soldiers">
+        <div class="col-md-3">
+          <label for="s_name">Name</label>
+          <input type="text" class="form-control" id="s_name" name="s_name" value="{{ request.GET.s_name }}">
+        </div>
+        <div class="col-md-2">
+          <label for="s_rank">Rank</label>
+          <input type="text" class="form-control" id="s_rank" name="s_rank" value="{{ request.GET.s_rank }}">
+        </div>
+        <div class="col-md-2">
+          <label for="s_unit">Unit</label>
+          <input type="text" class="form-control" id="s_unit" name="s_unit" value="{{ request.GET.s_unit }}">
+        </div>
+        <div class="col-md-2">
+          <label for="s_status">Status</label>
+          <select class="form-select" id="s_status" name="s_status">
+            <option value="">Any</option>
+            {% for val, label in soldier_status_choices %}
+              <option value="{{ val }}" {% if request.GET.s_status == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-1 d-flex align-items-end">
+          <button type="submit" class="btn btn-warning w-100"><i class="fa-solid fa-search"></i></button>
+        </div>
+      </form>
+      <!-- No export for soldiers yet -->
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Name</th><th>Rank</th><th>Unit</th><th>Status</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in soldier_results %}
+              <tr>
+                <td>{{ s.name }}</td>
+                <td>{{ s.rank }}</td>
+                <td>{{ s.unit }}</td>
+                <td>{{ s.status }}</td>
+                <td><a href="{% url 'soldier-detail' s.id %}" class="btn btn-sm btn-outline-info"><i class="fa-solid fa-eye"></i></a></td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5" class="text-center text-secondary">No soldiers found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- Equipment Tab -->
+    <div class="tab-pane fade" id="equipment" role="tabpanel">
+      <form class="row g-3 mb-3 search-form" method="get" action="">
+        <input type="hidden" name="tab" value="equipment">
+        <div class="col-md-3">
+          <label for="e_name">Name</label>
+          <input type="text" class="form-control" id="e_name" name="e_name" value="{{ request.GET.e_name }}">
+        </div>
+        <div class="col-md-2">
+          <label for="e_category">Category</label>
+          <input type="text" class="form-control" id="e_category" name="e_category" value="{{ request.GET.e_category }}">
+        </div>
+        <div class="col-md-2">
+          <label for="e_condition">Condition</label>
+          <select class="form-select" id="e_condition" name="e_condition">
+            <option value="">Any</option>
+            {% for val, label in equipment_condition_choices %}
+              <option value="{{ val }}" {% if request.GET.e_condition == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label for="e_assigned">Assigned To</label>
+          <input type="text" class="form-control" id="e_assigned" name="e_assigned" value="{{ request.GET.e_assigned }}">
+        </div>
+        <div class="col-md-1 d-flex align-items-end">
+          <button type="submit" class="btn btn-warning w-100"><i class="fa-solid fa-search"></i></button>
+        </div>
+      </form>
+      <div class="mb-2">
+        <a href="{% url 'export_readiness_csv' %}" class="btn export-btn"><i class="fa-solid fa-file-csv me-2"></i>Export Readiness Reports (CSV)</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Name</th><th>Category</th><th>Condition</th><th>Assigned To</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for e in equipment_results %}
+              <tr>
+                <td>{{ e.name }}</td>
+                <td>{{ e.category }}</td>
+                <td>{{ e.condition }}</td>
+                <td>{{ e.assigned_to.name if e.assigned_to else '—' }}</td>
+                <td><a href="{% url 'equipment-detail' e.id %}" class="btn btn-sm btn-outline-info"><i class="fa-solid fa-eye"></i></a></td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5" class="text-center text-secondary">No equipment found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+// Activate the correct tab on reload based on query param
+const urlParams = new URLSearchParams(window.location.search);
+const tab = urlParams.get('tab');
+if (tab) {
+  const tabTrigger = document.querySelector(`#${tab}-tab`);
+  if (tabTrigger) {
+    new bootstrap.Tab(tabTrigger).show();
+  }
+}
+</script>
+{% endblock %} 

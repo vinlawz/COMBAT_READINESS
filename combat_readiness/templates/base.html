@@ -132,7 +132,7 @@
                 <li><span class="dropdown-item text-muted">No notifications</span></li>
               {% endif %}
               <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item text-center" href="#">View all notifications</a></li>
+              <li><a class="dropdown-item text-center" href="{% url 'notifications-list' %}">View all notifications</a></li>
             </ul>
           </li>
           <li class="nav-item dropdown">
@@ -179,5 +179,46 @@
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 {% block extra_js %}{% endblock %}
+<script>
+// Real-time notification polling
+function updateNotifications() {
+  fetch('{% url "notifications_json" %}')
+    .then(response => response.json())
+    .then(data => {
+      // Update bell badge
+      var bell = document.querySelector('#notificationDropdown .fa-bell');
+      var badge = document.querySelector('#notificationDropdown .badge');
+      if (badge) badge.remove();
+      if (data.unread_count > 0) {
+        var newBadge = document.createElement('span');
+        newBadge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger';
+        newBadge.textContent = data.unread_count;
+        bell.parentNode.appendChild(newBadge);
+      }
+      // Update dropdown
+      var dropdown = document.querySelector('#notificationDropdown + .dropdown-menu');
+      if (dropdown) {
+        var html = '<li class="dropdown-header">Notifications</li>';
+        if (data.recent_notifications.length > 0) {
+          data.recent_notifications.forEach(function(n) {
+            html += '<li>' +
+              '<a class="dropdown-item d-flex justify-content-between align-items-center' + (n.is_read ? '' : ' fw-bold text-warning') + '" href="' + n.link + '">' +
+              '<span>' + n.message + '</span>' +
+              '<small class="text-muted ms-2">' + n.created_at + '</small>' +
+              '</a></li>';
+          });
+        } else {
+          html += '<li><span class="dropdown-item text-muted">No notifications</span></li>';
+        }
+        html += '<li><hr class="dropdown-divider"></li>';
+        html += '<li><a class="dropdown-item text-center" href="{% url 'notifications-list' %}">View all notifications</a></li>';
+        dropdown.innerHTML = html;
+      }
+    });
+}
+if (document.querySelector('#notificationDropdown')) {
+  setInterval(updateNotifications, 30000);
+}
+</script>
 </body>
 </html> 

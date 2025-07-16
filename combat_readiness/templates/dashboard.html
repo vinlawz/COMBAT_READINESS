@@ -1,264 +1,164 @@
 {% extends "base.html" %}
-{% load static %}
-{% load dashboard_extras %}
 {% block title %}Dashboard | Combat Readiness{% endblock %}
-{% block extra_head %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Staatliches&display=swap" rel="stylesheet">
-<style>
-    body {
-        /* Add a digital camo overlay */
-        background: linear-gradient(135deg, #232d23 0%, #3a4a3a 100%), url('{% static "img/camo-bg.jpg" %}') no-repeat center center fixed;
-        background-blend-mode: overlay;
-        background-size: cover;
-    }
-    .military-card {
-        background: rgba(35, 45, 35, 0.92) !important;
-        border: 2px solid #bfae6a !important;
-        box-shadow: 0 0 12px #232d23, 0 0 24px #bfae6a44;
-        color: #e2e2c0;
-        font-family: 'Staatliches', 'Orbitron', 'Segoe UI', Arial, sans-serif;
-        position: relative;
-        overflow: hidden;
-    }
-    .military-card .card-title {
-        color: #bfae6a;
-        text-shadow: 0 0 4px #232d23, 0 0 8px #bfae6a;
-        font-family: 'Staatliches', 'Orbitron', 'Segoe UI', Arial, sans-serif;
-        letter-spacing: 2px;
-    }
-    .military-badge {
-        background: linear-gradient(90deg, #4b5d3a 0%, #bfae6a 100%) !important;
-        color: #232d23 !important;
-        box-shadow: 0 0 4px #bfae6a, 0 0 4px #232d23;
-        font-family: 'Staatliches', 'Orbitron', 'Segoe UI', Arial, sans-serif;
-        border: 1.5px solid #bfae6a;
-        font-size: 1em;
-        letter-spacing: 1px;
-    }
-    .military-heading {
-        color: #bfae6a;
-        text-shadow: 0 0 4px #232d23, 0 0 8px #bfae6a;
-        font-family: 'Staatliches', 'Orbitron', 'Segoe UI', Arial, sans-serif;
-        position: relative;
-        display: inline-block;
-        letter-spacing: 3px;
-        text-transform: uppercase;
-    }
-    .military-heading::after {
-        content: '';
-        display: block;
-        height: 4px;
-        width: 100%;
-        background: linear-gradient(90deg, #bfae6a 0%, #4b5d3a 100%);
-        box-shadow: 0 0 8px #bfae6a, 0 0 4px #232d23;
-        margin-top: 8px;
-        border-radius: 2px;
-    }
-    .mission-status {
-        background: rgba(35, 45, 35, 0.98);
-        border: 2px solid #bfae6a;
-        box-shadow: 0 0 12px #232d23, 0 0 24px #bfae6a44;
-        color: #e2e2c0;
-        font-family: 'Staatliches', 'Orbitron', 'Segoe UI', Arial, sans-serif;
-        margin-bottom: 32px;
-        padding: 24px 32px;
-        border-radius: 18px;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-    }
-    .mission-status .fa-shield-halved {
-        color: #bfae6a;
-        text-shadow: 0 0 8px #232d23, 0 0 8px #bfae6a;
-        font-size: 2rem;
-        margin-bottom: 8px;
-    }
-    .mission-status .status-message {
-        font-size: 1.2rem;
-        color: #bfae6a;
-        text-shadow: 0 0 4px #232d23;
-        margin-top: 8px;
-        font-family: 'Staatliches', 'Orbitron', 'Segoe UI', Arial, sans-serif;
-    }
-    .list-group-item.bg-transparent {
-        background: rgba(35, 45, 35, 0.7) !important;
-        color: #e2e2c0;
-        border-bottom: 1px solid #4b5d3a;
-    }
-    .profile-img-nav, .rounded-circle {
-        border: 2px solid #bfae6a !important;
-        box-shadow: 0 0 4px #bfae6a;
-    }
-</style>
-{% endblock %}
 {% block content %}
-<div class="mission-status">
-    <i class="fa-solid fa-shield-halved"></i>
-    <div class="military-heading">Mission Status</div>
-    <div class="status-message mt-2">
-        "Discipline, duty, and readiness. Stay vigilant, soldier. <b>Strength in unity.</b>"
-    </div>
-</div>
-<div class="mb-4 text-center">
-    <h1 class="display-5 fw-bold military-heading">Dashboard</h1>
-</div>
-<div class="row g-4 mb-4">
-    <div class="col-md-6 col-lg-3">
-        <div class="card military-card text-center">
-            <div class="card-body">
-                <h2 class="card-title display-6">{{ soldier_count }}</h2>
-                <p class="card-text text-muted">Total Soldiers</p>
-            </div>
+<div class="container py-4">
+  <h1 class="mb-4">Welcome, {{ user.username }}!</h1>
+  <div class="row mb-4">
+    <div class="col-12 col-md-3 mb-3">
+      <div class="card text-center shadow h-100">
+        <div class="card-body">
+          <h5 class="card-title">Soldiers</h5>
+          <p class="display-6 fw-bold">{{ num_soldiers }}</p>
         </div>
+      </div>
     </div>
-    <div class="col-md-6 col-lg-3">
-        <div class="card military-card text-center">
-            <div class="card-body">
-                <h2 class="card-title display-6">{{ equipment_count }}</h2>
-                <p class="card-text text-muted">Total Equipment</p>
-            </div>
+    <div class="col-12 col-md-3 mb-3">
+      <div class="card text-center shadow h-100">
+        <div class="card-body">
+          <h5 class="card-title">Equipment</h5>
+          <p class="display-6 fw-bold">{{ num_equipment }}</p>
         </div>
+      </div>
     </div>
-</div>
-<div class="row g-4 mb-4">
-    <div class="col-md-4">
-        <div class="card military-card h-100">
-            <div class="card-body">
-                <h5 class="card-title">Soldiers by Status</h5>
-                <canvas id="soldierStatusChart"></canvas>
-            </div>
+    <div class="col-12 col-md-3 mb-3">
+      <div class="card text-center shadow h-100">
+        <div class="card-body">
+          <h5 class="card-title">Missions</h5>
+          <p class="display-6 fw-bold">{{ num_missions }}</p>
         </div>
+      </div>
     </div>
-    <div class="col-md-4">
-        <div class="card military-card h-100">
-            <div class="card-body">
-                <h5 class="card-title">Equipment by Condition</h5>
-                <canvas id="equipmentConditionChart"></canvas>
-            </div>
+    <div class="col-12 col-md-3 mb-3">
+      <div class="card text-center shadow h-100">
+        <div class="card-body">
+          <h5 class="card-title">Unread Notifications</h5>
+          <p class="display-6 fw-bold">{{ num_unread_notifications }}</p>
+          <form method="post" action="{% url 'mark_all_notifications_read' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-outline-secondary mt-2 w-100">Mark All as Read</button>
+          </form>
         </div>
+      </div>
     </div>
-    <div class="col-md-4">
-        <div class="card military-card h-100">
-            <div class="card-body">
-                <h5 class="card-title">Readiness Breakdown</h5>
-                <canvas id="readinessChart"></canvas>
-            </div>
-        </div>
+  </div>
+
+  <div class="row mb-4">
+    <div class="col-12 col-md-4 mb-3">
+      <div class="card shadow h-100">
+        <div class="card-header bg-info text-white">Upcoming Missions (7 days)</div>
+        <ul class="list-group list-group-flush">
+          {% for mission in upcoming_missions %}
+            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+              <span>{{ mission.name }} ({{ mission.status }})</span>
+              <span class="badge bg-secondary mt-2 mt-md-0">{{ mission.start_date }}</span>
+            </li>
+          {% empty %}
+            <li class="list-group-item">No upcoming missions.</li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
-</div>
-<div class="row g-4 mb-4">
-    <div class="col-md-6">
-        <div class="card military-card h-100">
-            <div class="card-body">
-                <h5 class="card-title">Recent Soldiers</h5>
-                <ul class="list-group list-group-flush">
-                    {% for soldier in recent_soldiers %}
-                        <li class="list-group-item bg-transparent d-flex align-items-center">
-                            {% if soldier.user and soldier.user.profile.profile_image %}
-                                <img src="{{ soldier.user.profile.profile_image.url }}" alt="Profile Image" class="rounded-circle me-2" style="width:32px;height:32px;">
-                            {% endif %}
-                            <span>{{ soldier.name }} - {{ soldier.rank }} <span class="badge military-badge ms-2">{{ soldier.status }}</span></span>
-                        </li>
-                    {% empty %}
-                        <li class="list-group-item bg-transparent">No recent soldiers.</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
+    <div class="col-12 col-md-4 mb-3">
+      <div class="card shadow h-100">
+        <div class="card-header bg-danger text-white">Equipment Needing Repair</div>
+        <ul class="list-group list-group-flush">
+          {% for eq in equipment_needing_repair %}
+            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+              <span>{{ eq.name }} ({{ eq.category }})</span>
+              <span class="badge bg-warning text-dark mt-2 mt-md-0">Needs Repair</span>
+            </li>
+          {% empty %}
+            <li class="list-group-item">All equipment in good condition.</li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
-    <div class="col-md-6">
-        <div class="card military-card h-100">
-            <div class="card-body">
-                <h5 class="card-title">Recent Equipment</h5>
-                <ul class="list-group list-group-flush">
-                    {% for item in recent_equipment %}
-                        <li class="list-group-item bg-transparent">{{ item.name }} - {{ item.category }} <span class="badge military-badge ms-2">{{ item.condition }}</span></li>
-                    {% empty %}
-                        <li class="list-group-item bg-transparent">No recent equipment.</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
+    <div class="col-12 col-md-4 mb-3">
+      <div class="card shadow h-100">
+        <div class="card-header bg-warning text-dark">Soldiers with Poor Readiness</div>
+        <ul class="list-group list-group-flush">
+          {% for soldier in poor_soldiers %}
+            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+              <span>{{ soldier.name }} ({{ soldier.rank }})</span>
+              <span class="badge bg-danger mt-2 mt-md-0">Poor</span>
+            </li>
+          {% empty %}
+            <li class="list-group-item">No soldiers with poor readiness.</li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
-</div>
-<div class="row g-4 mb-4">
-    <div class="col-12">
-        <div class="card military-card h-100">
-            <div class="card-body">
-                <h5 class="card-title">Current/Planned Missions</h5>
-                {% if dashboard_missions %}
-                    <ul class="list-group list-group-flush">
-                        {% for mission in dashboard_missions %}
-                        <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>{{ mission.name }}</strong> <span class="badge military-badge ms-2">{{ mission.status }}</span>
-                                <br><small>Priority: {{ mission.priority }} | Starts: {{ mission.start_date }}</small>
-                            </div>
-                            <a href="{% url 'mission-detail' mission.pk %}" class="btn btn-sm btn-primary">View</a>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <div class="alert alert-info mb-0">No current or planned missions.</div>
-                {% endif %}
-            </div>
-        </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12 col-md-6 mb-3">
+      <div class="card shadow h-100">
+        <div class="card-header bg-primary text-white">Recent Missions</div>
+        <ul class="list-group list-group-flush">
+          {% for mission in recent_missions %}
+            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+              <span>{{ mission.name }} ({{ mission.status }})</span>
+              <span class="badge bg-secondary mt-2 mt-md-0">{{ mission.start_date }}</span>
+            </li>
+          {% empty %}
+            <li class="list-group-item">No recent missions.</li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
+    <div class="col-12 col-md-6 mb-3">
+      <div class="card shadow h-100">
+        <div class="card-header bg-success text-white">Recent Readiness Reports</div>
+        <ul class="list-group list-group-flush">
+          {% for report in recent_reports %}
+            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+              <span>{{ report.soldier.name }}: <span class="badge bg-{{ report.get_readiness_color }}">{{ report.overall_readiness }}</span></span>
+              <span class="badge bg-secondary mt-2 mt-md-0">{{ report.last_training_date }}</span>
+            </li>
+          {% empty %}
+            <li class="list-group-item">No recent reports.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12 mb-3">
+      <div class="card shadow h-100">
+        <div class="card-header bg-warning text-dark">Recent Notifications</div>
+        <ul class="list-group list-group-flush">
+          {% for notification in recent_notifications %}
+            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+              <span><span class="badge bg-{{ notification.get_type_color }} me-2">{{ notification.type|title }}</span>{{ notification.message }}</span>
+              <span class="badge bg-light text-dark mt-2 mt-md-0">{{ notification.created_at|date:"Y-m-d H:i" }}</span>
+            </li>
+          {% empty %}
+            <li class="list-group-item">No recent notifications.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12 text-end">
+      <a href="/missions/create/" class="btn btn-primary mb-2">Create Mission</a>
+      <a href="/soldiers/create/" class="btn btn-success mb-2">Add Soldier</a>
+      <a href="/equipment/create/" class="btn btn-info mb-2">Add Equipment</a>
+    </div>
+  </div>
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'});" class="btn btn-warning position-fixed" style="bottom:24px;right:24px;z-index:999;display:none;" id="backToTopBtn"><i class="fa-solid fa-arrow-up"></i></button>
 </div>
 {% endblock %}
 {% block extra_js %}
 <script>
-    // Data for charts from Django context
-    const soldierStatusData = {
-        labels: ["Active", "Reserve", "Retired"],
-        datasets: [{
-            data: [
-                {{ soldier_status_counts.Active|default:0 }},
-                {{ soldier_status_counts.Reserve|default:0 }},
-                {{ soldier_status_counts.Retired|default:0 }}
-            ],
-            backgroundColor: ["#007bff", "#ffc107", "#6c757d"]
-        }]
-    };
-    const equipmentConditionData = {
-        labels: ["New", "Good", "Needs Repair"],
-        datasets: [{
-            data: [
-                {{ equipment_condition_counts.New|default:0 }},
-                {{ equipment_condition_counts.Good|default:0 }},
-                {{ equipment_condition_counts|dict_get:"Needs Repair"|default:0 }}
-            ],
-            backgroundColor: ["#28a745", "#17a2b8", "#dc3545"]
-        }]
-    };
-    const readinessData = {
-        labels: ["Excellent", "Good", "Fair", "Poor"],
-        datasets: [{
-            data: [
-                {{ readiness_breakdown.Excellent|default:0 }},
-                {{ readiness_breakdown.Good|default:0 }},
-                {{ readiness_breakdown.Fair|default:0 }},
-                {{ readiness_breakdown.Poor|default:0 }}
-            ],
-            backgroundColor: ["#28a745", "#007bff", "#ffc107", "#dc3545"]
-        }]
-    };
-    // Render charts
-    new Chart(document.getElementById('soldierStatusChart'), {
-        type: 'pie',
-        data: soldierStatusData,
-        options: { responsive: true }
-    });
-    new Chart(document.getElementById('equipmentConditionChart'), {
-        type: 'pie',
-        data: equipmentConditionData,
-        options: { responsive: true }
-    });
-    new Chart(document.getElementById('readinessChart'), {
-        type: 'pie',
-        data: readinessData,
-        options: { responsive: true }
-    });
+// Show back-to-top button on scroll for mobile
+window.addEventListener('scroll', function() {
+  var btn = document.getElementById('backToTopBtn');
+  if (window.scrollY > 200) {
+    btn.style.display = 'block';
+  } else {
+    btn.style.display = 'none';
+  }
+});
 </script>
 {% endblock %} 

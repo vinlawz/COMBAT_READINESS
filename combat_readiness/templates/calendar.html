@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Mission Calendar | Combat Readiness{% endblock %}
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
+<style>
+  #calendar {
+    background: rgba(20, 10, 40, 0.85);
+    border-radius: 18px;
+    box-shadow: 0 0 32px #00fff7cc, 0 0 8px #ff00cc99;
+    padding: 16px;
+    margin-top: 32px;
+  }
+  .fc-toolbar-title {
+    color: #00fff7;
+    text-shadow: 0 0 8px #00fff7, 0 0 16px #ff00cc;
+    font-family: 'Orbitron', 'Segoe UI', Arial, sans-serif;
+    letter-spacing: 2px;
+  }
+  .fc-daygrid-event {
+    background: #ff00cc !important;
+    color: #fff !important;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    box-shadow: 0 0 8px #00fff7, 0 0 4px #ff00cc;
+  }
+  .fc-event:hover {
+    background: #00fff7 !important;
+    color: #222 !important;
+    box-shadow: 0 0 16px #ff00cc, 0 0 8px #00fff7;
+  }
+  .filter-bar {
+    background: rgba(20, 10, 40, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 0 8px #00fff7, 0 0 4px #ff00cc;
+    padding: 16px 24px;
+    margin-bottom: 24px;
+    color: #fff;
+    font-family: 'Orbitron', 'Segoe UI', Arial, sans-serif;
+  }
+  .form-check-label {
+    margin-right: 18px;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="mb-4 cyberpunk-glow"><i class="fa-solid fa-calendar-days me-2"></i>Mission Calendar</h1>
+  <div class="filter-bar mb-3">
+    <form id="calendar-filter-form" class="d-flex flex-wrap align-items-center gap-3">
+      <span class="me-2">Show:</span>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="checkbox" id="filter-planned" checked>
+        <label class="form-check-label text-primary" for="filter-planned">Planned</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="checkbox" id="filter-active" checked>
+        <label class="form-check-label text-success" for="filter-active">Active</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="checkbox" id="filter-completed" checked>
+        <label class="form-check-label text-secondary" for="filter-completed">Completed</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="checkbox" id="filter-cancelled" checked>
+        <label class="form-check-label text-danger" for="filter-cancelled">Cancelled</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="checkbox" id="filter-training" checked>
+        <label class="form-check-label text-warning" for="filter-training">Training</label>
+      </div>
+    </form>
+  </div>
+  <div id="calendar"></div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+<script>
+function getActiveFilters() {
+  return {
+    'Planned': document.getElementById('filter-planned').checked,
+    'Active': document.getElementById('filter-active').checked,
+    'Completed': document.getElementById('filter-completed').checked,
+    'Cancelled': document.getElementById('filter-cancelled').checked,
+    'Training': document.getElementById('filter-training').checked,
+  };
+}
+document.addEventListener('DOMContentLoaded', function() {
+  var calendarEl = document.getElementById('calendar');
+  var allEvents = [];
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    themeSystem: 'bootstrap5',
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay'
+    },
+    events: function(fetchInfo, successCallback, failureCallback) {
+      fetch('{% url "mission_events_json" %}')
+        .then(response => response.json())
+        .then(data => {
+          allEvents = data;
+          successCallback(filterEvents());
+        })
+        .catch(failureCallback);
+    },
+    eventClick: function(info) {
+      if (info.event.url && info.event.url !== '#') {
+        window.location.href = info.event.url;
+        info.jsEvent.preventDefault();
+      }
+    },
+    height: 'auto',
+    eventColor: '#ff00cc',
+    eventTextColor: '#fff',
+  });
+  calendar.render();
+
+  function filterEvents() {
+    var filters = getActiveFilters();
+    return allEvents.filter(function(event) {
+      return filters[event.status];
+    });
+  }
+
+  document.getElementById('calendar-filter-form').addEventListener('change', function() {
+    calendar.removeAllEvents();
+    calendar.addEventSource(filterEvents());
+  });
+});
+</script>
+{% endblock %} 

@@ -21,6 +21,14 @@ from django.contrib.auth.tokens import default_token_generator
 from django.http import HttpResponse
 from django.contrib.auth.views import LoginView
 from .forms import CustomUserCreationForm
+from django.db.models import Count
+from django.utils import timezone
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.http import JsonResponse
+import csv
+from django.utils.encoding import smart_str
+from django.http import HttpResponse
 
 #  Register View
 class RegisterView(CreateView):
@@ -84,6 +92,33 @@ class EquipmentListView(LoginRequiredMixin, ListView):
     model = Equipment
     template_name = 'equipment/list.html'
     context_object_name = 'equipment'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['soldiers'] = Soldier.objects.all()
+        return context
+
+from django.views import View
+class BulkAssignEquipmentView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        soldier_id = request.POST.get('soldier_id')
+        selected_equipment = request.POST.get('selected_equipment', '')
+        if not soldier_id or not selected_equipment:
+            messages.error(request, 'Please select at least one equipment item and a soldier.')
+            return redirect('equipment-list')
+        try:
+            soldier = Soldier.objects.get(id=soldier_id)
+            equipment_ids = [int(eid) for eid in selected_equipment.split(',') if eid]
+            updated = Equipment.objects.filter(id__in=equipment_ids).update(assigned_to=soldier)
+            if updated:
+                messages.success(request, f'{updated} equipment item(s) assigned to {soldier.name}.')
+            else:
+                messages.warning(request, 'No equipment was assigned.')
+        except Soldier.DoesNotExist:
+            messages.error(request, 'Selected soldier does not exist.')
+        except Exception as e:
+            messages.error(request, f'Error during assignment: {e}')
+        return redirect('equipment-list')
 
 class EquipmentCreateView(LoginRequiredMixin, CreateView):
     model = Equipment
@@ -165,6 +200,43 @@ class AdminDashboardView(AdminRequiredMixin, TemplateView):
 # Example of Restricting Access to Medical Officer Views
 class MedicalOfficerDashboardView(MedicalOfficerRequiredMixin, TemplateView):
     template_name = 'medical_officer_dashboard.html'
+
+class DashboardView(LoginRequiredMixin, TemplateView):
+    template_name = 'dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        from .models import Soldier, Equipment, Mission, ReadinessReport, Notification
+        context['num_soldiers'] = Soldier.objects.count()
+        context['num_equipment'] = Equipment.objects.count()
+        context['num_missions'] = Mission.objects.count()
+        context['num_unread_notifications'] = Notification.objects.filter(recipient=user, is_read=False).count()
+        context['recent_missions'] = Mission.objects.order_by('-start_date')[:5]
+        context['recent_reports'] = ReadinessReport.objects.order_by('-last_training_date')[:5]
+        context['recent_notifications'] = Notification.objects.filter(recipient=user).order_by('-created_at')[:5]
+        context['user_role'] = getattr(user, 'role', 'user')
+        # Upcoming missions (next 7 days)
+        today = timezone.now().date()
+        in_7_days = today + timezone.timedelta(days=7)
+        context['upcoming_missions'] = Mission.objects.filter(start_date__gte=today, start_date__lte=in_7_days).order_by('start_date')
+        # Equipment needing repair
+        context['equipment_needing_repair'] = Equipment.objects.filter(condition='Needs Repair')
+        # Soldiers with poor readiness (latest report)
+        poor_soldiers = []
+        for soldier in Soldier.objects.all():
+            latest_report = ReadinessReport.objects.filter(soldier=soldier).order_by('-last_training_date').first()
+            if latest_report and latest_report.overall_readiness == 'Poor':
+                poor_soldiers.append(soldier)
+        context['poor_soldiers'] = poor_soldiers
+        return context
+
+from django.views import View
+class MarkAllNotificationsReadView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        from .models import Notification
+        Notification.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
+        return HttpResponseRedirect(reverse('dashboard'))
 
 @login_required
 def dashboard_view(request):
@@ -349,3 +421,213 @@ class CustomLoginView(LoginView):
             messages.error(self.request, 'Your account is not verified. Please check your email.')
             return redirect('login')
         return super().form_valid(form)
+
+class CalendarView(LoginRequiredMixin, TemplateView):
+    template_name = 'calendar.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+from django.views import View
+class MissionEventsJsonView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        from .models import Mission, TrainingEvent
+        events = []
+        status_colors = {
+            'Planned': '#007bff',
+            'Active': '#28a745',
+            'Completed': '#6c757d',
+            'Cancelled': '#dc3545',
+        }
+        for mission in Mission.objects.all():
+            events.append({
+                'id': f'mission-{mission.id}',
+                'title': mission.name,
+                'start': str(mission.start_date),
+                'end': str(mission.end_date) if mission.end_date else str(mission.start_date),
+                'status': mission.status,
+                'color': status_colors.get(mission.status, '#ff00cc'),
+                'url': f'/missions/{mission.id}/',
+            })
+        for training in TrainingEvent.objects.all():
+            events.append({
+                'id': f'training-{training.id}',
+                'title': f'Training: {training.name}',
+                'start': str(training.date),
+                'end': str(training.date),
+                'status': 'Training',
+                'color': '#ffc107',
+                'url': '#',
+            })
+        return JsonResponse(events, safe=False)
+
+class AdvancedSearchView(LoginRequiredMixin, TemplateView):
+    template_name = 'advanced_search.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        from .models import Mission, Soldier, Equipment
+        # Missions search
+        mission_qs = Mission.objects.all()
+        m_name = self.request.GET.get('m_name', '').strip()
+        m_status = self.request.GET.get('m_status', '')
+        m_priority = self.request.GET.get('m_priority', '')
+        m_location = self.request.GET.get('m_location', '').strip()
+        m_start = self.request.GET.get('m_start', '')
+        m_end = self.request.GET.get('m_end', '')
+        if m_name:
+            mission_qs = mission_qs.filter(name__icontains=m_name)
+        if m_status:
+            mission_qs = mission_qs.filter(status=m_status)
+        if m_priority:
+            mission_qs = mission_qs.filter(priority=m_priority)
+        if m_location:
+            mission_qs = mission_qs.filter(location__icontains=m_location)
+        if m_start:
+            mission_qs = mission_qs.filter(start_date__gte=m_start)
+        if m_end:
+            mission_qs = mission_qs.filter(end_date__lte=m_end)
+        context['mission_results'] = mission_qs
+        # Soldiers search
+        soldier_qs = Soldier.objects.all()
+        s_name = self.request.GET.get('s_name', '').strip()
+        s_rank = self.request.GET.get('s_rank', '')
+        s_unit = self.request.GET.get('s_unit', '').strip()
+        s_status = self.request.GET.get('s_status', '')
+        if s_name:
+            soldier_qs = soldier_qs.filter(name__icontains=s_name)
+        if s_rank:
+            soldier_qs = soldier_qs.filter(rank__icontains=s_rank)
+        if s_unit:
+            soldier_qs = soldier_qs.filter(unit__icontains=s_unit)
+        if s_status:
+            soldier_qs = soldier_qs.filter(status=s_status)
+        context['soldier_results'] = soldier_qs
+        # Equipment search
+        equipment_qs = Equipment.objects.all()
+        e_name = self.request.GET.get('e_name', '').strip()
+        e_category = self.request.GET.get('e_category', '').strip()
+        e_condition = self.request.GET.get('e_condition', '')
+        e_assigned = self.request.GET.get('e_assigned', '').strip()
+        if e_name:
+            equipment_qs = equipment_qs.filter(name__icontains=e_name)
+        if e_category:
+            equipment_qs = equipment_qs.filter(category__icontains=e_category)
+        if e_condition:
+            equipment_qs = equipment_qs.filter(condition=e_condition)
+        if e_assigned:
+            equipment_qs = equipment_qs.filter(assigned_to__name__icontains=e_assigned)
+        context['equipment_results'] = equipment_qs
+        # For filter dropdowns
+        context['mission_status_choices'] = Mission.STATUS_CHOICES
+        context['mission_priority_choices'] = Mission.PRIORITY_CHOICES
+        context['soldier_status_choices'] = Soldier._meta.get_field('status').choices
+        context['equipment_condition_choices'] = Equipment._meta.get_field('condition').choices
+        return context
+
+class ExportMissionsCSVView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        from .models import Mission
+        # Apply same filters as AdvancedSearchView
+        mission_qs = Mission.objects.all()
+        m_name = request.GET.get('m_name', '').strip()
+        m_status = request.GET.get('m_status', '')
+        m_priority = request.GET.get('m_priority', '')
+        m_location = request.GET.get('m_location', '').strip()
+        m_start = request.GET.get('m_start', '')
+        m_end = request.GET.get('m_end', '')
+        if m_name:
+            mission_qs = mission_qs.filter(name__icontains=m_name)
+        if m_status:
+            mission_qs = mission_qs.filter(status=m_status)
+        if m_priority:
+            mission_qs = mission_qs.filter(priority=m_priority)
+        if m_location:
+            mission_qs = mission_qs.filter(location__icontains=m_location)
+        if m_start:
+            mission_qs = mission_qs.filter(start_date__gte=m_start)
+        if m_end:
+            mission_qs = mission_qs.filter(end_date__lte=m_end)
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=missions.csv'
+        writer = csv.writer(response)
+        writer.writerow(['Name', 'Status', 'Priority', 'Start Date', 'End Date', 'Location', 'Notes'])
+        for m in mission_qs:
+            writer.writerow([
+                smart_str(m.name), m.status, m.priority, m.start_date, m.end_date or '', m.location, m.notes
+            ])
+        return response
+
+class ExportReadinessCSVView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        from .models import ReadinessReport
+        # Apply same filters as AdvancedSearchView (if any in future)
+        report_qs = ReadinessReport.objects.all()
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=readiness_reports.csv'
+        writer = csv.writer(response)
+        writer.writerow(['Soldier', 'Fitness Score', 'Last Training Date', 'Overall Readiness'])
+        for r in report_qs:
+            writer.writerow([
+                smart_str(r.soldier.name), r.fitness_score, r.last_training_date, r.overall_readiness
+            ])
+        return response
+
+class AuditLogView(LoginRequiredMixin, TemplateView):
+    template_name = 'audit_log.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        from .models import AuditLog
+        logs = AuditLog.objects.all().order_by('-timestamp')
+        model = self.request.GET.get('model', '').strip()
+        action = self.request.GET.get('action', '').strip()
+        user = self.request.GET.get('user', '').strip()
+        if model:
+            logs = logs.filter(model__icontains=model)
+        if action:
+            logs = logs.filter(action=action)
+        if user:
+            logs = logs.filter(user__username__icontains=user)
+        context['audit_logs'] = logs[:200]  # Limit for performance
+        return context
+
+class NotificationsListView(LoginRequiredMixin, ListView):
+    model = Notification
+    template_name = 'registration/profile.html'  # notifications_list.html if you rename it
+    context_object_name = 'notifications'
+
+    def get_queryset(self):
+        return Notification.objects.filter(recipient=self.request.user).order_by('-created_at')
+
+from django.views import View
+class BulkMarkNotificationsReadView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        notification_ids = request.POST.getlist('notification_ids')
+        if not notification_ids:
+            messages.error(request, 'Please select at least one notification.')
+            return redirect('notifications-list')
+        updated = Notification.objects.filter(id__in=notification_ids, recipient=request.user).update(is_read=True)
+        if updated:
+            messages.success(request, f'{updated} notification(s) marked as read.')
+        else:
+            messages.warning(request, 'No notifications were marked as read.')
+        return redirect('notifications-list')
+
+class NotificationsJsonView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        from .models import Notification
+        user = request.user
+        unread_count = Notification.objects.filter(recipient=user, is_read=False).count()
+        recent = Notification.objects.filter(recipient=user).order_by('-created_at')[:5]
+        notifications = [
+            {
+                'message': n.message,
+                'created_at': n.created_at.strftime('%b %d, %H:%M'),
+                'is_read': n.is_read,
+                'link': n.link or '#',
+            }
+            for n in recent
+        ]
+        return JsonResponse({'unread_count': unread_count, 'recent_notifications': notifications})
