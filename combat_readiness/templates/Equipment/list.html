@@ -1,8 +1,11 @@
 {% extends "base.html" %}
 {% load static %}
 {% block title %}Equipment | Combat Readiness{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'equipment.css' %}">
+{% endblock %}
 {% block content %}
-<div class="container py-4" style="background: url('{% static 'img/camo-bg.jpg' %}') center center/cover no-repeat; border-radius: 18px; box-shadow: 0 0 32px #232d23cc, 0 0 8px #3a3f2d99;">
+<div class="container py-4 equipment-bg">
   <!-- Live UTC Clock -->
   <div class="d-flex justify-content-between align-items-center mb-2">
     <div></div>
