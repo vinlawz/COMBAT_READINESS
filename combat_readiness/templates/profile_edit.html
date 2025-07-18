@@ -1,58 +1,59 @@
+{% extends "base.html" %}
+{% load static %}
 <!-- profile_edit.html -->
 
-{% extends "base.html" %}
 {% block title %}Edit Profile | Combat Readiness{% endblock %}
 {% block content %}
-<div class="row justify-content-center align-items-center" style="min-height:70vh;">
-  <div class="col-md-6 col-lg-5">
-    <div class="card bg-dark bg-opacity-75 shadow-lg text-white p-4">
-      <h2 class="mb-4 text-center text-uppercase cyberpunk-glow"><i class="fa-solid fa-user-pen me-2"></i>Edit Your Profile</h2>
-      <div class="text-center mb-3">
-        <img src="{{ request.user.profile.profile_image.url }}" alt="Profile Image" class="rounded-circle border border-3 border-warning shadow" style="width:120px;height:120px;object-fit:cover;">
+<div class="container py-4" style="background: url('{% static 'img/camo-bg.jpg' %}') center center/cover no-repeat; border-radius: 18px; box-shadow: 0 0 32px #232d23cc, 0 0 8px #3a3f2d99;">
+  <!-- Live UTC Clock -->
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <div></div>
+    <div class="text-end text-light small mb-2" id="live-clock"></div>
+  </div>
+  <div class="row justify-content-center align-items-center" style="min-height:70vh;">
+    <div class="col-md-6 col-lg-5">
+      <div class="card bg-dark bg-opacity-75 shadow-lg text-white p-4">
+        <h2 class="mb-4 text-center text-uppercase"><i class="fa-solid fa-user-pen me-2"></i>Edit Your Profile</h2>
+        <!-- Section Divider -->
+        <div class="section-divider"><div class="divider-line"></div><span class="divider-icon"><i class="fa-solid fa-user"></i></span><div class="divider-line"></div></div>
+        <div class="text-center mb-3">
+          <img src="{{ request.user.profile.profile_image.url }}" alt="Profile Image" class="rounded-circle border border-3 border-warning shadow" style="width:120px;height:120px;object-fit:cover;">
+        </div>
+        <form method="POST" enctype="multipart/form-data" autocomplete="off">
+          {% csrf_token %}
+          {% for field in user_form %}
+            <div class="mb-3">
+              <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+              <div class="input-group">
+                {% if field.name == 'username' %}
+                  <span class="input-group-text bg-dark text-warning"><i class="fa-solid fa-user"></i></span>
+                {% elif field.name == 'email' %}
+                  <span class="input-group-text bg-dark text-warning"><i class="fa-solid fa-envelope"></i></span>
+                {% endif %}
+                {{ field }}
+              </div>
+              {% if field.errors %}
+                <div class="text-danger small">{{ field.errors|striptags }}</div>
+              {% endif %}
+            </div>
+          {% endfor %}
+          <button type="submit" class="btn btn-warning fw-bold text-uppercase w-100"><i class="fa-solid fa-save me-2"></i>Save Changes</button>
+        </form>
       </div>
-      <form method="POST" enctype="multipart/form-data" autocomplete="off">
-        {% csrf_token %}
-        {% for field in user_form %}
-          <div class="mb-3">
-            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-            <div class="input-group">
-              {% if field.name == 'username' %}
-                <span class="input-group-text bg-dark text-warning"><i class="fa-solid fa-user"></i></span>
-              {% elif field.name == 'email' %}
-                <span class="input-group-text bg-dark text-warning"><i class="fa-solid fa-envelope"></i></span>
-              {% endif %}
-              {{ field }}
-            </div>
-            {% if field.errors %}
-              <div class="text-danger small">{{ field.errors|striptags }}</div>
-            {% endif %}
-          </div>
-        {% endfor %}
-        {% for field in profile_form %}
-          <div class="mb-3">
-            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-            <div class="input-group">
-              {% if field.name == 'profile_image' %}
-                <span class="input-group-text bg-dark text-warning"><i class="fa-solid fa-image"></i></span>
-              {% elif field.name == 'bio' %}
-                <span class="input-group-text bg-dark text-warning"><i class="fa-solid fa-pen"></i></span>
-              {% endif %}
-              {{ field }}
-            </div>
-            {% if field.help_text %}<div class="form-text text-info">{{ field.help_text }}</div>{% endif %}
-            {% if field.errors %}
-              <div class="text-danger small">{{ field.errors|striptags }}</div>
-            {% endif %}
-          </div>
-        {% endfor %}
-        <div class="d-grid mb-2">
-          <button type="submit" class="btn btn-warning fw-bold text-uppercase"><i class="fa-solid fa-save me-2"></i>Update Profile</button>
-        </div>
-        <div class="text-center">
-          <a href="{% url 'profile' %}" class="text-warning">Cancel</a>
-        </div>
-      </form>
     </div>
   </div>
 </div>
+<script>
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('live-clock').textContent =
+      now.toUTCString().replace('GMT', 'UTC');
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+  // Show a toast on page load
+  window.onload = function() {
+    showToast('Profile editor loaded!', 'info');
+  };
+</script>
 {% endblock %}

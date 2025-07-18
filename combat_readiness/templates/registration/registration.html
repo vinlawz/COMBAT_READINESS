@@ -1,10 +1,11 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Register | Combat Readiness{% endblock %}
 {% block content %}
 <div class="row justify-content-center align-items-center" style="min-height:70vh;">
   <div class="col-md-6 col-lg-4">
     <div class="card bg-dark bg-opacity-75 shadow-lg text-white p-4">
-      <h2 class="text-center mb-4 text-uppercase cyberpunk-glow"><i class="fa-solid fa-user-plus me-2"></i>Register</h2>
+      <h2 class="text-center mb-4 text-uppercase"><i class="fa-solid fa-user-plus me-2"></i>Register</h2>
       <form method="POST" autocomplete="off">
         {% csrf_token %}
         {% for field in form %}

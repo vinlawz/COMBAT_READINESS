@@ -1,14 +1,130 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Admin Dashboard | Combat Readiness{% endblock %}
 {% block content %}
-<div class="container mt-4">
-    <h1 class="fw-bold mb-4">Admin Dashboard</h1>
-    <div class="alert alert-success">Welcome, Admin! Use the links below to manage the system.</div>
-    <ul class="list-group">
-        <li class="list-group-item"><a href="{% url 'mission-list' %}"><i class="fa fa-bullseye"></i> Manage Missions</a></li>
-        <li class="list-group-item"><a href="{% url 'soldier-list' %}"><i class="fa fa-users"></i> Manage Soldiers</a></li>
-        <li class="list-group-item"><a href="{% url 'equipment-list' %}"><i class="fa fa-boxes-stacked"></i> Manage Equipment</a></li>
-        <li class="list-group-item"><a href="/admin/"><i class="fa fa-cogs"></i> Django Admin Panel</a></li>
-    </ul>
+<div class="container mt-4 position-relative" style="background: url('{% static 'img/camo-bg.jpg' %}') center center/cover no-repeat; border-radius: 18px; box-shadow: 0 0 32px #232d23cc, 0 0 8px #3a3f2d99;">
+  <!-- ADMIN HQ Ribbon -->
+  <div style="position:absolute;top:0;right:0;z-index:10;">
+    <span class="badge bg-danger fs-5 py-2 px-4 shadow" style="border-radius:0 18px 0 18px; letter-spacing:2px;"><i class="fa-solid fa-user-shield me-2"></i>ADMIN HQ</span>
+  </div>
+  <div style="background: rgba(34,45,35,0.92); border-radius: 18px; padding: 32px 18px;">
+    <!-- Header with Live Clock -->
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div></div>
+      <div class="text-end text-light small mb-2" id="live-clock"></div>
+    </div>
+    <script>
+      function updateClock() {
+        const now = new Date();
+        document.getElementById('live-clock').textContent =
+          now.toUTCString().replace('GMT', 'UTC');
+      }
+      setInterval(updateClock, 1000);
+      updateClock();
+    </script>
+    <div class="text-center mb-5">
+      <h1 class="fw-bold display-4 mb-2 text-warning"><i class="fa-solid fa-shield-halved me-2"></i>Admin Dashboard</h1>
+      <p class="lead text-light">Mission: <span class="text-success">Maintain Operational Excellence</span> &amp; <span class="text-info">Readiness</span></p>
+    </div>
+    <!-- Section Divider -->
+    <div class="section-divider"><div class="divider-line"></div><span class="divider-icon"><i class="fa-solid fa-gauge-high"></i></span><div class="divider-line"></div></div>
+    <!-- System Readiness Progress Bar -->
+    <div class="mb-5">
+      <label class="form-label text-light">System Readiness</label>
+      <div class="progress" style="height: 28px;">
+        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" style="width: 92%;font-size:1.1rem;">92%</div>
+      </div>
+    </div>
+    <!-- Section Divider -->
+    <div class="section-divider"><div class="divider-line"></div><span class="divider-icon"><i class="fa-solid fa-chart-pie"></i></span><div class="divider-line"></div></div>
+    <!-- Summary Cards -->
+    <div class="row g-4 mb-4">
+      <div class="col-12 col-md-3">
+        <div class="card text-center shadow h-100 border-success border-3">
+          <div class="card-body">
+            <h5 class="card-title text-success"><i class="fa-solid fa-users me-2"></i>Soldiers</h5>
+            <p class="display-5 fw-bold">{{ num_soldiers|default:'—' }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="card text-center shadow h-100 border-info border-3">
+          <div class="card-body">
+            <h5 class="card-title text-info"><i class="fa-solid fa-truck-monster me-2"></i>Equipment</h5>
+            <p class="display-5 fw-bold">{{ num_equipment|default:'—' }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="card text-center shadow h-100 border-warning border-3">
+          <div class="card-body">
+            <h5 class="card-title text-warning"><i class="fa-solid fa-bullseye me-2"></i>Missions</h5>
+            <p class="display-5 fw-bold">{{ num_missions|default:'—' }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="card text-center shadow h-100 border-danger border-3">
+          <div class="card-body">
+            <h5 class="card-title text-danger"><i class="fa-solid fa-radio me-2"></i>Notifications</h5>
+            <p class="display-5 fw-bold">{{ num_unread_notifications|default:'—' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Quick Actions -->
+    <div class="d-flex flex-wrap gap-3 justify-content-center mb-5">
+      <a href="{% url 'soldier-create' %}" class="btn btn-success btn-lg fw-bold"><i class="fa-solid fa-user-plus me-2"></i>Add Soldier</a>
+      <a href="{% url 'equipment-create' %}" class="btn btn-info btn-lg fw-bold"><i class="fa-solid fa-plus me-2"></i>Add Equipment</a>
+      <a href="{% url 'mission-create' %}" class="btn btn-warning btn-lg fw-bold"><i class="fa-solid fa-bullseye me-2"></i>Create Mission</a>
+      <a href="{% url 'audit_log' %}" class="btn btn-secondary btn-lg fw-bold"><i class="fa-solid fa-clipboard-list me-2"></i>Audit Log</a>
+      <a href="/admin/" class="btn btn-dark btn-lg fw-bold"><i class="fa-solid fa-cogs me-2"></i>Django Admin</a>
+    </div>
+    <!-- Section Divider -->
+    <div class="section-divider"><div class="divider-line"></div><span class="divider-icon"><i class="fa-solid fa-list-check"></i></span><div class="divider-line"></div></div>
+    <!-- Recent Activity Feed (placeholder, replace with real data if available) -->
+    <div class="card shadow mb-4 border-primary border-2">
+      <div class="card-header bg-primary text-white fw-bold"><i class="fa-solid fa-list-check me-2"></i>Recent Admin Activity</div>
+      <ul class="list-group list-group-flush">
+        {% if recent_admin_activity %}
+          {% for activity in recent_admin_activity %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span><i class="fa-solid fa-circle-dot text-info me-2"></i>{{ activity.message }}</span>
+              <span class="badge bg-secondary">{{ activity.timestamp|date:"M d, H:i" }}</span>
+            </li>
+          {% endfor %}
+        {% else %}
+          <li class="list-group-item text-muted">No recent admin activity.</li>
+        {% endif %}
+      </ul>
+    </div>
+    <!-- Section Divider -->
+    <div class="section-divider"><div class="divider-line"></div><span class="divider-icon"><i class="fa-solid fa-triangle-exclamation"></i></span><div class="divider-line"></div></div>
+    <!-- System Health/Alerts (placeholder, replace with real data if available) -->
+    <div class="row g-3 mb-2">
+      <div class="col-md-6">
+        <div class="alert alert-warning d-flex align-items-center" role="alert">
+          <i class="fa-solid fa-triangle-exclamation fa-lg me-2"></i>
+          <div>Equipment needing repair: <span class="fw-bold">{{ equipment_needing_repair|length|default:'0' }}</span></div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="alert alert-info d-flex align-items-center" role="alert">
+          <i class="fa-solid fa-bell fa-lg me-2"></i>
+          <div>Unread notifications: <span class="fw-bold">{{ num_unread_notifications|default:'0' }}</span></div>
+        </div>
+      </div>
+    </div>
+    <!-- Profile Card (optional) -->
+    <div class="card shadow border-success border-2 mt-4" style="max-width: 400px; margin: 0 auto;">
+      <div class="card-body text-center">
+        <img src="{{ user.profile.profile_image.url }}" alt="Profile" class="rounded-circle border border-3 border-warning shadow mb-3" style="width:90px;height:90px;object-fit:cover;">
+        <h5 class="card-title mb-0">{{ user.username }}</h5>
+        <div class="text-muted mb-2">{{ user.email }}</div>
+        <span class="badge bg-success mb-2"><i class="fa-solid fa-user-shield me-1"></i>Admin</span>
+        <p class="mb-0">{{ user.profile.short_bio|default:'No bio provided.' }}</p>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %} 

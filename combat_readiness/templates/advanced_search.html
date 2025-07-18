@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Advanced Search | Combat Readiness{% endblock %}
 {% block extra_head %}
 <style>
@@ -65,7 +66,7 @@
 {% endblock %}
 {% block content %}
 <div class="container py-4">
-  <h1 class="mb-4 cyberpunk-glow"><i class="fa-solid fa-magnifying-glass me-2"></i>Advanced Search</h1>
+  <h1 class="mb-4"><i class="fa-solid fa-magnifying-glass me-2"></i>Advanced Search</h1>
   <ul class="nav nav-tabs mb-4" id="searchTabs" role="tablist">
     <li class="nav-item" role="presentation">
       <button class="nav-link active" id="missions-tab" data-bs-toggle="tab" data-bs-target="#missions" type="button" role="tab">Missions</button>

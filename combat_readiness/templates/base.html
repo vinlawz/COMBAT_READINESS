@@ -7,91 +7,89 @@
     <title>{% block title %}Combat Readiness{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&display=swap" rel="stylesheet">
     <style>
         body {
             min-height: 100vh;
             margin: 0;
-            font-family: 'Orbitron', 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%), url('{% static "img/camo-bg.jpg" %}') no-repeat center center fixed;
+            font-family: 'Oswald', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #232d23 0%, #3a3f2d 100%), url('{% static "img/camo-bg.jpg" %}') no-repeat center center fixed;
             background-blend-mode: overlay;
             background-size: cover;
-            color: #e0e0ff;
-        }
-        .cyberpunk-glow {
-            text-shadow: 0 0 8px #00fff7, 0 0 16px #ff00cc, 0 0 2px #fff;
+            color: #e2e2d0;
         }
         .navbar {
-            background: rgba(20, 10, 40, 0.95) !important;
-            border-bottom: 2px solid #00fff7;
-            box-shadow: 0 0 16px #00fff7, 0 0 32px #ff00cc44;
+            background: rgba(34, 45, 35, 0.98) !important;
+            border-bottom: 2px solid #6b8e23;
+            box-shadow: 0 0 16px #232d23, 0 0 32px #3a3f2d44;
         }
         .navbar-brand, .nav-link, .dropdown-item {
-            color: #fff !important;
-            font-family: 'Orbitron', 'Segoe UI', Arial, sans-serif;
-            letter-spacing: 2px;
+            color: #e2e2d0 !important;
+            font-family: 'Oswald', 'Segoe UI', Arial, sans-serif;
+            letter-spacing: 1px;
             transition: color 0.2s, text-shadow 0.2s;
         }
-        .navbar-brand.cyberpunk-glow, .nav-link.active, .nav-link:hover, .dropdown-item:hover {
-            color: #00fff7 !important;
-            text-shadow: 0 0 8px #00fff7, 0 0 16px #ff00cc;
+        .navbar-brand, .nav-link.active, .nav-link:hover, .dropdown-item:hover {
+            color: #b3b36b !important;
+            text-shadow: 0 0 4px #6b8e23;
         }
         .profile-img-nav {
             width: 32px; height: 32px; border-radius: 50%; object-fit: cover;
-            border: 2px solid #ff00cc; margin-left: 10px; box-shadow: 0 0 8px #ff00cc;
+            border: 2px solid #6b8e23; margin-left: 10px; box-shadow: 0 0 8px #232d23;
         }
         .container-main {
             min-height: 80vh; padding-top: 30px;
-            background: rgba(20, 10, 40, 0.7);
+            background: rgba(34, 45, 35, 0.85);
             border-radius: 18px;
-            box-shadow: 0 0 32px #00fff7cc, 0 0 8px #ff00cc99;
+            box-shadow: 0 0 32px #232d23cc, 0 0 8px #3a3f2d99;
             margin-top: 32px;
         }
         .btn, .dropdown-menu {
-            background: #1a0033;
-            color: #00fff7;
-            border: 1.5px solid #ff00cc;
-            box-shadow: 0 0 8px #00fff7, 0 0 4px #ff00cc;
+            background: #3a3f2d;
+            color: #b3b36b;
+            border: 1.5px solid #6b8e23;
+            box-shadow: 0 0 4px #232d23;
             transition: background 0.2s, color 0.2s, box-shadow 0.2s;
         }
         .btn:hover, .dropdown-menu .dropdown-item:hover {
-            background: #ff00cc;
+            background: #6b8e23;
             color: #fff;
-            box-shadow: 0 0 16px #ff00cc, 0 0 8px #00fff7;
+            box-shadow: 0 0 8px #b3b36b, 0 0 4px #232d23;
         }
         .alert {
-            background: linear-gradient(90deg, #ff00cc 0%, #00fff7 100%);
-            color: #222;
+            background: linear-gradient(90deg, #6b8e23 0%, #b3b36b 100%);
+            color: #232d23;
             border: none;
-            box-shadow: 0 0 8px #00fff7, 0 0 8px #ff00cc;
+            box-shadow: 0 0 8px #232d23, 0 0 8px #6b8e23;
         }
         footer {
-            background: rgba(20, 10, 40, 0.95);
-            color: #00fff7;
+            background: rgba(34, 45, 35, 0.98);
+            color: #b3b36b;
             text-align: center;
             padding: 16px 0;
             margin-top: 40px;
-            border-top: 2px solid #ff00cc;
-            box-shadow: 0 0 16px #ff00cc, 0 0 32px #00fff744;
-            font-family: 'Orbitron', 'Segoe UI', Arial, sans-serif;
-            letter-spacing: 2px;
+            border-top: 2px solid #6b8e23;
+            box-shadow: 0 0 16px #232d23, 0 0 32px #6b8e2344;
+            font-family: 'Oswald', 'Segoe UI', Arial, sans-serif;
+            letter-spacing: 1px;
         }
-        /* Neon grid overlay */
+        /* Remove neon grid overlay */
         body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            pointer-events: none;
-            background: repeating-linear-gradient(0deg, transparent, transparent 47px, #00fff733 48px, transparent 49px),
-                        repeating-linear-gradient(90deg, transparent, transparent 47px, #ff00cc33 48px, transparent 49px);
-            z-index: 0;
-            opacity: 0.25;
+            display: none;
         }
         .container-main, nav, footer { position: relative; z-index: 1; }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
 <body>
+<!-- Global Loader Spinner -->
+<div id="global-loader" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2000;background:rgba(34,45,35,0.7);">
+  <div class="d-flex justify-content-center align-items-center" style="height:100vh;">
+    <div class="spinner-border text-warning" style="width:4rem;height:4rem;" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+</div>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
     <a class="navbar-brand" href="{% url 'home' %}"><i class="fa-solid fa-shield-halved me-2"></i>Combat Readiness</a>
@@ -110,31 +108,6 @@
           {% if user.role == 'admin' %}
             <li class="nav-item"><a class="nav-link" href="{% url 'admin-dashboard' %}"><i class="fa-solid fa-user-shield me-1"></i>Admin</a></li>
           {% endif %}
-          <li class="nav-item dropdown">
-            <a class="nav-link position-relative" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="fa-solid fa-bell"></i>
-              {% if unread_count > 0 %}
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ unread_count }}</span>
-              {% endif %}
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" style="min-width: 320px;">
-              <li class="dropdown-header">Notifications</li>
-              {% if recent_notifications %}
-                {% for n in recent_notifications %}
-                  <li>
-                    <a class="dropdown-item d-flex justify-content-between align-items-center {% if not n.is_read %}fw-bold{% endif %}" href="{{ n.link|default:'#' }}">
-                      <span>{{ n.message }}</span>
-                      <small class="text-muted ms-2">{{ n.created_at|date:"M d, H:i" }}</small>
-                    </a>
-                  </li>
-                {% endfor %}
-              {% else %}
-                <li><span class="dropdown-item text-muted">No notifications</span></li>
-              {% endif %}
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item text-center" href="{% url 'notifications-list' %}">View all notifications</a></li>
-            </ul>
-          </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               <span><i class="fa-solid fa-user me-1"></i>{{ user.username }}</span>
@@ -172,6 +145,8 @@
         </div>
       {% endfor %}
     {% endif %}
+    <!-- Toast Notification Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container" style="z-index:3000;"></div>
     {% block content %}{% endblock %}
 </div>
 <footer>
@@ -216,8 +191,29 @@ function updateNotifications() {
       }
     });
 }
-if (document.querySelector('#notificationDropdown')) {
-  setInterval(updateNotifications, 30000);
+// Global Loader Logic
+(function() {
+  var loader = document.getElementById('global-loader');
+  document.onreadystatechange = function () {
+    if (document.readyState !== "complete") {
+      loader.style.display = "block";
+    } else {
+      loader.style.display = "none";
+    }
+  };
+})();
+// Toast Notification Utility
+function showToast(message, type='info') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast align-items-center text-bg-${type} border-0 show mb-2`;
+  toast.role = 'alert';
+  toast.innerHTML = `<div class="d-flex">
+    <div class="toast-body">${message}</div>
+    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+  </div>`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
 }
 </script>
 </body>

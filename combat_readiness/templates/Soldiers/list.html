@@ -1,29 +1,61 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Soldiers | Combat Readiness{% endblock %}
 {% block content %}
-<div class="container py-4">
-  <h1 class="mb-4 text-center">Soldiers</h1>
-  <div class="table-responsive">
-    <table class="table table-striped table-hover align-middle bg-dark bg-opacity-75 text-white">
-      <thead class="table-dark">
-        <tr>
-          <th>Name</th>
-          <th>Rank</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for soldier in soldiers %}
+<div class="container py-4" style="background: url('{% static 'img/camo-bg.jpg' %}') center center/cover no-repeat; border-radius: 18px; box-shadow: 0 0 32px #232d23cc, 0 0 8px #3a3f2d99;">
+  <!-- Live UTC Clock -->
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <div></div>
+    <div class="text-end text-light small mb-2" id="live-clock"></div>
+  </div>
+  <div style="background: rgba(34,45,35,0.85); border-radius: 18px; padding: 24px 12px;">
+    <h1 class="mb-4 text-success"><i class="fa-solid fa-users me-2"></i>Soldiers</h1>
+    <!-- Section Divider -->
+    <div class="section-divider"><div class="divider-line"></div><span class="divider-icon"><i class="fa-solid fa-gauge-high"></i></span><div class="divider-line"></div></div>
+    <!-- System Progress Bar -->
+    <div class="mb-4">
+      <label class="form-label text-light">Personnel Readiness</label>
+      <div class="progress" style="height: 24px;">
+        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" style="width: 90%;font-size:1.1rem;">90%</div>
+      </div>
+    </div>
+    <!-- Section Divider -->
+    <div class="section-divider"><div class="divider-line"></div><span class="divider-icon"><i class="fa-solid fa-list"></i></span><div class="divider-line"></div></div>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover align-middle bg-dark bg-opacity-75 text-white">
+        <thead class="table-dark">
           <tr>
-            <td>{{ soldier.name }}</td>
-            <td><span class="badge bg-primary">{{ soldier.rank }}</span></td>
-            <td><span class="badge bg-secondary">{{ soldier.status }}</span></td>
+            <th><i class="fa-solid fa-user"></i> Name</th>
+            <th><i class="fa-solid fa-medal"></i> Rank</th>
+            <th><i class="fa-solid fa-flag"></i> Status</th>
           </tr>
-        {% empty %}
-          <tr><td colspan="3" class="text-center">No soldiers available.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {% for soldier in soldiers %}
+            <tr>
+              <td>{{ soldier.name }}</td>
+              <td><span class="badge bg-primary">{{ soldier.rank }}</span></td>
+              <td><span class="badge bg-secondary">{{ soldier.status }}</span></td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="3" class="text-center">No soldiers available.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
+<script>
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('live-clock').textContent =
+      now.toUTCString().replace('GMT', 'UTC');
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+  // Show a toast on page load
+  window.onload = function() {
+    showToast('Soldier dashboard loaded!', 'info');
+  };
+</script>
 {% endblock %}

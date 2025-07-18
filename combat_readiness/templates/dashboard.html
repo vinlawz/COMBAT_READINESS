@@ -1,152 +1,103 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Dashboard | Combat Readiness{% endblock %}
 {% block content %}
-<div class="container py-4">
-  <h1 class="mb-4">Welcome, {{ user.username }}!</h1>
-  <div class="row mb-4">
-    <div class="col-12 col-md-3 mb-3">
-      <div class="card text-center shadow h-100">
-        <div class="card-body">
-          <h5 class="card-title">Soldiers</h5>
-          <p class="display-6 fw-bold">{{ num_soldiers }}</p>
+<div class="container py-4" style="background: url('{% static 'img/camo-bg.jpg' %}') center center/cover no-repeat; border-radius: 18px; box-shadow: 0 0 32px #232d23cc, 0 0 8px #3a3f2d99;">
+  <!-- Live UTC Clock -->
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <div></div>
+    <div class="text-end text-light small mb-2" id="live-clock"></div>
+  </div>
+  <script>
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('live-clock').textContent =
+        now.toUTCString().replace('GMT', 'UTC');
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+    // Show a welcome toast on page load
+    window.onload = function() {
+      showToast('Welcome to your Dashboard!', 'success');
+    };
+  </script>
+  <div style="background: rgba(34,45,35,0.85); border-radius: 18px; padding: 24px 12px;">
+    <h1 class="mb-4 text-warning"><i class="fa-solid fa-chart-pie me-2"></i>Welcome, {{ user.username }}!</h1>
+    <!-- Section Divider -->
+    <div class="section-divider"><div class="divider-line"></div><span class="divider-icon"><i class="fa-solid fa-gauge-high"></i></span><div class="divider-line"></div></div>
+    <!-- System Readiness Progress Bar -->
+    <div class="mb-4">
+      <label class="form-label text-light">System Readiness</label>
+      <div class="progress" style="height: 28px;">
+        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" style="width: 88%;font-size:1.1rem;">88%</div>
+      </div>
+    </div>
+    <!-- Section Divider -->
+    <div class="section-divider"><div class="divider-line"></div><span class="divider-icon"><i class="fa-solid fa-list"></i></span><div class="divider-line"></div></div>
+    <!-- Quick Stats Widget -->
+    <div class="row mb-4 g-4">
+      <div class="col-12 col-md-3">
+        <div class="card text-center shadow h-100 border-success border-3">
+          <div class="card-body">
+            <h5 class="card-title text-success"><i class="fa-solid fa-users me-2"></i>Soldiers</h5>
+            <p class="display-6 fw-bold">{{ num_soldiers }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="card text-center shadow h-100 border-info border-3">
+          <div class="card-body">
+            <h5 class="card-title text-info"><i class="fa-solid fa-truck-monster me-2"></i>Equipment</h5>
+            <p class="display-6 fw-bold">{{ num_equipment }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="card text-center shadow h-100 border-warning border-3">
+          <div class="card-body">
+            <h5 class="card-title text-warning"><i class="fa-solid fa-bullseye me-2"></i>Missions</h5>
+            <p class="display-6 fw-bold">{{ num_missions }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="card text-center shadow h-100 border-danger border-3">
+          <div class="card-body">
+            <h5 class="card-title text-danger"><i class="fa-solid fa-radio me-2"></i>Notifications</h5>
+            <p class="display-6 fw-bold">{{ num_unread_notifications }}</p>
+          </div>
         </div>
       </div>
     </div>
-    <div class="col-12 col-md-3 mb-3">
-      <div class="card text-center shadow h-100">
-        <div class="card-body">
-          <h5 class="card-title">Equipment</h5>
-          <p class="display-6 fw-bold">{{ num_equipment }}</p>
-        </div>
+    <!-- Section Divider -->
+    <div class="section-divider"><div class="divider-line"></div><span class="divider-icon"><i class="fa-solid fa-user"></i></span><div class="divider-line"></div></div>
+    <!-- Profile Card -->
+    <div class="card shadow border-success border-2 mb-4" style="max-width: 400px; margin: 0 auto;">
+      <div class="card-body text-center">
+        <img src="{{ user.profile.profile_image.url }}" alt="Profile" class="rounded-circle border border-3 border-warning shadow mb-3" style="width:90px;height:90px;object-fit:cover;">
+        <h5 class="card-title mb-0">{{ user.username }}</h5>
+        <div class="text-muted mb-2">{{ user.email }}</div>
+        <span class="badge bg-success mb-2"><i class="fa-solid fa-user me-1"></i>User</span>
+        <p class="mb-0">{{ user.profile.short_bio|default:'No bio provided.' }}</p>
       </div>
     </div>
-    <div class="col-12 col-md-3 mb-3">
-      <div class="card text-center shadow h-100">
-        <div class="card-body">
-          <h5 class="card-title">Missions</h5>
-          <p class="display-6 fw-bold">{{ num_missions }}</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-12 col-md-3 mb-3">
-      <div class="card text-center shadow h-100">
-        <div class="card-body">
-          <h5 class="card-title">Unread Notifications</h5>
-          <p class="display-6 fw-bold">{{ num_unread_notifications }}</p>
-          <form method="post" action="{% url 'mark_all_notifications_read' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-sm btn-outline-secondary mt-2 w-100">Mark All as Read</button>
-          </form>
-        </div>
-      </div>
+    <!-- Section Divider -->
+    <div class="section-divider"><div class="divider-line"></div><span class="divider-icon"><i class="fa-solid fa-bell"></i></span><div class="divider-line"></div></div>
+    <!-- Recent Notifications Widget -->
+    <div class="card shadow border-info border-2 mb-4">
+      <div class="card-header bg-info text-dark fw-bold"><i class="fa-solid fa-bell me-2"></i>Recent Notifications</div>
+      <ul class="list-group list-group-flush">
+        {% for notification in recent_notifications %}
+          <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+            <span><span class="badge bg-{{ notification.get_type_color }} me-2">{{ notification.type|title }}</span>{{ notification.message }}</span>
+            <span class="badge bg-light text-dark mt-2 mt-md-0">{{ notification.created_at|date:"Y-m-d H:i" }}</span>
+          </li>
+        {% empty %}
+          <li class="list-group-item text-muted">No recent notifications.</li>
+        {% endfor %}
+      </ul>
     </div>
   </div>
-
-  <div class="row mb-4">
-    <div class="col-12 col-md-4 mb-3">
-      <div class="card shadow h-100">
-        <div class="card-header bg-info text-white">Upcoming Missions (7 days)</div>
-        <ul class="list-group list-group-flush">
-          {% for mission in upcoming_missions %}
-            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-              <span>{{ mission.name }} ({{ mission.status }})</span>
-              <span class="badge bg-secondary mt-2 mt-md-0">{{ mission.start_date }}</span>
-            </li>
-          {% empty %}
-            <li class="list-group-item">No upcoming missions.</li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-    <div class="col-12 col-md-4 mb-3">
-      <div class="card shadow h-100">
-        <div class="card-header bg-danger text-white">Equipment Needing Repair</div>
-        <ul class="list-group list-group-flush">
-          {% for eq in equipment_needing_repair %}
-            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-              <span>{{ eq.name }} ({{ eq.category }})</span>
-              <span class="badge bg-warning text-dark mt-2 mt-md-0">Needs Repair</span>
-            </li>
-          {% empty %}
-            <li class="list-group-item">All equipment in good condition.</li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-    <div class="col-12 col-md-4 mb-3">
-      <div class="card shadow h-100">
-        <div class="card-header bg-warning text-dark">Soldiers with Poor Readiness</div>
-        <ul class="list-group list-group-flush">
-          {% for soldier in poor_soldiers %}
-            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-              <span>{{ soldier.name }} ({{ soldier.rank }})</span>
-              <span class="badge bg-danger mt-2 mt-md-0">Poor</span>
-            </li>
-          {% empty %}
-            <li class="list-group-item">No soldiers with poor readiness.</li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-12 col-md-6 mb-3">
-      <div class="card shadow h-100">
-        <div class="card-header bg-primary text-white">Recent Missions</div>
-        <ul class="list-group list-group-flush">
-          {% for mission in recent_missions %}
-            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-              <span>{{ mission.name }} ({{ mission.status }})</span>
-              <span class="badge bg-secondary mt-2 mt-md-0">{{ mission.start_date }}</span>
-            </li>
-          {% empty %}
-            <li class="list-group-item">No recent missions.</li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-    <div class="col-12 col-md-6 mb-3">
-      <div class="card shadow h-100">
-        <div class="card-header bg-success text-white">Recent Readiness Reports</div>
-        <ul class="list-group list-group-flush">
-          {% for report in recent_reports %}
-            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-              <span>{{ report.soldier.name }}: <span class="badge bg-{{ report.get_readiness_color }}">{{ report.overall_readiness }}</span></span>
-              <span class="badge bg-secondary mt-2 mt-md-0">{{ report.last_training_date }}</span>
-            </li>
-          {% empty %}
-            <li class="list-group-item">No recent reports.</li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-12 mb-3">
-      <div class="card shadow h-100">
-        <div class="card-header bg-warning text-dark">Recent Notifications</div>
-        <ul class="list-group list-group-flush">
-          {% for notification in recent_notifications %}
-            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-              <span><span class="badge bg-{{ notification.get_type_color }} me-2">{{ notification.type|title }}</span>{{ notification.message }}</span>
-              <span class="badge bg-light text-dark mt-2 mt-md-0">{{ notification.created_at|date:"Y-m-d H:i" }}</span>
-            </li>
-          {% empty %}
-            <li class="list-group-item">No recent notifications.</li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-12 text-end">
-      <a href="/missions/create/" class="btn btn-primary mb-2">Create Mission</a>
-      <a href="/soldiers/create/" class="btn btn-success mb-2">Add Soldier</a>
-      <a href="/equipment/create/" class="btn btn-info mb-2">Add Equipment</a>
-    </div>
-  </div>
-  <button onclick="window.scrollTo({top:0,behavior:'smooth'});" class="btn btn-warning position-fixed" style="bottom:24px;right:24px;z-index:999;display:none;" id="backToTopBtn"><i class="fa-solid fa-arrow-up"></i></button>
 </div>
 {% endblock %}
 {% block extra_js %}

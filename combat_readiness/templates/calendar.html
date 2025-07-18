@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Mission Calendar | Combat Readiness{% endblock %}
 {% block extra_head %}
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
@@ -47,7 +48,7 @@
 {% endblock %}
 {% block content %}
 <div class="container py-4">
-  <h1 class="mb-4 cyberpunk-glow"><i class="fa-solid fa-calendar-days me-2"></i>Mission Calendar</h1>
+  <h1 class="mb-4"><i class="fa-solid fa-calendar-days me-2"></i>Mission Calendar</h1>
   <div class="filter-bar mb-3">
     <form id="calendar-filter-form" class="d-flex flex-wrap align-items-center gap-3">
       <span class="me-2">Show:</span>

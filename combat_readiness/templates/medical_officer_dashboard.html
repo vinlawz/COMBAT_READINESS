@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4" style="background: url('{% static 'img/camo-bg.jpg' %}') center center/cover no-repeat; border-radius: 18px; box-shadow: 0 0 32px #232d23cc, 0 0 8px #3a3f2d99;">
+  <div style="background: rgba(34,45,35,0.85); border-radius: 18px; padding: 24px 12px;">
+    <!-- original content here -->
+    {% comment %} Insert the rest of the original content here {% endcomment %}
+    {% block original_content %}{% endblock %}
+  </div>
+</div>
+{% endblock %} 

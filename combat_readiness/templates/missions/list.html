@@ -1,67 +1,101 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Missions | Combat Readiness{% endblock %}
 {% block content %}
-<div class="mb-4 d-flex justify-content-between align-items-center">
-    <h1 class="fw-bold">Missions</h1>
-    {% if user.role == 'admin' or user.role == 'unit_leader' or user.role == 'medical_officer' %}
-        <a href="{% url 'mission-create' %}" class="btn btn-success"><i class="fa fa-plus"></i> New Mission</a>
+<div class="container py-4" style="background: url('{% static 'img/camo-bg.jpg' %}') center center/cover no-repeat; border-radius: 18px; box-shadow: 0 0 32px #232d23cc, 0 0 8px #3a3f2d99;">
+  <!-- Live UTC Clock -->
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <div></div>
+    <div class="text-end text-light small mb-2" id="live-clock"></div>
+  </div>
+  <script>
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('live-clock').textContent =
+        now.toUTCString().replace('GMT', 'UTC');
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+    // Show a toast on page load
+    window.onload = function() {
+      showToast('Mission dashboard loaded!', 'info');
+    };
+  </script>
+  <div style="background: rgba(34,45,35,0.85); border-radius: 18px; padding: 24px 12px;">
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <h1 class="fw-bold text-warning"><i class="fa-solid fa-bullseye me-2"></i>Missions</h1>
+        {% if user.role == 'admin' or user.role == 'unit_leader' or user.role == 'medical_officer' %}
+            <a href="{% url 'mission-create' %}" class="btn btn-success"><i class="fa fa-plus"></i> New Mission</a>
+        {% endif %}
+    </div>
+    <!-- Section Divider -->
+    <div class="section-divider"><div class="divider-line"></div><span class="divider-icon"><i class="fa-solid fa-gauge-high"></i></span><div class="divider-line"></div></div>
+    <!-- System Progress Bar -->
+    <div class="mb-4">
+      <label class="form-label text-light">Mission Progress</label>
+      <div class="progress" style="height: 24px;">
+        <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated" style="width: 75%;font-size:1.1rem;">75%</div>
+      </div>
+    </div>
+    <!-- Section Divider -->
+    <div class="section-divider"><div class="divider-line"></div><span class="divider-icon"><i class="fa-solid fa-list"></i></span><div class="divider-line"></div></div>
+    <form method="get" class="row g-2 mb-4">
+        <div class="col-md-3">
+            <input type="text" name="search" class="form-control" placeholder="Search by name or location" value="{{ filter_search }}">
+        </div>
+        <div class="col-md-3">
+            <select name="status" class="form-select">
+                <option value="">All Statuses</option>
+                {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if filter_status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select name="priority" class="form-select">
+                <option value="">All Priorities</option>
+                {% for value, label in priority_choices %}
+                    <option value="{{ value }}" {% if filter_priority == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary w-100"><i class="fa fa-filter"></i> Filter</button>
+        </div>
+    </form>
+    {% if missions %}
+    <table class="table table-dark table-hover table-bordered">
+        <thead>
+            <tr>
+                <th><i class="fa-solid fa-bullseye"></i> Name</th>
+                <th><i class="fa-solid fa-flag"></i> Status</th>
+                <th><i class="fa-solid fa-bolt"></i> Priority</th>
+                <th><i class="fa-solid fa-calendar-day"></i> Start Date</th>
+                <th><i class="fa-solid fa-calendar-check"></i> End Date</th>
+                <th><i class="fa-solid fa-gears"></i> Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for mission in missions %}
+            <tr>
+                <td><a href="{% url 'mission-detail' mission.pk %}">{{ mission.name }}</a></td>
+                <td>{{ mission.status }}</td>
+                <td>{{ mission.priority }}</td>
+                <td>{{ mission.start_date }}</td>
+                <td>{{ mission.end_date|default:'-' }}</td>
+                <td>
+                    <a href="{% url 'mission-detail' mission.pk %}" class="btn btn-sm btn-primary"><i class="fa-solid fa-eye"></i> View</a>
+                    {% if user.role == 'admin' or user.role == 'unit_leader' or user.role == 'medical_officer' %}
+                        <a href="{% url 'mission-edit' mission.pk %}" class="btn btn-sm btn-warning"><i class="fa-solid fa-pen"></i> Edit</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div class="alert alert-info">No missions yet.</div>
     {% endif %}
+  </div>
 </div>
-<form method="get" class="row g-2 mb-4">
-    <div class="col-md-3">
-        <input type="text" name="search" class="form-control" placeholder="Search by name or location" value="{{ filter_search }}">
-    </div>
-    <div class="col-md-3">
-        <select name="status" class="form-select">
-            <option value="">All Statuses</option>
-            {% for value, label in status_choices %}
-                <option value="{{ value }}" {% if filter_status == value %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="col-md-3">
-        <select name="priority" class="form-select">
-            <option value="">All Priorities</option>
-            {% for value, label in priority_choices %}
-                <option value="{{ value }}" {% if filter_priority == value %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="col-md-3">
-        <button type="submit" class="btn btn-primary w-100"><i class="fa fa-filter"></i> Filter</button>
-    </div>
-</form>
-{% if missions %}
-<table class="table table-dark table-hover table-bordered">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Status</th>
-            <th>Priority</th>
-            <th>Start Date</th>
-            <th>End Date</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for mission in missions %}
-        <tr>
-            <td><a href="{% url 'mission-detail' mission.pk %}">{{ mission.name }}</a></td>
-            <td>{{ mission.status }}</td>
-            <td>{{ mission.priority }}</td>
-            <td>{{ mission.start_date }}</td>
-            <td>{{ mission.end_date|default:'-' }}</td>
-            <td>
-                <a href="{% url 'mission-detail' mission.pk %}" class="btn btn-sm btn-primary">View</a>
-                {% if user.role == 'admin' or user.role == 'unit_leader' or user.role == 'medical_officer' %}
-                    <a href="{% url 'mission-edit' mission.pk %}" class="btn btn-sm btn-warning">Edit</a>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-    <div class="alert alert-info">No missions yet.</div>
-{% endif %}
 {% endblock %} 

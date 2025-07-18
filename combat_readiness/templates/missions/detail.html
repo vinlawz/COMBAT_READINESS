@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Mission: {{ mission.name }} | Combat Readiness{% endblock %}
 {% block content %}
 <a href="{% url 'mission-list' %}" class="btn btn-secondary mb-3">&larr; Back to Missions</a>
