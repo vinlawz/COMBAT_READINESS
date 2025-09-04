@@ -14,6 +14,7 @@ from .views import (
     verify_view, CustomLoginView, DashboardView, MarkAllNotificationsReadView, CalendarView, MissionEventsJsonView, AdvancedSearchView, ExportMissionsCSVView, ExportReadinessCSVView, AuditLogView, NotificationsJsonView, BulkAssignEquipmentView, NotificationsListView, BulkMarkNotificationsReadView
 )
 
+# Main URL patterns
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('dashboard/', DashboardView.as_view(), name='dashboard'),

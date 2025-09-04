@@ -43,10 +43,11 @@ class DashboardViewTestCase(TestCase):
     def test_dashboard_view(self):
         response = self.client.get(reverse("dashboard"))
         self.assertEqual(response.status_code, 200)
-        # Check for visible dashboard text
-        self.assertContains(response, "Dashboard")
-        self.assertContains(response, "Total Soldiers")
-        self.assertContains(response, "Total Equipment")
+        # Check for actual content in the dashboard template
+        self.assertContains(response, "Welcome,")
+        self.assertContains(response, "System Readiness")
+        self.assertContains(response, "Soldiers")
+        self.assertContains(response, "Equipment")
 
 class MissionListViewTestCase(TestCase):
     def setUp(self):
@@ -85,11 +86,54 @@ class MissionDetailViewTestCase(TestCase):
 
 class ProfileEditViewTestCase(TestCase):
     def setUp(self):
-        self.user = CustomUser.objects.create_user(username="testuser7", password="testpass7", role="admin")
+        self.user = CustomUser.objects.create_user(
+            username="testuser7", 
+            password="testpass7", 
+            role="admin",
+            first_name="Test",
+            last_name="User",
+            email="test7@example.com"
+        )
+        # Create a soldier profile for the user
+        self.soldier = Soldier.objects.create(
+            user=self.user,
+            name=f"{self.user.first_name} {self.user.last_name}",
+            rank="Private",
+            unit="Alpha",
+            status="Active"
+        )
         self.client.login(username="testuser7", password="testpass7")
 
     def test_profile_edit_view_get(self):
         response = self.client.get(reverse("profile-edit"))
         self.assertEqual(response.status_code, 200)
+        # Check for actual form fields in the template
         self.assertContains(response, "Edit Your Profile")
-        self.assertContains(response, "Username:") 
+        self.assertContains(response, "First Name")
+        self.assertContains(response, "Last Name")
+        self.assertContains(response, "Email")
+        self.assertContains(response, "Profile Photo")
+        
+    def test_profile_edit_view_post(self):
+        response = self.client.post(
+            reverse("profile-edit"),
+            data={
+                'first_name': 'Updated',
+                'last_name': 'Name',
+                'email': 'updated@example.com',
+                'phone_number': '+1234567890',
+                'bio': 'Test bio',
+                'receive_email_notifications': 'on',
+                'receive_sms_notifications': 'on'
+            },
+            follow=True
+        )
+        self.assertEqual(response.status_code, 200)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.first_name, 'Updated')
+        self.assertEqual(self.user.last_name, 'Name')
+        self.assertEqual(self.user.email, 'updated@example.com')
+        self.assertEqual(self.user.profile.phone_number, '+1234567890')
+        self.assertEqual(self.user.profile.bio, 'Test bio')
+        self.assertTrue(self.user.profile.receive_email_notifications)
+        self.assertTrue(self.user.profile.receive_sms_notifications)

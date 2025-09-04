@@ -27,32 +27,44 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.http import JsonResponse
 import csv
-from django.utils.encoding import smart_str
+from django.utils.encoding import smart_str, force_str, force_bytes
 from django.http import HttpResponse
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.contrib.auth.tokens import default_token_generator
+from .utils import account_activation_token, send_verification_email
+import logging
+
+logger = logging.getLogger(__name__)
 
 #  Register View
 class RegisterView(CreateView):
     model = CustomUser
-    
     form_class = CustomUserCreationForm
     template_name = 'registration/register.html'
-    success_url = reverse_lazy('login')  # Redirect to login after registration
+    success_url = reverse_lazy('login')
 
     def form_valid(self, form):
         user = form.save(commit=False)
+        user.is_active = False  # Deactivate account until email is verified
         user.is_verified = False
         user.save()
-        # Send verification email (mock)
-        current_site = get_current_site(self.request)
-        subject = 'Verify your account'
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        token = default_token_generator.make_token(user)
-        verification_link = self.request.build_absolute_uri(
-            reverse('verify', kwargs={'uidb64': uid, 'token': token})
-        )
-        message = f'Click the link to verify your account: {verification_link}'
-        send_mail(subject, message, 'noreply@combatreadiness.com', [user.email], fail_silently=True)
-        messages.info(self.request, 'Registration successful! Please check your email to verify your account.')
+        
+        # Send verification email
+        try:
+            send_verification_email(self.request, user)
+            messages.info(
+                self.request,
+                'Registration successful! Please check your email to verify your account.'
+            )
+        except Exception as e:
+            logger.error(f"Error sending verification email: {e}")
+            messages.error(
+                self.request,
+                'There was an error sending the verification email. Please try again.'
+            )
+            return super().form_invalid(form)
+            
         return redirect('login')
 
 #  Home Page View
@@ -122,9 +134,21 @@ class BulkAssignEquipmentView(LoginRequiredMixin, View):
 
 class EquipmentCreateView(LoginRequiredMixin, CreateView):
     model = Equipment
-    template_name = 'equipment/create.html'
+    template_name = 'Equipment/create.html'
     fields = ['name', 'category', 'condition', 'assigned_to']
-    success_url = reverse_lazy('equipment-list')  # Fixed!
+    success_url = reverse_lazy('equipment-list')
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # Add form-control class to all form fields
+        for field_name, field in form.fields.items():
+            field.widget.attrs.update({'class': 'form-control'})
+        return form
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Add New Equipment'
+        return context
 
 class EquipmentRetrieveUpdateDeleteView(LoginRequiredMixin, DetailView, UpdateView, DeleteView):
     model = Equipment
@@ -162,19 +186,47 @@ class ProfileView(LoginRequiredMixin, DetailView):
 
 # 🚀 Profile Edit View (Edit User Profile)
 def profile_edit_view(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+        
     user = request.user
     profile = user.profile
+    
     if request.method == 'POST':
         user_form = UserProfileEditForm(request.POST, instance=user)
         profile_form = UserProfileForm(request.POST, request.FILES, instance=profile)
+        
         if user_form.is_valid() and profile_form.is_valid():
-            user_form.save()
-            profile_form.save()
-            messages.success(request, 'Your profile was updated successfully!')
-            return redirect('profile')
+            try:
+                # Handle file upload
+                if 'profile_image' in request.FILES:
+                    # Delete old file if it exists and is not the default
+                    if profile.profile_image and 'default-avatar' not in str(profile.profile_image):
+                        profile.profile_image.delete(save=False)
+                
+                # Save forms
+                user = user_form.save()
+                profile = profile_form.save(commit=False)
+                profile.user = user
+                profile.save()
+                
+                messages.success(request, 'Your profile was updated successfully!')
+                return redirect('profile')
+                
+            except Exception as e:
+                messages.error(request, f'Error updating profile: {str(e)}')
+        else:
+            # Form validation failed
+            for field, errors in user_form.errors.items():
+                for error in errors:
+                    messages.error(request, f'Error in {field}: {error}')
+            for field, errors in profile_form.errors.items():
+                for error in errors:
+                    messages.error(request, f'Error in {field}: {error}')
     else:
         user_form = UserProfileEditForm(instance=user)
         profile_form = UserProfileForm(instance=profile)
+        
     return render(request, 'profile_edit.html', {
         'user_form': user_form,
         'profile_form': profile_form,
@@ -184,7 +236,8 @@ def profile_edit_view(request):
 class AdminRequiredMixin(LoginRequiredMixin):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.role == 'admin':
-            return redirect('home')  # Redirect to home or another page if not admin
+            from django.http import HttpResponseForbidden
+            return HttpResponseForbidden("You don't have permission to access this page.")
         return super().dispatch(request, *args, **kwargs)
 
 class MedicalOfficerRequiredMixin(LoginRequiredMixin):
@@ -404,10 +457,15 @@ def verify_view(request, uidb64, token):
         user = CustomUser.objects.get(pk=uid)
     except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
         user = None
-    if user is not None and default_token_generator.check_token(user, token):
-        user.is_verified = True
-        user.save()
-        messages.success(request, 'Your account has been verified! You can now log in.')
+    
+    if user is not None and account_activation_token.check_token(user, token):
+        if user.is_verified:
+            messages.info(request, 'Your account is already verified. Please log in.')
+        else:
+            user.is_verified = True
+            user.is_active = True  # Activate the account
+            user.save()
+            messages.success(request, 'Your account has been verified! You can now log in.')
         return redirect('login')
     else:
         return HttpResponse('Verification link is invalid or expired.', status=400)
@@ -418,6 +476,22 @@ class CustomLoginView(LoginView):
     def form_valid(self, form):
         user = form.get_user()
         if not user.is_verified:
+            # Resend verification email if not verified
+            try:
+                send_verification_email(self.request, user)
+                messages.warning(
+                    self.request,
+                    'Your account is not verified. A new verification email has been sent. '\
+                    'Please check your email and verify your account.'
+                )
+            except Exception as e:
+                logger.error(f"Error resending verification email: {e}")
+                messages.error(
+                    self.request,
+                    'Your account is not verified and we could not resend the verification email. '\
+                    'Please contact support.'
+                )
+            return redirect('login')
             messages.error(self.request, 'Your account is not verified. Please check your email.')
             return redirect('login')
         return super().form_valid(form)

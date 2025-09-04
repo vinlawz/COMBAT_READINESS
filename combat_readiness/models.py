@@ -56,7 +56,11 @@ class CustomUser(AbstractUser):
 # ✅ User Profile Model
 class UserProfile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='profile')
-    profile_image = models.ImageField(upload_to='profile_images/', default='default.jpg')
+    profile_image = models.ImageField(
+        upload_to='profile_images/',
+        default='profile_images/default-avatar.png',
+        blank=True
+    )
     bio = models.TextField(blank=True, null=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True, help_text='For SMS notifications (optional)')
     receive_email_notifications = models.BooleanField(default=True, help_text='Receive important email notifications')
@@ -66,9 +70,33 @@ class UserProfile(models.Model):
         return f"{self.user.username}'s Profile"
 
     def get_image_url(self):
-        if self.profile_image and hasattr(self.profile_image, 'url'):
+        if self.profile_image and hasattr(self.profile_image, 'url') and self.profile_image.url:
             return self.profile_image.url
-        return '/media/profile_images/default.jpg'
+        return '/static/img/default-avatar.png'
+
+    def save(self, *args, **kwargs):
+        # Delete old file when updating
+        if self.pk:
+            try:
+                old_instance = UserProfile.objects.get(pk=self.pk)
+                if old_instance.profile_image and old_instance.profile_image != self.profile_image:
+                    # Only delete if it's not the default avatar
+                    if 'default-avatar' not in str(old_instance.profile_image):
+                        old_instance.profile_image.delete(save=False)
+            except UserProfile.DoesNotExist:
+                pass
+        
+        # Ensure we have a default image if none is provided
+        if not self.profile_image:
+            self.profile_image = 'profile_images/default-avatar.png'
+            
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        # Delete the image file when the profile is deleted
+        if self.profile_image and 'default-avatar' not in str(self.profile_image):
+            self.profile_image.delete(save=False)
+        super().delete(*args, **kwargs)
 
     def short_bio(self, length=50):
         if self.bio:
