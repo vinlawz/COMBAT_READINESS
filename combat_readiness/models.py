@@ -398,14 +398,78 @@ class AuditLog(models.Model):
     def __str__(self):
         return f"{self.timestamp} {self.user} {self.action} {self.model} {self.object_repr}"
 
+# 🏥 Medical Record Model
+class MedicalRecord(models.Model):
+    BLOOD_TYPES = [
+        ('A+', 'A+'), ('A-', 'A-'),
+        ('B+', 'B+'), ('B-', 'B-'),
+        ('AB+', 'AB+'), ('AB-', 'AB-'),
+        ('O+', 'O+'), ('O-', 'O-'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('FIT', 'Fit for Duty'),
+        ('LIMITED', 'Limited Duty'),
+        ('UNFIT', 'Unfit for Duty'),
+        ('TEMPORARY', 'Temporary Medical Hold'),
+    ]
+    
+    soldier = models.OneToOneField(Soldier, on_delete=models.CASCADE, related_name='medical_record')
+    blood_type = models.CharField(max_length=3, choices=BLOOD_TYPES, blank=True, null=True)
+    known_allergies = models.TextField(blank=True, help_text='List any known allergies')
+    current_medications = models.TextField(blank=True, help_text='Current medications and dosages')
+    medical_conditions = models.TextField(blank=True, help_text='Any chronic or significant medical conditions')
+    last_medical_checkup = models.DateField(null=True, blank=True)
+    next_checkup_due = models.DateField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='FIT')
+    notes = models.TextField(blank=True, help_text='Additional medical notes')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-updated_at']
+        verbose_name = 'Medical Record'
+        verbose_name_plural = 'Medical Records'
+    
+    def __str__(self):
+        return f"Medical Record - {self.soldier.name} ({self.status})"
+    
+    def is_medical_clearance_valid(self):
+        """Check if the medical clearance is still valid (within 1 year)."""
+        if not self.last_medical_checkup:
+            return False
+        return (timezone.now().date() - self.last_medical_checkup).days <= 365
+    
+    def get_medical_status_color(self):
+        """Return a color code based on medical status."""
+        status_colors = {
+            'FIT': 'success',
+            'LIMITED': 'warning',
+            'UNFIT': 'danger',
+            'TEMPORARY': 'info',
+        }
+        return status_colors.get(self.status, 'secondary')
+    
+    def clean(self):
+        if self.next_checkup_due and self.last_medical_checkup:
+            if self.next_checkup_due <= self.last_medical_checkup:
+                raise ValidationError('Next checkup date must be after the last checkup date.')
+
+# Signal to create a medical record when a new soldier is created
+@receiver(post_save, sender=Soldier)
+def create_medical_record(sender, instance, created, **kwargs):
+    if created:
+        MedicalRecord.objects.create(soldier=instance)
+
 # Connect signals for major models
-for model in [Mission, Soldier, Equipment, ReadinessReport, TrainingEvent, Notification, UserProfile]:
+for model in [Mission, Soldier, Equipment, ReadinessReport, TrainingEvent, Notification, UserProfile, MedicalRecord]:
     def make_post_save(model):
         def handler(sender, instance, created, **kwargs):
             action = 'create' if created else 'update'
             log_audit(instance, action)
         return handler
     post_save.connect(make_post_save(model), sender=model)
+    
     def make_post_delete(model):
         def handler(sender, instance, **kwargs):
             log_audit(instance, 'delete')

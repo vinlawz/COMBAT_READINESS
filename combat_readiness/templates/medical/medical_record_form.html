@@ -1,0 +1,211 @@
+{% extends 'medical/base_medical.html' %}
+{% load crispy_forms_tags %}
+
+{% block header %}
+    {% if form.instance.pk %}Edit{% else %}Add{% endif %} Medical Record
+    {% if form.instance.pk %}
+        <small class="text-muted">{{ form.instance.soldier.name }}</small>
+    {% endif %}
+{% endblock %}
+
+{% block actions %}
+    <a href="{% if form.instance.pk %}{% url 'medical-record-detail' form.instance.pk %}{% else %}{% url 'medical-record-list' %}{% endif %}" 
+       class="btn btn-outline-secondary btn-sm">
+        <i class="fas fa-arrow-left"></i> Cancel
+    </a>
+    <button type="submit" form="medicalRecordForm" class="btn btn-primary btn-sm">
+        <i class="fas fa-save"></i> Save Changes
+    </button>
+{% endblock %}
+
+{% block medical_content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" id="medicalRecordForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.blood_type|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.status|as_crispy_field }}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.last_medical_checkup|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.next_checkup_due|as_crispy_field }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.medical_conditions|as_crispy_field }}
+                        <small class="form-text text-muted">List any chronic or significant medical conditions.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.known_allergies|as_crispy_field }}
+                        <small class="form-text text-muted">Include any known allergies to medications, foods, or other substances.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.current_medications|as_crispy_field }}
+                        <small class="form-text text-muted">List all current medications with dosages if known.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.notes|as_crispy_field }}
+                        <small class="form-text text-muted">Additional medical notes or observations.</small>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Save Changes
+                        </button>
+                        <a href="{% if form.instance.pk %}{% url 'medical-record-detail' form.instance.pk %}{% else %}{% url 'medical-record-list' %}{% endif %}" 
+                           class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Medical Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Please ensure all information is accurate and up-to-date.
+                </div>
+                
+                <h6>Status Definitions:</h6>
+                <ul class="list-unstyled small">
+                    <li class="mb-2">
+                        <span class="badge bg-success">Fit for Duty</span>
+                        <p class="mb-0 text-muted">No restrictions, fully deployable</p>
+                    </li>
+                    <li class="mb-2">
+                        <span class="badge bg-warning">Limited Duty</span>
+                        <p class="mb-0 text-muted">Temporary restrictions apply</p>
+                    </li>
+                    <li class="mb-2">
+                        <span class="badge bg-danger">Unfit for Duty</span>
+                        <p class="mb-0 text-muted">Not deployable, requires medical attention</p>
+                    </li>
+                    <li>
+                        <span class="badge bg-info">Temporary Medical Hold</span>
+                        <p class="mb-0 text-muted">Pending further evaluation</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Record Information</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row small">
+                    <dt class="col-sm-5">Created:</dt>
+                    <dd class="col-sm-7 text-muted">
+                        {% if form.instance.created_at %}
+                            {{ form.instance.created_at|date:"M j, Y" }}
+                        {% else %}
+                            New record
+                        {% endif %}
+                    </dd>
+                    
+                    <dt class="col-sm-5">Last Updated:</dt>
+                    <dd class="col-sm-7 text-muted">
+                        {% if form.instance.updated_at %}
+                            {{ form.instance.updated_at|timesince }} ago
+                        {% else %}
+                            Never
+                        {% endif %}
+                    </dd>
+                    
+                    {% if form.instance.last_medical_checkup %}
+                    <dt class="col-sm-5">Last Checkup:</dt>
+                    <dd class="col-sm-7 text-muted">
+                        {{ form.instance.last_medical_checkup|date:"M j, Y" }}
+                    </dd>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize date pickers
+        const dateInputs = document.querySelectorAll('input[type="date"]');
+        dateInputs.forEach(input => {
+            if (!input.value) {
+                input.value = new Date().toISOString().substr(0, 10);
+            }
+        });
+        
+        // Form validation
+        const form = document.getElementById('medicalRecordForm');
+        if (form) {
+            form.addEventListener('submit', function(event) {
+                const lastCheckup = document.querySelector('input[name="last_medical_checkup"]');
+                const nextCheckup = document.querySelector('input[name="next_checkup_due"]');
+                
+                if (lastCheckup.value && nextCheckup.value) {
+                    const lastDate = new Date(lastCheckup.value);
+                    const nextDate = new Date(nextCheckup.value);
+                    
+                    if (nextDate <= lastDate) {
+                        event.preventDefault();
+                        alert('Next checkup date must be after the last checkup date.');
+                        nextCheckup.focus();
+                    }
+                }
+            });
+        }
+        
+        // Status color coding
+        const statusSelect = document.querySelector('select[name="status"]');
+        if (statusSelect) {
+            const updateStatusBadge = () => {
+                const statusBadge = document.getElementById('statusBadge');
+                if (statusBadge) {
+                    const status = statusSelect.value.toLowerCase();
+                    const statusMap = {
+                        'fit': 'success',
+                        'limited': 'warning',
+                        'unfit': 'danger',
+                        'temporary': 'info'
+                    };
+                    
+                    // Remove all status classes
+                    Object.values(statusMap).forEach(cls => {
+                        statusBadge.classList.remove(`bg-${cls}`);
+                    });
+                    
+                    // Add the appropriate class
+                    const statusClass = statusMap[status] || 'secondary';
+                    statusBadge.classList.add(`bg-${statusClass}`);
+                }
+            };
+            
+            statusSelect.addEventListener('change', updateStatusBadge);
+            updateStatusBadge(); // Initial call
+        }
+    });
+</script>
+{% endblock %}

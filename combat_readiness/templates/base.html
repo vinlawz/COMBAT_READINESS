@@ -7,112 +7,336 @@
     <title>{% block title %}Combat Readiness{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-dark: #1a1f1a;
+            --primary-green: #4a7c59;
+            --accent-gold: #d4af37;
+            --light-bg: #f5f5f0;
+            --text-light: #f0f0f0;
+            --text-dark: #1a1f1a;
+            --transition-speed: 0.3s;
+        }
+
         body {
             min-height: 100vh;
             margin: 0;
-            font-family: 'Oswald', 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(135deg, #232d23 0%, #3a3f2d 100%), url('{% static "img/camo-bg.jpg" %}') no-repeat center center fixed;
-            background-blend-mode: overlay;
-            background-size: cover;
-            color: #e2e2d0;
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1a1f1a 0%, #2a332a 100%);
+            color: var(--text-light);
+            line-height: 1.6;
         }
+
+        /* Enhanced Typography */
+        h1, h2, h3, h4, h5, h6, .navbar-brand {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* Modern Navbar */
         .navbar {
-            background: rgba(34, 45, 35, 0.98) !important;
-            border-bottom: 2px solid #6b8e23;
-            box-shadow: 0 0 16px #232d23, 0 0 32px #3a3f2d44;
+            background: rgba(26, 31, 26, 0.98) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+            padding: 0.8rem 1rem;
         }
-        .navbar-brand, .nav-link, .dropdown-item {
-            color: #e2e2d0 !important;
-            font-family: 'Oswald', 'Segoe UI', Arial, sans-serif;
-            letter-spacing: 1px;
-            transition: color 0.2s, text-shadow 0.2s;
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            color: var(--accent-gold) !important;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+            transition: all var(--transition-speed) ease;
         }
-        .navbar-brand, .nav-link.active, .nav-link:hover, .dropdown-item:hover {
-            color: #b3b36b !important;
-            text-shadow: 0 0 4px #6b8e23;
+
+        .navbar-brand:hover {
+            color: #fff !important;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
         }
-        .profile-img-nav {
-            width: 32px; height: 32px; border-radius: 50%; object-fit: cover;
-            border: 2px solid #6b8e23; margin-left: 10px; box-shadow: 0 0 8px #232d23;
+
+        .nav-link {
+            color: var(--text-light) !important;
+            font-weight: 400;
+            padding: 0.5rem 1rem !important;
+            margin: 0 0.2rem;
+            border-radius: 4px;
+            transition: all var(--transition-speed) ease;
         }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(74, 124, 89, 0.2);
+            color: var(--accent-gold) !important;
+        }
+
+        .dropdown-menu {
+            background: var(--primary-dark);
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            border-radius: 8px;
+            padding: 0.5rem 0;
+            margin-top: 0.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .dropdown-item {
+            color: var(--text-light) !important;
+            padding: 0.5rem 1.5rem;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(74, 124, 89, 0.3);
+            color: var(--accent-gold) !important;
+            padding-left: 1.8rem;
+        }
+
+        /* Main Content Area */
         .container-main {
-            min-height: 80vh; padding-top: 30px;
-            background: rgba(34, 45, 35, 0.85);
-            border-radius: 18px;
-            box-shadow: 0 0 32px #232d23cc, 0 0 8px #3a3f2d99;
-            margin-top: 32px;
+            min-height: 80vh;
+            padding: 2rem;
+            background: rgba(26, 31, 26, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            margin: 2rem auto;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            transition: all 0.3s ease;
         }
-        .btn, .dropdown-menu {
-            background: #3a3f2d;
-            color: #b3b36b;
-            border: 1.5px solid #6b8e23;
-            box-shadow: 0 0 4px #232d23;
-            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-        }
-        .btn:hover, .dropdown-menu .dropdown-item:hover {
-            background: #6b8e23;
-            color: #fff;
-            box-shadow: 0 0 8px #b3b36b, 0 0 4px #232d23;
-        }
-        .alert {
-            background: linear-gradient(90deg, #6b8e23 0%, #b3b36b 100%);
-            color: #232d23;
+
+        /* Buttons */
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all var(--transition-speed) ease;
             border: none;
-            box-shadow: 0 0 8px #232d23, 0 0 8px #6b8e23;
         }
+
+        .btn-primary {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3a6347;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-outline-light {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-light);
+        }
+
+        .btn-outline-light:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(40, 45, 40, 0.7);
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            border-radius: 10px;
+            transition: all var(--transition-speed) ease;
+            margin-bottom: 1.5rem;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border-color: rgba(212, 175, 55, 0.3);
+        }
+
+        .card-header {
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+            font-weight: 500;
+            color: var(--accent-gold);
+        }
+
+        /* Forms */
+        .form-control, .form-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25);
+            color: white;
+        }
+
+        /* Footer */
         footer {
-            background: rgba(34, 45, 35, 0.98);
-            color: #b3b36b;
-            text-align: center;
-            padding: 16px 0;
-            margin-top: 40px;
-            border-top: 2px solid #6b8e23;
-            box-shadow: 0 0 16px #232d23, 0 0 32px #6b8e2344;
-            font-family: 'Oswald', 'Segoe UI', Arial, sans-serif;
-            letter-spacing: 1px;
+            background: rgba(20, 25, 20, 0.95);
+            color: var(--text-light);
+            padding: 2rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid rgba(212, 175, 55, 0.1);
+            font-size: 0.9rem;
         }
-        /* Remove neon grid overlay */
-        body::before {
-            display: none;
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .container-main, nav, footer { position: relative; z-index: 1; }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .container-main {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .navbar-collapse {
+                background: rgba(26, 31, 26, 0.98);
+                padding: 1rem;
+                border-radius: 8px;
+                margin-top: 0.5rem;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-green);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-gold);
+        }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
 <body>
 <!-- Global Loader Spinner -->
-<div id="global-loader" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2000;background:rgba(34,45,35,0.7);">
-  <div class="d-flex justify-content-center align-items-center" style="height:100vh;">
-    <div class="spinner-border text-warning" style="width:4rem;height:4rem;" role="status">
+<div id="global-loader" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2000;background:rgba(26,31,26,0.9);">
+  <div class="d-flex flex-column justify-content-center align-items-center" style="height:100vh;">
+    <div class="spinner-border text-warning mb-3" style="width:4rem;height:4rem;" role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
+    <p class="text-light mt-2">Loading Combat Readiness System</p>
   </div>
 </div>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="{% url 'home' %}"><i class="fa-solid fa-shield-halved me-2"></i>Combat Readiness</a>
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+      <i class="fas fa-shield-alt me-2"></i>
+      <span>Combat Readiness</span>
+    </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
+            <i class="fas fa-home me-1"></i> Home
+          </a>
+        </li>
         {% if user.is_authenticated %}
-          {% if user.role == 'admin' or user.role == 'medical_officer' or user.role == 'unit_leader' %}
-            <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}"><i class="fa-solid fa-chart-pie me-1"></i>Dashboard</a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'soldier-list' %}"><i class="fa-solid fa-users me-1"></i>Soldiers</a></li>
+          {% if user.role == 'admin' or user.role == 'medical_officer' %}
+            <li class="nav-item">
+              <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+                <i class="fas fa-chart-pie me-1"></i> Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if request.resolver_match.url_name == 'soldier-list' %}active{% endif %}" href="{% url 'soldier-list' %}">
+                <i class="fas fa-users me-1"></i> Soldiers
+              </a>
+            </li>
+            {% if user.role == 'admin' or user.role == 'medical_officer' %}
+            <li class="nav-item">
+              <a class="nav-link {% if request.resolver_match.url_name == 'medical-record-list' %}active{% endif %}" href="{% url 'medical-record-list' %}">
+                <i class="fas fa-notes-medical me-1"></i> Medical Records
+              </a>
+            </li>
+            {% endif %}
           {% endif %}
-          <li class="nav-item"><a class="nav-link" href="{% url 'mission-list' %}"><i class="fa-solid fa-bullseye me-1"></i>Missions</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'equipment-list' %}"><i class="fa-solid fa-boxes-stacked me-1"></i>Equipment</a></li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'mission-list' %}active{% endif %}" href="{% url 'mission-list' %}">
+              <i class="fas fa-bullseye me-1"></i> Missions
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'equipment-list' %}active{% endif %}" href="{% url 'equipment-list' %}">
+              <i class="fas fa-boxes-stacked me-1"></i> Equipment
+            </a>
+          </li>
           {% if user.role == 'admin' %}
-            <li class="nav-item"><a class="nav-link" href="{% url 'admin-dashboard' %}"><i class="fa-solid fa-user-shield me-1"></i>Admin</a></li>
+            <li class="nav-item">
+              <a class="nav-link {% if request.resolver_match.url_name == 'admin-dashboard' %}active{% endif %}" href="{% url 'admin-dashboard' %}">
+                <i class="fas fa-user-shield me-1"></i> Admin
+              </a>
+            </li>
           {% endif %}
+          <!-- Notifications Dropdown -->
+          <li class="nav-item dropdown me-2">
+            <a class="nav-link position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-bell"></i>
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                {{ user.notifications.unread.count|default:'' }}
+              </span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-end dropdown-notifications p-0" aria-labelledby="notificationsDropdown">
+              <div class="dropdown-header bg-dark text-white py-2 px-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span>Notifications</span>
+                  <a href="{% url 'notifications' %}" class="text-white small">View All</a>
+                </div>
+              </div>
+              <div class="dropdown-notifications-list" style="max-height: 300px; overflow-y: auto;">
+                {% for notification in user.notifications.unread|slice:":5" %}
+                  <a class="dropdown-item d-flex justify-content-between align-items-center {% if not notification.is_read %}fw-bold text-warning{% endif %}" href="{% url 'notification-detail' notification.id %}">
+                    <span>{{ notification.message }}</span>
+                    <small class="text-muted ms-2">{{ notification.created_at }}</small>
+                  </a>
+                {% endfor %}
+                {% if not user.notifications.unread.exists %}
+                  <span class="dropdown-item text-muted">No notifications</span>
+                {% endif %}
+              </div>
+              <div class="dropdown-footer text-center py-2 bg-light">
+                <a href="{% url 'notifications' %}" class="text-muted small">View all notifications</a>
+              </div>
+            </div>
+          </li>
+          <!-- User Dropdown -->
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <span><i class="fa-solid fa-user me-1"></i>{{ user.username }}</span>
-              {% if user.profile.profile_image %}
-                <img src="{{ user.profile.profile_image.url }}" alt="Profile" class="profile-img-nav ms-2">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              {% if user.profile and user.profile.profile_image %}
+                <img src="{{ user.profile.profile_image.url }}" alt="Profile" class="profile-img-nav me-2">
+              {% else %}
+                <div class="avatar-placeholder me-2">
+                  <i class="fas fa-user"></i>
+                </div>
               {% endif %}
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -149,71 +373,246 @@
     <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container" style="z-index:3000;"></div>
     {% block content %}{% endblock %}
 </div>
-<footer>
-    &copy; {{ year|default:2025 }} Combat Readiness. Stay Sharp Soldier.
+<!-- Footer -->
+<footer class="footer mt-5 py-4 bg-dark text-light">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Brand and Description -->
+            <div class="col-lg-4 mb-4 mb-lg-0">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="fas fa-shield-alt fs-4 me-2 text-accent"></i>
+                    <h5 class="mb-0 text-uppercase fw-bold">Combat Readiness</h5>
+                </div>
+                <p class="small text-muted mb-3">
+                    A comprehensive system for managing military personnel, equipment, and mission readiness with precision and efficiency.
+                </p>
+                <div class="social-links">
+                    <a href="#" class="text-muted me-2" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-muted me-2" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-muted me-2" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="text-muted" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            
+            <!-- Quick Links -->
+            <div class="col-6 col-md-4 col-lg-2">
+                <h6 class="text-uppercase text-accent fw-bold mb-3">Quick Links</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="{% url 'home' %}" class="text-muted text-decoration-none small">Home</a></li>
+                    {% if user.is_authenticated %}
+                        <li class="mb-2"><a href="{% url 'dashboard' %}" class="text-muted text-decoration-none small">Dashboard</a></li>
+                        <li class="mb-2"><a href="{% url 'soldier-list' %}" class="text-muted text-decoration-none small">Soldiers</a></li>
+                        <li class="mb-2"><a href="{% url 'mission-list' %}" class="text-muted text-decoration-none small">Missions</a></li>
+                        <li class="mb-2"><a href="{% url 'equipment-list' %}" class="text-muted text-decoration-none small">Equipment</a></li>
+                    {% else %}
+                        <li class="mb-2"><a href="{% url 'login' %}" class="text-muted text-decoration-none small">Login</a></li>
+                        <li class="mb-2"><a href="{% url 'register' %}" class="text-muted text-decoration-none small">Register</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            
+            <!-- Support -->
+            <div class="col-6 col-md-4 col-lg-3">
+                <h6 class="text-uppercase text-accent fw-bold mb-3">Support</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="#" class="text-muted text-decoration-none small">Help Center</a></li>
+                    <li class="mb-2"><a href="#" class="text-muted text-decoration-none small">Documentation</a></li>
+                    <li class="mb-2"><a href="#" class="text-muted text-decoration-none small">API Reference</a></li>
+                    <li class="mb-2"><a href="#" class="text-muted text-decoration-none small">Status</a></li>
+                </ul>
+            </div>
+            
+            <!-- Contact -->
+            <div class="col-md-4 col-lg-3">
+                <h6 class="text-uppercase text-accent fw-bold mb-3">Contact Us</h6>
+                <ul class="list-unstyled small text-muted">
+                    <li class="mb-2">
+                        <i class="fas fa-map-marker-alt me-2 text-accent"></i>
+                        <span>123 Military Base, City, Country</span>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-phone me-2 text-accent"></i>
+                        <span>+1 (555) 123-4567</span>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-envelope me-2 text-accent"></i>
+                        <a href="mailto:support@combatreadiness.com" class="text-muted text-decoration-none">support@combatreadiness.com</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <hr class="my-4 border-secondary">
+        
+        <div class="row align-items-center">
+            <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                <p class="mb-0 small text-muted">
+                    &copy; {% now "Y" %} Combat Readiness. All rights reserved.
+                </p>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <ul class="list-inline mb-0">
+                    <li class="list-inline-item"><a href="#" class="text-muted small text-decoration-none">Privacy Policy</a></li>
+                    <li class="list-inline-item"><span class="text-muted mx-2">•</span></li>
+                    <li class="list-inline-item"><a href="#" class="text-muted small text-decoration-none">Terms of Service</a></li>
+                    <li class="list-inline-item"><span class="text-muted mx-2">•</span></li>
+                    <li class="list-inline-item"><a href="#" class="text-muted small text-decoration-none">Cookie Policy</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </footer>
+
+<!-- Back to Top Button -->
+<button id="backToTop" class="btn btn-sm btn-accent rounded-circle position-fixed bottom-0 end-0 m-4 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; display: none !important;">
+    <i class="fas fa-arrow-up"></i>
+</button>
+
+<!-- Bootstrap JS Bundle with Popper -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 {% block extra_js %}{% endblock %}
 <script>
+// Back to Top Button Functionality
+const backToTopButton = document.getElementById('backToTop');
+if (backToTopButton) {
+  window.addEventListener('scroll', () => {
+    if (window.pageYOffset > 300) {
+      backToTopButton.style.display = 'flex';
+    } else {
+      backToTopButton.style.display = 'none';
+    }
+  });
+
+  backToTopButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  });
+}
+
 // Real-time notification polling
 function updateNotifications() {
   fetch('{% url "notifications_json" %}')
     .then(response => response.json())
     .then(data => {
       // Update bell badge
-      var bell = document.querySelector('#notificationDropdown .fa-bell');
-      var badge = document.querySelector('#notificationDropdown .badge');
-      if (badge) badge.remove();
-      if (data.unread_count > 0) {
-        var newBadge = document.createElement('span');
-        newBadge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger';
-        newBadge.textContent = data.unread_count;
-        bell.parentNode.appendChild(newBadge);
+      const bell = document.querySelector('#notificationsDropdown .fa-bell');
+      if (bell) {
+        const existingBadge = bell.parentNode.querySelector('.badge');
+        if (existingBadge) existingBadge.remove();
+        
+        if (data.unread_count > 0) {
+          const newBadge = document.createElement('span');
+          newBadge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger';
+          newBadge.textContent = data.unread_count;
+          bell.parentNode.appendChild(newBadge);
+        }
       }
-      // Update dropdown
-      var dropdown = document.querySelector('#notificationDropdown + .dropdown-menu');
+
+      // Update dropdown content
+      const dropdown = document.querySelector('.dropdown-notifications-list');
       if (dropdown) {
-        var html = '<li class="dropdown-header">Notifications</li>';
-        if (data.recent_notifications.length > 0) {
-          data.recent_notifications.forEach(function(n) {
-            html += '<li>' +
-              '<a class="dropdown-item d-flex justify-content-between align-items-center' + (n.is_read ? '' : ' fw-bold text-warning') + '" href="' + n.link + '">' +
-              '<span>' + n.message + '</span>' +
-              '<small class="text-muted ms-2">' + n.created_at + '</small>' +
-              '</a></li>';
+        let html = '';
+        if (data.recent_notifications && data.recent_notifications.length > 0) {
+          data.recent_notifications.forEach(notification => {
+            const isUnread = !notification.is_read;
+            html += `
+              <a class="dropdown-item d-flex justify-content-between align-items-center ${isUnread ? 'fw-bold text-warning' : ''}" 
+                 href="${notification.link || '#'}">
+                <span>${notification.message || 'New notification'}</span>
+                <small class="text-muted ms-2">${notification.created_at || ''}</small>
+              </a>`;
           });
         } else {
-          html += '<li><span class="dropdown-item text-muted">No notifications</span></li>';
+          html = '<span class="dropdown-item text-muted">No notifications</span>';
         }
-        html += '<li><hr class="dropdown-divider"></li>';
-        html += '<li><a class="dropdown-item text-center" href="{% url 'notifications-list' %}">View all notifications</a></li>';
         dropdown.innerHTML = html;
       }
+    })
+    .catch(error => {
+      console.error('Error fetching notifications:', error);
     });
 }
+
+// Initialize tooltips
+function initTooltips() {
+  const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  tooltipTriggerList.map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+}
+
 // Global Loader Logic
 (function() {
-  var loader = document.getElementById('global-loader');
-  document.onreadystatechange = function () {
-    if (document.readyState !== "complete") {
-      loader.style.display = "block";
-    } else {
-      loader.style.display = "none";
-    }
-  };
+  // Show loader when page is loading
+  const loader = document.getElementById('global-loader');
+  if (loader) {
+    document.onreadystatechange = function() {
+      if (document.readyState !== 'complete') {
+        loader.style.display = 'flex';
+      } else {
+        // Small delay to allow for smooth transition
+        setTimeout(() => {
+          loader.style.display = 'none';
+        }, 300);
+      }
+    };
+  }
+
+  // Initialize components when DOM is fully loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    initTooltips();
+    
+    // Initialize notification polling if user is authenticated
+    {% if user.is_authenticated %}
+      // Initial fetch
+      updateNotifications();
+      // Poll every 60 seconds
+      setInterval(updateNotifications, 60000);
+    {% endif %}
+  });
 })();
+
 // Toast Notification Utility
-function showToast(message, type='info') {
+function showToast(message, type = 'info') {
   const container = document.getElementById('toast-container');
+  if (!container) return;
+  
   const toast = document.createElement('div');
   toast.className = `toast align-items-center text-bg-${type} border-0 show mb-2`;
   toast.role = 'alert';
-  toast.innerHTML = `<div class="d-flex">
-    <div class="toast-body">${message}</div>
-    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-  </div>`;
+  toast.setAttribute('aria-live', 'assertive');
+  toast.setAttribute('aria-atomic', 'true');
+  
+  toast.innerHTML = `
+    <div class="d-flex">
+      <div class="toast-body">
+        <i class="${getToastIcon(type)} me-2"></i>
+        ${message}
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>`;
+  
   container.appendChild(toast);
-  setTimeout(() => toast.remove(), 4000);
+  
+  // Auto-remove after delay
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 150);
+  }, 4000);
+  
+  return toast;
+}
+
+// Helper function to get appropriate icon for toast type
+function getToastIcon(type) {
+  const icons = {
+    success: 'fas fa-check-circle',
+    error: 'fas fa-exclamation-circle',
+    warning: 'fas fa-exclamation-triangle',
+    info: 'fas fa-info-circle'
+  };
+  return icons[type] || 'fas fa-info-circle';
 }
 </script>
 </body>

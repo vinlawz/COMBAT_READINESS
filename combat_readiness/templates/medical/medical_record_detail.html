@@ -1,0 +1,236 @@
+{% extends 'medical/base_medical.html' %}
+{% load static %}
+
+{% block header %}Medical Record: {{ medical_record.soldier.name }}{% endblock %}
+
+{% block actions %}
+{% if can_edit %}
+<a href="{% url 'medical-record-update' medical_record.id %}" class="btn btn-sm btn-primary">
+    <i class="fas fa-edit"></i> Edit Record
+</a>
+{% endif %}
+<a href="{% url 'medical-record-list' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="fas fa-arrow-left"></i> Back to List
+</a>
+{% endblock %}
+
+{% block medical_content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Soldier Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <div class="mb-2">
+                        <span class="badge bg-{{ medical_record.get_medical_status_color }} fs-6">
+                            {{ medical_record.get_status_display }}
+                        </span>
+                    </div>
+                    <h4>{{ medical_record.soldier.name }}</h4>
+                    <p class="text-muted mb-1">{{ medical_record.soldier.rank }}</p>
+                    <p class="text-muted">{{ medical_record.soldier.unit }}</p>
+                </div>
+                
+                <hr>
+                
+                <div class="mb-3">
+                    <h6>Blood Type</h6>
+                    <p class="mb-0">{{ medical_record.get_blood_type_display|default:"Not specified" }}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>Last Medical Checkup</h6>
+                    <p class="mb-0">
+                        {{ medical_record.last_medical_checkup|date:"F j, Y"|default:"Not recorded" }}
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>Next Checkup Due</h6>
+                    <p class="mb-0 {% if medical_record.next_checkup_due and medical_record.next_checkup_due <= timezone.now.date %}text-danger fw-bold{% endif %}">
+                        {{ medical_record.next_checkup_due|date:"F j, Y"|default:"Not scheduled" }}
+                    </p>
+                </div>
+                
+                {% if medical_record.is_medical_clearance_valid %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> Medical clearance is valid
+                </div>
+                {% else %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> Medical clearance requires attention
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Quick Actions</h5>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="#" class="list-group-item list-group-item-action">
+                    <i class="fas fa-file-medical"></i> Add Medical Note
+                </a>
+                <a href="#" class="list-group-item list-group-item-action">
+                    <i class="fas fa-calendar-plus"></i> Schedule Checkup
+                </a>
+                <a href="#" class="list-group-item list-group-item-action">
+                    <i class="fas fa-file-pdf"></i> Export to PDF
+                </a>
+                {% if can_edit %}
+                <a href="{% url 'medical-record-update' medical_record.id %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-edit"></i> Edit Record
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="medicalTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="conditions-tab" data-bs-toggle="tab" data-bs-target="#conditions" type="button" role="tab" aria-controls="conditions" aria-selected="true">
+                            Medical Conditions
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="allergies-tab" data-bs-toggle="tab" data-bs-target="#allergies" type="button" role="tab" aria-controls="allergies" aria-selected="false">
+                            Allergies
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="medications-tab" data-bs-toggle="tab" data-bs-target="#medications" type="button" role="tab" aria-controls="medications" aria-selected="false">
+                            Medications
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes" type="button" role="tab" aria-controls="notes" aria-selected="false">
+                            Notes
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="medicalTabsContent">
+                    <div class="tab-pane fade show active" id="conditions" role="tabpanel" aria-labelledby="conditions-tab">
+                        {% if medical_record.medical_conditions %}
+                            <div class="whitespace-preline">{{ medical_record.medical_conditions|linebreaksbr }}</div>
+                        {% else %}
+                            <p class="text-muted">No medical conditions recorded.</p>
+                        {% endif %}
+                    </div>
+                    <div class="tab-pane fade" id="allergies" role="tabpanel" aria-labelledby="allergies-tab">
+                        {% if medical_record.known_allergies %}
+                            <div class="whitespace-preline">{{ medical_record.known_allergies|linebreaksbr }}</div>
+                        {% else %}
+                            <p class="text-muted">No known allergies recorded.</p>
+                        {% endif %}
+                    </div>
+                    <div class="tab-pane fade" id="medications" role="tabpanel" aria-labelledby="medications-tab">
+                        {% if medical_record.current_medications %}
+                            <div class="whitespace-preline">{{ medical_record.current_medications|linebreaksbr }}</div>
+                        {% else %}
+                            <p class="text-muted">No current medications recorded.</p>
+                        {% endif %}
+                    </div>
+                    <div class="tab-pane fade" id="notes" role="tabpanel" aria-labelledby="notes-tab">
+                        {% if medical_record.notes %}
+                            <div class="whitespace-preline">{{ medical_record.notes|linebreaksbr }}</div>
+                        {% else %}
+                            <p class="text-muted">No additional notes.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Medical History</h5>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-point"></div>
+                        <div class="timeline-content">
+                            <h6>Record Created</h6>
+                            <p class="text-muted mb-0">{{ medical_record.created_at|date:"F j, Y" }}</p>
+                            <p class="small">Medical record was created</p>
+                        </div>
+                    </div>
+                    
+                    {% if medical_record.last_medical_checkup %}
+                    <div class="timeline-item">
+                        <div class="timeline-point"></div>
+                        <div class="timeline-content">
+                            <h6>Last Medical Checkup</h6>
+                            <p class="text-muted mb-0">{{ medical_record.last_medical_checkup|date:"F j, Y" }}</p>
+                            <p class="small">Status: {{ medical_record.get_status_display }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if medical_record.updated_at and medical_record.updated_at != medical_record.created_at %}
+                    <div class="timeline-item">
+                        <div class="timeline-point"></div>
+                        <div class="timeline-content">
+                            <h6>Last Updated</h6>
+                            <p class="text-muted mb-0">{{ medical_record.updated_at|date:"F j, Y" }}</p>
+                            <p class="small">Record was modified</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .whitespace-preline {
+        white-space: pre-line;
+    }
+    .timeline {
+        position: relative;
+        padding-left: 2rem;
+    }
+    .timeline-item {
+        position: relative;
+        padding-bottom: 1.5rem;
+        border-left: 2px solid #dee2e6;
+        padding-left: 1.5rem;
+    }
+    .timeline-item:last-child {
+        border-left-color: transparent;
+    }
+    .timeline-point {
+        position: absolute;
+        left: -0.5rem;
+        width: 1rem;
+        height: 1rem;
+        border-radius: 50%;
+        background-color: #0d6efd;
+        top: 0.25rem;
+    }
+    .timeline-content {
+        position: relative;
+        padding: 0.5rem 0;
+    }
+    .card-title {
+        font-weight: 600;
+    }
+    .nav-tabs .nav-link {
+        color: #495057;
+    }
+    .nav-tabs .nav-link.active {
+        font-weight: 600;
+    }
+</style>
+{% endblock %}

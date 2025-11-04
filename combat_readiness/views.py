@@ -676,24 +676,98 @@ class NotificationsListView(LoginRequiredMixin, ListView):
         return Notification.objects.filter(recipient=self.request.user).order_by('-created_at')
 
 from django.views import View
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib import messages
+from django.urls import reverse_lazy
+from django.views.generic import UpdateView, DetailView, ListView
+from .models import MedicalRecord
+from .forms import MedicalRecordForm
+
+class MedicalOfficerRequiredMixin(UserPassesTestMixin):
+    """Verify that the current user is a medical officer."""
+    def test_func(self):
+        return self.request.user.role in ['admin', 'medical_officer']
+
+class MedicalRecordUpdateView(LoginRequiredMixin, MedicalOfficerRequiredMixin, UpdateView):
+    model = MedicalRecord
+    form_class = MedicalRecordForm
+    template_name = 'medical/medical_record_form.html'
+    context_object_name = 'medical_record'
+    
+    def get_success_url(self):
+        messages.success(self.request, 'Medical record updated successfully.')
+        return reverse_lazy('medical-record-detail', kwargs={'pk': self.object.pk})
+
+class MedicalRecordDetailView(LoginRequiredMixin, DetailView):
+    model = MedicalRecord
+    template_name = 'medical/medical_record_detail.html'
+    context_object_name = 'medical_record'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['can_edit'] = self.request.user.role in ['admin', 'medical_officer']
+        return context
+
+class MedicalRecordListView(LoginRequiredMixin, ListView):
+    model = MedicalRecord
+    template_name = 'medical/medical_record_list.html'
+    context_object_name = 'medical_records'
+    paginate_by = 20
+    
+    def get_queryset(self):
+        queryset = super().get_queryset().select_related('soldier')
+        
+        # Filter by status if provided
+        status = self.request.GET.get('status')
+        if status:
+            queryset = queryset.filter(status=status)
+            
+        # Search by soldier name if provided
+        search = self.request.GET.get('search')
+        if search:
+            queryset = queryset.filter(
+                models.Q(soldier__name__icontains=search) |
+                models.Q(soldier__rank__icontains=search) |
+                models.Q(soldier__unit__icontains=search)
+            )
+            
+        return queryset.order_by('-updated_at')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['status_filter'] = self.request.GET.get('status', '')
+        context['search_query'] = self.request.GET.get('search', '')
+        return context
+
 class BulkMarkNotificationsReadView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
-        notification_ids = request.POST.getlist('notification_ids')
-        if not notification_ids:
-            messages.error(request, 'Please select at least one notification.')
-            return redirect('notifications-list')
-        updated = Notification.objects.filter(id__in=notification_ids, recipient=request.user).update(is_read=True)
-        if updated:
-            messages.success(request, f'{updated} notification(s) marked as read.')
-        else:
-            messages.warning(request, 'No notifications were marked as read.')
-        return redirect('notifications-list')
+        try:
+            notification_ids = request.POST.getlist('notification_ids[]')
+            request.user.notifications.filter(
+                id__in=notification_ids,
+                is_read=False
+            ).update(is_read=True)
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+class NotificationsJsonView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        notifications = request.user.notifications.order_by('-created_at')
+        data = [{
+            'id': n.id,
+            'message': n.message,
+            'is_read': n.is_read,
+            'created_at': n.created_at.strftime('%Y-%m-%d %H:%M'),
+            'type': n.type,
+            'link': n.link or '#'
+        } for n in notifications]
+        return JsonResponse({'notifications': data})
 
 class NotificationsJsonView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         from .models import Notification
         user = request.user
-        unread_count = Notification.objects.filter(recipient=user, is_read=False).count()
         recent = Notification.objects.filter(recipient=user).order_by('-created_at')[:5]
         notifications = [
             {
