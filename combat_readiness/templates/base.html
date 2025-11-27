@@ -1,38 +1,136 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Combat Readiness{% endblock %}</title>
+    <title>{% block title %}Combat Readiness System{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    
+    <!-- CSS Libraries -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Stardos+Stencil&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/lucide@latest/font/lucide.css">
+    
+    <!-- Tactical UI CSS -->
+    <link rel="stylesheet" href="{% static 'theme/tactical-ui.css' %}">
     <style>
+      /* Lucide icon styling */
+      .icon {
+        width: 1em;
+        height: 1em;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+      }
+      .icon-fill {
+        fill: currentColor;
+      }
+    </style>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/tactical.css' %}">
+    {% block extra_css %}{% endblock %}
+    <style>
+        /* Typography */
         :root {
-            --primary-dark: #1a1f1a;
-            --primary-green: #4a7c59;
-            --accent-gold: #d4af37;
-            --light-bg: #f5f5f0;
-            --text-light: #f0f0f0;
-            --text-dark: #1a1f1a;
-            --transition-speed: 0.3s;
+            --font-heading: 'Orbitron', sans-serif;
+            --font-body: 'Rajdhani', 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
-
+        
+        /* Global Overrides */
         body {
+            display: flex;
+            flex-direction: column;
             min-height: 100vh;
-            margin: 0;
-            font-family: 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #1a1f1a 0%, #2a332a 100%);
-            color: var(--text-light);
+            background: var(--tactical-black);
+            color: #e0e0e0;
+            font-family: var(--font-body);
+            font-weight: 400;
             line-height: 1.6;
-        }
-
-        /* Enhanced Typography */
-        h1, h2, h3, h4, h5, h6, .navbar-brand {
-            font-family: 'Oswald', sans-serif;
-            font-weight: 600;
             letter-spacing: 0.5px;
+        }
+        
+        /* Typography Styles */
+        h1, h2, h3, h4, h5, h6,
+        .display-1, .display-2, .display-3, .display-4, .display-5, .display-6,
+        .navbar-brand, .nav-tabs .nav-link, .btn, .badge, .card-title,
+        .stat-value, .stat-label, .section-title, .text-uppercase {
+            font-family: var(--font-heading);
+            letter-spacing: 1px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        h1, .display-1 { letter-spacing: 2px; }
+        h2, .display-2 { letter-spacing: 1.75px; }
+        h3, .display-3 { letter-spacing: 1.5px; }
+        h4, .display-4 { letter-spacing: 1.25px; }
+        
+        /* Navbar Brand */
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            font-size: 1.25rem;
+        }
+        
+        /* Buttons */
+        .btn {
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        
+        /* Code and Preformatted Text */
+        code, pre, kbd, samp, var, tt {
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Main Content Wrapper */
+        .main-content {
+            flex: 1;
+            padding-top: 1.5rem;
+            padding-bottom: 3rem;
+        }
+        
+        /* HUD Clock */
+        .hud-clock {
+            font-family: 'Digital-7', 'Oswald', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            color: var(--tactical-gold);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            border: 1px solid var(--tactical-gold);
+        }
+        
+        /* System Alert Banner */
+        .system-alert {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(90deg, #8b0000, #b22222);
+            color: white;
+            padding: 0.5rem 1rem;
+            text-align: center;
+            font-weight: 600;
+            z-index: 1100;
+            animation: alertPulse 2s infinite;
+            display: none;
+        }
+        
+        @keyframes alertPulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
         }
 
         /* Modern Navbar */
@@ -151,6 +249,30 @@
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
             border-color: rgba(212, 175, 55, 0.3);
         }
+        
+        /* Tactical Typography Utilities */
+        .text-tactical {
+            font-family: var(--font-heading);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .text-lead {
+            font-size: 1.25rem;
+            font-weight: 300;
+            letter-spacing: 0.75px;
+            line-height: 1.6;
+        }
+        
+        .text-label {
+            font-family: var(--font-heading);
+            font-size: 0.85rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--tactical-gold);
+            margin-bottom: 0.5rem;
+            display: inline-block;
+        }
 
         .card-header {
             background: rgba(0, 0, 0, 0.2);
@@ -233,7 +355,14 @@
     </style>
     {% block extra_head %}{% endblock %}
 </head>
-<body>
+<body class="tactical-root">
+<!-- Mission Status Strip -->
+<div id="mission-strip" style="position:fixed; top:12px; right:16px; z-index:9500;">
+  <span class="status-badge operational">Operational</span>
+  <span class="status-badge" id="mission-time" style="margin-left:.6rem;">--:--:--Z</span>
+</div>
+
+<!-- Tactical overlays injected by tactical-ui.js -->
 <!-- Global Loader Spinner -->
 <div id="global-loader" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2000;background:rgba(26,31,26,0.9);">
   <div class="d-flex flex-column justify-content-center align-items-center" style="height:100vh;">
@@ -244,142 +373,233 @@
   </div>
 </div>
 <!-- Navigation -->
-<nav class="navbar navbar-expand-lg navbar-dark">
-  <div class="container">
-    <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
-      <i class="fas fa-shield-alt me-2"></i>
-      <span>Combat Readiness</span>
-    </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav me-auto">
-        <li class="nav-item">
-          <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
-            <i class="fas fa-home me-1"></i> Home
+<!-- System Alert Banner -->
+<div class="system-alert" id="systemAlert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    <span id="alertMessage">SYSTEM ALERT: Low equipment inventory detected</span>
+</div>
+
+<!-- Main Layout Wrapper -->
+<div class="d-flex">
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="{% url 'home' %}" class="sidebar-brand">
+        <i data-lucide="shield" class="icon pulse"></i>
+        <span class="ms-2">COMBAT READINESS</span>
+      </a>
+      <button class="sidebar-toggle" id="sidebarToggle">
+        <i data-lucide="chevrons-left" class="icon"></i>
+      </button>
+    </div>
+    
+    <div class="sidebar-content">
+      <ul class="sidebar-nav">
+        <li class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+          <a href="{% url 'home' %}" class="nav-link">
+            <i data-lucide="home" class="icon"></i>
+            <span class="link-text">Dashboard</span>
           </a>
         </li>
         {% if user.is_authenticated %}
           {% if user.role == 'admin' or user.role == 'medical_officer' %}
-            <li class="nav-item">
-              <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
-                <i class="fas fa-chart-pie me-1"></i> Dashboard
+            <li class="nav-item {% if 'soldier' in request.resolver_match.url_name %}active{% endif %}">
+              <a href="{% url 'soldier-list' %}" class="nav-link">
+                <i data-lucide="users" class="icon"></i>
+                <span class="link-text">Personnel</span>
               </a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link {% if request.resolver_match.url_name == 'soldier-list' %}active{% endif %}" href="{% url 'soldier-list' %}">
-                <i class="fas fa-users me-1"></i> Soldiers
-              </a>
-            </li>
+            
             {% if user.role == 'admin' or user.role == 'medical_officer' %}
-            <li class="nav-item">
-              <a class="nav-link {% if request.resolver_match.url_name == 'medical-record-list' %}active{% endif %}" href="{% url 'medical-record-list' %}">
-                <i class="fas fa-notes-medical me-1"></i> Medical Records
+            <li class="nav-item {% if 'medical' in request.resolver_match.url_name %}active{% endif %}">
+              <a href="{% url 'medical-record-list' %}" class="nav-link">
+                <i data-lucide="heart-pulse" class="icon"></i>
+                <span class="link-text">Medical</span>
               </a>
             </li>
             {% endif %}
           {% endif %}
-          <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.url_name == 'mission-list' %}active{% endif %}" href="{% url 'mission-list' %}">
-              <i class="fas fa-bullseye me-1"></i> Missions
+          
+          <li class="nav-item {% if 'mission' in request.resolver_match.url_name %}active{% endif %}">
+            <a href="{% url 'mission-list' %}" class="nav-link">
+              <i data-lucide="crosshair" class="icon"></i>
+              <span class="link-text">Missions</span>
             </a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.url_name == 'equipment-list' %}active{% endif %}" href="{% url 'equipment-list' %}">
-              <i class="fas fa-boxes-stacked me-1"></i> Equipment
+          
+          <li class="nav-item {% if 'equipment' in request.resolver_match.url_name %}active{% endif %}">
+            <a href="{% url 'equipment-list' %}" class="nav-link">
+              <i data-lucide="package" class="icon"></i>
+              <span class="link-text">Equipment</span>
             </a>
           </li>
+          
           {% if user.role == 'admin' %}
-            <li class="nav-item">
-              <a class="nav-link {% if request.resolver_match.url_name == 'admin-dashboard' %}active{% endif %}" href="{% url 'admin-dashboard' %}">
-                <i class="fas fa-user-shield me-1"></i> Admin
-              </a>
-            </li>
-          {% endif %}
-          <!-- Notifications Dropdown -->
-          <li class="nav-item dropdown me-2">
-            <a class="nav-link position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="fas fa-bell"></i>
-              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                {{ user.notifications.unread.count|default:'' }}
-              </span>
+          <li class="nav-item {% if 'admin' in request.resolver_match.url_name %}active{% endif %}">
+            <a href="{% url 'admin-dashboard' %}" class="nav-link">
+              <i data-lucide="shield" class="icon"></i>
+              <span class="link-text">Admin</span>
             </a>
-            <div class="dropdown-menu dropdown-menu-end dropdown-notifications p-0" aria-labelledby="notificationsDropdown">
-              <div class="dropdown-header bg-dark text-white py-2 px-3">
-                <div class="d-flex justify-content-between align-items-center">
-                  <span>Notifications</span>
-                  <a href="{% url 'notifications' %}" class="text-white small">View All</a>
-                </div>
-              </div>
-              <div class="dropdown-notifications-list" style="max-height: 300px; overflow-y: auto;">
-                {% for notification in user.notifications.unread|slice:":5" %}
-                  <a class="dropdown-item d-flex justify-content-between align-items-center {% if not notification.is_read %}fw-bold text-warning{% endif %}" href="{% url 'notification-detail' notification.id %}">
-                    <span>{{ notification.message }}</span>
-                    <small class="text-muted ms-2">{{ notification.created_at }}</small>
-                  </a>
-                {% endfor %}
-                {% if not user.notifications.unread.exists %}
-                  <span class="dropdown-item text-muted">No notifications</span>
-                {% endif %}
-              </div>
-              <div class="dropdown-footer text-center py-2 bg-light">
-                <a href="{% url 'notifications' %}" class="text-muted small">View all notifications</a>
-              </div>
-            </div>
           </li>
-          <!-- User Dropdown -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              {% if user.profile and user.profile.profile_image %}
-                <img src="{{ user.profile.profile_image.url }}" alt="Profile" class="profile-img-nav me-2">
-              {% else %}
-                <div class="avatar-placeholder me-2">
-                  <i class="fas fa-user"></i>
-                </div>
+          {% endif %}
+          <!-- Notifications -->
+          <li class="nav-item notifications {% if 'notifications' in request.resolver_match.url_name %}active{% endif %}">
+            <a href="{% url 'notifications' %}" class="nav-link">
+              <i data-lucide="bell" class="icon"></i>
+              <span class="link-text">Notifications</span>
+              {% if user.notifications.unread.exists %}
+                <span class="badge bg-danger">{{ user.notifications.unread.count }}</span>
               {% endif %}
             </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fa-solid fa-id-badge me-1"></i>Profile</a></li>
-              <li><a class="dropdown-item" href="{% url 'profile-edit' %}"><i class="fa-solid fa-user-pen me-1"></i>Edit Profile</a></li>
-              <li><hr class="dropdown-divider"></li>
+          </li>
+          
+          <!-- User Profile -->
+          <li class="nav-item user-profile">
+            <div class="profile-header">
+              {% if user.profile and user.profile.profile_image %}
+                <img src="{{ user.profile.profile_image.url }}" alt="Profile" class="profile-img">
+              {% else %}
+                <div class="profile-avatar">
+                  <i data-lucide="user" class="icon"></i>
+                </div>
+              {% endif %}
+              <div class="profile-info">
+                <div class="profile-name">{{ user.get_full_name|default:user.username }}</div>
+                <div class="profile-role">{{ user.get_role_display }}</div>
+              </div>
+              <button class="profile-toggle" type="button">
+                <i data-lucide="chevron-down" class="icon"></i>
+              </button>
+            </div>
+            <ul class="profile-menu">
+              <li><a href="{% url 'profile' %}"><i data-lucide="user" class="icon"></i> Profile</a></li>
+              <li><a href="{% url 'profile-edit' %}"><i data-lucide="settings" class="icon"></i> Settings</a></li>
+              <li class="divider"></li>
               <li>
-                <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                <form method="post" action="{% url 'logout' %}" class="logout-form">
                   {% csrf_token %}
-                  <button type="submit" class="dropdown-item" style="background:none;border:none;padding:0;width:100%;text-align:left;">
-                    <i class="fa-solid fa-right-from-bracket me-1"></i>Logout
+                  <button type="submit" class="btn-logout">
+                    <i data-lucide="log-out" class="icon"></i> Logout
                   </button>
                 </form>
               </li>
             </ul>
           </li>
+          
+          <!-- Theme Toggle -->
+          <li class="nav-item theme-toggle">
+            <button id="theme-toggle" class="nav-link" aria-label="Toggle theme">
+              <i data-lucide="moon" class="icon" id="theme-icon"></i>
+              <span class="link-text">Dark Mode</span>
+            </button>
+          </li>
         {% else %}
-          <li class="nav-item"><a class="nav-link" href="{% url 'login' %}"><i class="fa-solid fa-sign-in-alt me-1"></i>Login</a></li>
+          <li class="nav-item">
+            <a href="{% url 'login' %}" class="nav-link">
+              <i data-lucide="log-in" class="icon"></i>
+              <span class="link-text">Login</span>
+            </a>
+          </li>
         {% endif %}
       </ul>
+      
+      <!-- Collapse Toggle -->
+      <div class="sidebar-footer">
+        <button class="collapse-toggle" id="sidebarCollapse">
+          <i data-lucide="chevron-left" class="icon"></i>
+          <span>Collapse</span>
+        </button>
+      </div>
     </div>
   </div>
-</nav>
-<div class="container container-main">
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  
+  <!-- Main Content Wrapper -->
+  <div class="main-content-wrapper" id="mainContent">
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+      <div class="d-flex justify-content-between align-items-center">
+        <button class="sidebar-toggler" id="sidebarToggler">
+          <i data-lucide="menu" class="icon"></i>
+        </button>
+        <div class="d-flex align-items-center">
+          <div class="hud-clock" id="hudClock"></div>
         </div>
-      {% endfor %}
-    {% endif %}
-    <!-- Toast Notification Container -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container" style="z-index:3000;"></div>
-    {% block content %}{% endblock %}
+      </div>
+    </nav>
+    <!-- Page Content -->
+    <main class="main-content">
+      <div class="container-fluid">
+        <!-- System Status Bar -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    <span class="badge bg-success rounded-pill">ONLINE</span>
+                    <small class="ms-2 text-muted">System Status</small>
+                </div>
+                <div class="vr me-3"></div>
+                <div class="hud-clock" id="hudClock">
+                    <i class="far fa-clock me-2"></i>
+                    <span id="currentTime">00:00:00</span> 
+                    <span id="currentDate" class="ms-2">01 JAN 2025</span>
+                </div>
+            </div>
+            <div>
+                <button class="btn btn-sm btn-tactical btn-tactical-outline" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert-tactical alert-tactical-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        {% if message.tags == 'success' %}
+                            <i class="fas fa-check-circle me-2"></i>
+                        {% elif message.tags == 'error' %}
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                        {% elif message.tags == 'warning' %}
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                        {% else %}
+                            <i class="fas fa-info-circle me-2"></i>
+                        {% endif %}
+                        <div>{{ message }}</div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <!-- Page Content -->
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+    
+    <footer class="main-footer">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12 text-center">
+            <p class="mb-0">&copy; {% now "Y" %} Combat Readiness System. All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
 </div>
+<!-- Toast Notification Container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container" style="z-index:3000;"></div>
 <!-- Footer -->
-<footer class="footer mt-5 py-4 bg-dark text-light">
+<!-- Footer -->
+<footer class="footer py-4 mt-auto" style="background: rgba(10, 15, 10, 0.95); border-top: 1px solid var(--tactical-gold);">
     <div class="container">
         <div class="row g-4">
             <!-- Brand and Description -->
             <div class="col-lg-4 mb-4 mb-lg-0">
                 <div class="d-flex align-items-center mb-3">
+                    <i class="fas fa-shield-alt me-2" style="color: var(--tactical-gold);"></i>
+                    <h5 class="mb-0" style="color: var(--tactical-gold);">COMBAT READINESS SYSTEM</h5>
+                </div>
                     <i class="fas fa-shield-alt fs-4 me-2 text-accent"></i>
                     <h5 class="mb-0 text-uppercase fw-bold">Combat Readiness</h5>
                 </div>
@@ -469,7 +689,72 @@
 </button>
 
 <!-- Bootstrap JS Bundle with Popper -->
+<!-- JavaScript Libraries -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tactical UI JS -->
+    <script src="{% static 'theme/tactical-ui.js' %}" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Custom JavaScript -->
+<script src="{% static 'js/tactical.js' %}"></script>
+<script src="{% static 'js/theme-switcher.js' %}"></script>
+
+<!-- Initialize Components -->
+<script>
+    // Initialize HUD Clock
+    function updateHUDClock() {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-US', { hour12: false });
+        const dateStr = now.toLocaleDateString('en-US', { 
+            day: '2-digit', 
+            month: 'short', 
+            year: 'numeric' 
+        }).toUpperCase();
+        
+        document.getElementById('currentTime').textContent = timeStr;
+        document.getElementById('currentDate').textContent = dateStr;
+    }
+    
+    // Update clock every second
+    updateHUDClock();
+    setInterval(updateHUDClock, 1000);
+    
+    // Check for system alerts
+    function checkSystemAlerts() {
+        // Example: Check for low inventory (replace with actual check)
+        // fetch('/api/inventory/status/')
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         if (data.lowInventory) {
+        //             document.getElementById('alertMessage').textContent = 
+        //                 'SYSTEM ALERT: Low inventory detected for ' + data.items.join(', ');
+        //             document.getElementById('systemAlert').style.display = 'block';
+        //         }
+        //     });
+    }
+    
+    // Check alerts every 5 minutes
+    checkSystemAlerts();
+    setInterval(checkSystemAlerts, 300000);
+    
+    // Theme Toggle
+    document.getElementById('themeToggle').addEventListener('click', function() {
+        const html = document.documentElement;
+        const currentTheme = html.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        // Update theme
+        html.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        
+        // Update icon
+        const icon = this.querySelector('i');
+        icon.className = newTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+    });
+</script>
+
 {% block extra_js %}{% endblock %}
 <script>
 // Back to Top Button Functionality
@@ -559,18 +844,21 @@ function initTooltips() {
     };
   }
 
-  // Initialize components when DOM is fully loaded
-  document.addEventListener('DOMContentLoaded', function() {
-    initTooltips();
-    
-    // Initialize notification polling if user is authenticated
-    {% if user.is_authenticated %}
-      // Initial fetch
-      updateNotifications();
-      // Poll every 60 seconds
-      setInterval(updateNotifications, 60000);
-    {% endif %}
-  });
+    // Initialize components when DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize Lucide icons
+      lucide.createIcons();
+      
+      initTooltips();
+      
+      // Initialize notification polling if user is authenticated
+      {% if user.is_authenticated %}
+        // Initial fetch
+        updateNotifications();
+        // Poll every 60 seconds
+        setInterval(updateNotifications, 60000);
+      {% endif %}
+    });
 })();
 
 // Toast Notification Utility
@@ -607,12 +895,12 @@ function showToast(message, type = 'info') {
 // Helper function to get appropriate icon for toast type
 function getToastIcon(type) {
   const icons = {
-    success: 'fas fa-check-circle',
-    error: 'fas fa-exclamation-circle',
-    warning: 'fas fa-exclamation-triangle',
-    info: 'fas fa-info-circle'
+    success: '<i data-lucide="check-circle" class="icon"></i>',
+    error: '<i data-lucide="alert-circle" class="icon"></i>',
+    warning: '<i data-lucide="alert-triangle" class="icon"></i>',
+    info: '<i data-lucide="info" class="icon"></i>'
   };
-  return icons[type] || 'fas fa-info-circle';
+  return icons[type] || '<i data-lucide="info" class="icon"></i>';
 }
 </script>
 </body>

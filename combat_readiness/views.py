@@ -753,27 +753,18 @@ class BulkMarkNotificationsReadView(LoginRequiredMixin, View):
 
 class NotificationsJsonView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        notifications = request.user.notifications.order_by('-created_at')
-        data = [{
-            'id': n.id,
-            'message': n.message,
-            'is_read': n.is_read,
-            'created_at': n.created_at.strftime('%Y-%m-%d %H:%M'),
-            'type': n.type,
-            'link': n.link or '#'
-        } for n in notifications]
-        return JsonResponse({'notifications': data})
-
-class NotificationsJsonView(LoginRequiredMixin, View):
-    def get(self, request, *args, **kwargs):
-        from .models import Notification
         user = request.user
+        # Get unread count
+        unread_count = Notification.objects.filter(recipient=user, is_read=False).count()
+        # Get recent notifications
         recent = Notification.objects.filter(recipient=user).order_by('-created_at')[:5]
         notifications = [
             {
+                'id': n.id,
                 'message': n.message,
                 'created_at': n.created_at.strftime('%b %d, %H:%M'),
                 'is_read': n.is_read,
+                'type': n.type,
                 'link': n.link or '#',
             }
             for n in recent

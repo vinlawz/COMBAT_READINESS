@@ -1,91 +1,252 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}Dashboard | Combat Readiness{% endblock %}
-{% block content %}
-<div class="container py-4" style="background: url('{% static 'img/camo-bg.jpg' %}') center center/cover no-repeat; border-radius: 18px; box-shadow: 0 0 32px #232d23cc, 0 0 8px #3a3f2d99;">
-  <!-- Live UTC Clock -->
-  <div class="d-flex justify-content-between align-items-center mb-2">
-    <div></div>
-    <div class="text-end text-light small mb-2" id="live-clock"></div>
-  </div>
-  <script>
-    function updateClock() {
-      const now = new Date();
-      document.getElementById('live-clock').textContent =
-        now.toUTCString().replace('GMT', 'UTC');
+
+{% block title %}Tactical Dashboard | Combat Readiness{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Tactical Grid Overlay */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1;
+        opacity: 0.08;
+        background-image: 
+            linear-gradient(90deg, 
+                rgba(40, 80, 40, 0.2) 1px, 
+                transparent 1px),
+            linear-gradient(180deg, 
+                rgba(40, 80, 40, 0.2) 1px, 
+                transparent 1px),
+            linear-gradient(60deg, 
+                rgba(30, 70, 30, 0.15) 1px, 
+                transparent 1px),
+            linear-gradient(-60deg, 
+                rgba(30, 70, 30, 0.15) 1px, 
+                transparent 1px);
+        background-size: 40px 40px, 40px 40px, 80px 80px, 80px 80px;
+        background-position: 0 0, 0 0, 0 40px, 40px 0;
     }
-    setInterval(updateClock, 1000);
-    updateClock();
-    // Show a welcome toast on page load
-    window.onload = function() {
-      showToast('Welcome to your Dashboard!', 'success');
-    };
-  </script>
-  <div style="background: rgba(34,45,35,0.85); border-radius: 18px; padding: 24px 12px;">
-    <h1 class="mb-4 text-warning"><i class="fa-solid fa-chart-pie me-2"></i>Welcome, {{ user.username }}!</h1>
-    <!-- Section Divider -->
-    <div class="section-divider"><div class="divider-line"></div><span class="divider-icon"><i class="fa-solid fa-gauge-high"></i></span><div class="divider-line"></div></div>
-    <!-- System Readiness Progress Bar -->
-    <div class="mb-4">
-      <label class="form-label text-light">System Readiness</label>
-      <div class="progress" style="height: 28px;">
-        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" style="width: 88%;font-size:1.1rem;">88%</div>
-      </div>
+
+    /* Dashboard specific styles */
+    .dashboard-header {
+        background: linear-gradient(135deg, rgba(26, 31, 26, 0.9) 0%, rgba(42, 52, 42, 0.95) 100%);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--tactical-gold);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .stat-card {
+        transition: all 0.3s ease;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--tactical-gold);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .stat-card:hover::before {
+        transform: scaleX(1);
+    }
+    
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: var(--tactical-gold);
+    }
+    
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        font-family: var(--font-primary);
+        margin: 0.5rem 0;
+        color: white;
+        line-height: 1;
+    }
+    
+    .stat-label {
+        font-size: 1rem;
+        color: #b0b0b0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .quick-actions .btn {
+        margin: 0.25rem;
+        min-width: 120px;
+    }
+    
+    .recent-activity {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: var(--tactical-gold);
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--tactical-gold-light);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Welcome Banner with User Greeting -->
+<div class="dashboard-header text-center animate-on-scroll">
+    <div class="d-flex justify-content-center align-items-center mb-3">
+        <i data-lucide="shield" class="icon me-3" style="color: #c7ff41"></i>
+        <h1 class="mb-0" style="color: var(--tactical-gold);">TACTICAL DASHBOARD</h1>
     </div>
-    <!-- Section Divider -->
-    <div class="section-divider"><div class="divider-line"></div><span class="divider-icon"><i class="fa-solid fa-list"></i></span><div class="divider-line"></div></div>
-    <!-- Quick Stats Widget -->
-    <div class="row mb-4 g-4">
-      <div class="col-12 col-md-3">
-        <div class="card text-center shadow h-100 border-success border-3">
-          <div class="card-body">
-            <h5 class="card-title text-success"><i class="fa-solid fa-users me-2"></i>Soldiers</h5>
-            <p class="display-6 fw-bold">{{ num_soldiers }}</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 col-md-3">
-        <div class="card text-center shadow h-100 border-info border-3">
-          <div class="card-body">
-            <h5 class="card-title text-info"><i class="fa-solid fa-truck-monster me-2"></i>Equipment</h5>
-            <p class="display-6 fw-bold">{{ num_equipment }}</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 col-md-3">
-        <div class="card text-center shadow h-100 border-warning border-3">
-          <div class="card-body">
-            <h5 class="card-title text-warning"><i class="fa-solid fa-bullseye me-2"></i>Missions</h5>
-            <p class="display-6 fw-bold">{{ num_missions }}</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 col-md-3">
-        <div class="card text-center shadow h-100 border-danger border-3">
-          <div class="card-body">
-            <h5 class="card-title text-danger"><i class="fa-solid fa-radio me-2"></i>Notifications</h5>
-            <p class="display-6 fw-bold">{{ num_unread_notifications }}</p>
-          </div>
-        </div>
-      </div>
+    <p class="lead mb-0">Welcome back, <span class="fw-bold">{{ user.get_full_name|default:user.username }}</span></p>
+    <p class="text-muted mb-0">Your mission status is <span class="text-success">ACTIVE</span></p>
+</div>
+
+<!-- System Status Overview -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card-tactical">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i data-lucide="activity" class="icon me-2" style="color: #c7ff41"></i>System Status</h5>
+                <span class="badge bg-success">OPERATIONAL</span>
+            </div>
+            <div class="main-content position-relative">
+                <!-- Tactical Hexagon Overlay -->
+                <div class="tactical-overlay"></div>
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h6 class="mb-3">Combat Readiness Status</h6>
+                        {% with readiness=88 %}
+<div class="progress-tactical mb-3" style="height: 28px;">
+    <div class="progress-bar {% if readiness >= 70 %}high{% elif readiness >= 30 %}medium{% else %}low{% endif %}" 
+         role="progressbar" 
+         style="width: {{ readiness }}%" 
+         aria-valuenow="{{ readiness }}" 
+         aria-valuemin="0" 
+         aria-valuemax="100"
+         aria-label="Combat Readiness: {{ readiness }}%">
+        {{ readiness }}%
     </div>
-    <!-- Section Divider -->
-    <div class="section-divider"><div class="divider-line"></div><span class="divider-icon"><i class="fa-solid fa-user"></i></span><div class="divider-line"></div></div>
-    <!-- Profile Card -->
-    <div class="card shadow border-success border-2 mb-4" style="max-width: 400px; margin: 0 auto;">
-      <div class="card-body text-center">
+</div>
+{% endwith %}                        </div>
+                        <p class="small text-muted mb-0">Overall system readiness based on personnel, equipment, and mission status.</p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="radar-scan" style="width: 150px; height: 150px; margin: 0 auto; position: relative; border: 2px solid var(--tactical-gold); border-radius: 50%;">
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2rem; color: var(--tactical-gold);">
+                                <i data-lucide="radar" class="icon" style="color: #c7ff41"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row mb-4 g-4">
+    <!-- Soldiers -->
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card-tactical stat-card text-center p-4">
+            <i data-lucide="users" class="icon stat-icon" style="color: #c7ff41"></i>
+            <div class="stat-value">{{ num_soldiers|default:'0' }}</div>
+            <div class="stat-label">Active Personnel</div>
+            <div class="mt-2">
+                <span class="badge bg-success">{{ num_available_soldiers|default:'0' }} Available</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Equipment -->
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card-tactical stat-card text-center p-4">
+            <i data-lucide="truck" class="icon stat-icon" style="color: #c7ff41"></i>
+            <div class="stat-value">{{ num_equipment|default:'0' }}</div>
+            <div class="stat-label">Total Equipment</div>
+            <div class="mt-2">
+                <span class="badge bg-{{ equipment_status|default:'success' }}">{{ equipment_available|default:'0' }} Available</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Missions -->
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card-tactical stat-card text-center p-4">
+            <i data-lucide="flag" class="icon stat-icon" style="color: #c7ff41"></i>
+            <div class="stat-value">{{ num_missions|default:'0' }}</div>
+            <div class="stat-label">Active Missions</div>
+            <div class="mt-2">
+                <span class="badge bg-{{ missions_status|default:'warning' }}">{{ active_missions|default:'0' }} In Progress</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Alerts -->
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card-tactical stat-card text-center p-4">
+            <i data-lucide="bell" class="icon stat-icon" style="color: #c7ff41"></i>
+            <div class="stat-value">{{ num_alerts|default:'0' }}</div>
+            <div class="stat-label">Active Alerts</div>
+            <div class="mt-2">
+                <span class="badge bg-{{ alerts_status|default:'danger' }}">{{ critical_alerts|default:'0' }} Critical</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Section Divider -->
+<div class="section-divider"><div class="divider-line"></div><span class="divider-icon"><i data-lucide="user" class="icon" style="color: #c7ff41"></i></span><div class="divider-line"></div></div>
+
+<!-- Profile Card -->
+<div class="card shadow border-success border-2 mb-4" style="max-width: 400px; margin: 0 auto;">
+    <div class="card-body text-center">
         <img src="{{ user.profile.profile_image.url }}" alt="Profile" class="rounded-circle border border-3 border-warning shadow mb-3" style="width:90px;height:90px;object-fit:cover;">
         <h5 class="card-title mb-0">{{ user.username }}</h5>
         <div class="text-muted mb-2">{{ user.email }}</div>
-        <span class="badge bg-success mb-2"><i class="fa-solid fa-user me-1"></i>User</span>
+        <span class="badge bg-success mb-2"><i data-lucide="user" class="icon me-1" style="color: #fff"></i>User</span>
         <p class="mb-0">{{ user.profile.short_bio|default:'No bio provided.' }}</p>
       </div>
     </div>
     <!-- Section Divider -->
-    <div class="section-divider"><div class="divider-line"></div><span class="divider-icon"><i class="fa-solid fa-bell"></i></span><div class="divider-line"></div></div>
+    <div class="section-divider"><div class="divider-line"></div><span class="divider-icon"><i data-lucide="bell" class="icon" style="color: #c7ff41"></i></span><div class="divider-line"></div></div>
     <!-- Recent Notifications Widget -->
     <div class="card shadow border-info border-2 mb-4">
-      <div class="card-header bg-info text-dark fw-bold"><i class="fa-solid fa-bell me-2"></i>Recent Notifications</div>
+      <div class="card-header bg-info text-dark fw-bold"><i data-lucide="bell" class="icon me-2" style="color: #1a1f1a"></i>Recent Notifications</div>
       <ul class="list-group list-group-flush">
         {% for notification in recent_notifications %}
           <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">

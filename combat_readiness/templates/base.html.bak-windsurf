@@ -1,0 +1,894 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Combat Readiness System{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    
+    <!-- CSS Libraries -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/lucide@latest/font/lucide.css">
+    <style>
+      /* Lucide icon styling */
+      .icon {
+        width: 1em;
+        height: 1em;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+      }
+      .icon-fill {
+        fill: currentColor;
+      }
+    </style>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/tactical.css' %}">
+    {% block extra_css %}{% endblock %}
+    <style>
+        /* Typography */
+        :root {
+            --font-heading: 'Orbitron', sans-serif;
+            --font-body: 'Rajdhani', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        /* Global Overrides */
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: var(--tactical-black);
+            color: #e0e0e0;
+            font-family: var(--font-body);
+            font-weight: 400;
+            line-height: 1.6;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Typography Styles */
+        h1, h2, h3, h4, h5, h6,
+        .display-1, .display-2, .display-3, .display-4, .display-5, .display-6,
+        .navbar-brand, .nav-tabs .nav-link, .btn, .badge, .card-title,
+        .stat-value, .stat-label, .section-title, .text-uppercase {
+            font-family: var(--font-heading);
+            letter-spacing: 1px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        h1, .display-1 { letter-spacing: 2px; }
+        h2, .display-2 { letter-spacing: 1.75px; }
+        h3, .display-3 { letter-spacing: 1.5px; }
+        h4, .display-4 { letter-spacing: 1.25px; }
+        
+        /* Navbar Brand */
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            font-size: 1.25rem;
+        }
+        
+        /* Buttons */
+        .btn {
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        
+        /* Code and Preformatted Text */
+        code, pre, kbd, samp, var, tt {
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Main Content Wrapper */
+        .main-content {
+            flex: 1;
+            padding-top: 1.5rem;
+            padding-bottom: 3rem;
+        }
+        
+        /* HUD Clock */
+        .hud-clock {
+            font-family: 'Digital-7', 'Oswald', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            color: var(--tactical-gold);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            border: 1px solid var(--tactical-gold);
+        }
+        
+        /* System Alert Banner */
+        .system-alert {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(90deg, #8b0000, #b22222);
+            color: white;
+            padding: 0.5rem 1rem;
+            text-align: center;
+            font-weight: 600;
+            z-index: 1100;
+            animation: alertPulse 2s infinite;
+            display: none;
+        }
+        
+        @keyframes alertPulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+
+        /* Modern Navbar */
+        .navbar {
+            background: rgba(26, 31, 26, 0.98) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+            padding: 0.8rem 1rem;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            color: var(--accent-gold) !important;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+            transition: all var(--transition-speed) ease;
+        }
+
+        .navbar-brand:hover {
+            color: #fff !important;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+
+        .nav-link {
+            color: var(--text-light) !important;
+            font-weight: 400;
+            padding: 0.5rem 1rem !important;
+            margin: 0 0.2rem;
+            border-radius: 4px;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(74, 124, 89, 0.2);
+            color: var(--accent-gold) !important;
+        }
+
+        .dropdown-menu {
+            background: var(--primary-dark);
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            border-radius: 8px;
+            padding: 0.5rem 0;
+            margin-top: 0.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .dropdown-item {
+            color: var(--text-light) !important;
+            padding: 0.5rem 1.5rem;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(74, 124, 89, 0.3);
+            color: var(--accent-gold) !important;
+            padding-left: 1.8rem;
+        }
+
+        /* Main Content Area */
+        .container-main {
+            min-height: 80vh;
+            padding: 2rem;
+            background: rgba(26, 31, 26, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            margin: 2rem auto;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all var(--transition-speed) ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3a6347;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-outline-light {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-light);
+        }
+
+        .btn-outline-light:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(40, 45, 40, 0.7);
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            border-radius: 10px;
+            transition: all var(--transition-speed) ease;
+            margin-bottom: 1.5rem;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border-color: rgba(212, 175, 55, 0.3);
+        }
+        
+        /* Tactical Typography Utilities */
+        .text-tactical {
+            font-family: var(--font-heading);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .text-lead {
+            font-size: 1.25rem;
+            font-weight: 300;
+            letter-spacing: 0.75px;
+            line-height: 1.6;
+        }
+        
+        .text-label {
+            font-family: var(--font-heading);
+            font-size: 0.85rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--tactical-gold);
+            margin-bottom: 0.5rem;
+            display: inline-block;
+        }
+
+        .card-header {
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+            font-weight: 500;
+            color: var(--accent-gold);
+        }
+
+        /* Forms */
+        .form-control, .form-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25);
+            color: white;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(20, 25, 20, 0.95);
+            color: var(--text-light);
+            padding: 2rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid rgba(212, 175, 55, 0.1);
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .container-main {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .navbar-collapse {
+                background: rgba(26, 31, 26, 0.98);
+                padding: 1rem;
+                border-radius: 8px;
+                margin-top: 0.5rem;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-green);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-gold);
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+<!-- Global Loader Spinner -->
+<div id="global-loader" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2000;background:rgba(26,31,26,0.9);">
+  <div class="d-flex flex-column justify-content-center align-items-center" style="height:100vh;">
+    <div class="spinner-border text-warning mb-3" style="width:4rem;height:4rem;" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="text-light mt-2">Loading Combat Readiness System</p>
+  </div>
+</div>
+<!-- Navigation -->
+<!-- System Alert Banner -->
+<div class="system-alert" id="systemAlert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    <span id="alertMessage">SYSTEM ALERT: Low equipment inventory detected</span>
+</div>
+
+<!-- Main Layout Wrapper -->
+<div class="d-flex">
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="{% url 'home' %}" class="sidebar-brand">
+        <i data-lucide="shield" class="icon pulse"></i>
+        <span class="ms-2">COMBAT READINESS</span>
+      </a>
+      <button class="sidebar-toggle" id="sidebarToggle">
+        <i data-lucide="chevrons-left" class="icon"></i>
+      </button>
+    </div>
+    
+    <div class="sidebar-content">
+      <ul class="sidebar-nav">
+        <li class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+          <a href="{% url 'home' %}" class="nav-link">
+            <i data-lucide="home" class="icon"></i>
+            <span class="link-text">Dashboard</span>
+          </a>
+        </li>
+        {% if user.is_authenticated %}
+          {% if user.role == 'admin' or user.role == 'medical_officer' %}
+            <li class="nav-item {% if 'soldier' in request.resolver_match.url_name %}active{% endif %}">
+              <a href="{% url 'soldier-list' %}" class="nav-link">
+                <i data-lucide="users" class="icon"></i>
+                <span class="link-text">Personnel</span>
+              </a>
+            </li>
+            
+            {% if user.role == 'admin' or user.role == 'medical_officer' %}
+            <li class="nav-item {% if 'medical' in request.resolver_match.url_name %}active{% endif %}">
+              <a href="{% url 'medical-record-list' %}" class="nav-link">
+                <i data-lucide="heart-pulse" class="icon"></i>
+                <span class="link-text">Medical</span>
+              </a>
+            </li>
+            {% endif %}
+          {% endif %}
+          
+          <li class="nav-item {% if 'mission' in request.resolver_match.url_name %}active{% endif %}">
+            <a href="{% url 'mission-list' %}" class="nav-link">
+              <i data-lucide="crosshair" class="icon"></i>
+              <span class="link-text">Missions</span>
+            </a>
+          </li>
+          
+          <li class="nav-item {% if 'equipment' in request.resolver_match.url_name %}active{% endif %}">
+            <a href="{% url 'equipment-list' %}" class="nav-link">
+              <i data-lucide="package" class="icon"></i>
+              <span class="link-text">Equipment</span>
+            </a>
+          </li>
+          
+          {% if user.role == 'admin' %}
+          <li class="nav-item {% if 'admin' in request.resolver_match.url_name %}active{% endif %}">
+            <a href="{% url 'admin-dashboard' %}" class="nav-link">
+              <i data-lucide="shield" class="icon"></i>
+              <span class="link-text">Admin</span>
+            </a>
+          </li>
+          {% endif %}
+          <!-- Notifications -->
+          <li class="nav-item notifications {% if 'notifications' in request.resolver_match.url_name %}active{% endif %}">
+            <a href="{% url 'notifications' %}" class="nav-link">
+              <i data-lucide="bell" class="icon"></i>
+              <span class="link-text">Notifications</span>
+              {% if user.notifications.unread.exists %}
+                <span class="badge bg-danger">{{ user.notifications.unread.count }}</span>
+              {% endif %}
+            </a>
+          </li>
+          
+          <!-- User Profile -->
+          <li class="nav-item user-profile">
+            <div class="profile-header">
+              {% if user.profile and user.profile.profile_image %}
+                <img src="{{ user.profile.profile_image.url }}" alt="Profile" class="profile-img">
+              {% else %}
+                <div class="profile-avatar">
+                  <i data-lucide="user" class="icon"></i>
+                </div>
+              {% endif %}
+              <div class="profile-info">
+                <div class="profile-name">{{ user.get_full_name|default:user.username }}</div>
+                <div class="profile-role">{{ user.get_role_display }}</div>
+              </div>
+              <button class="profile-toggle" type="button">
+                <i data-lucide="chevron-down" class="icon"></i>
+              </button>
+            </div>
+            <ul class="profile-menu">
+              <li><a href="{% url 'profile' %}"><i data-lucide="user" class="icon"></i> Profile</a></li>
+              <li><a href="{% url 'profile-edit' %}"><i data-lucide="settings" class="icon"></i> Settings</a></li>
+              <li class="divider"></li>
+              <li>
+                <form method="post" action="{% url 'logout' %}" class="logout-form">
+                  {% csrf_token %}
+                  <button type="submit" class="btn-logout">
+                    <i data-lucide="log-out" class="icon"></i> Logout
+                  </button>
+                </form>
+              </li>
+            </ul>
+          </li>
+          
+          <!-- Theme Toggle -->
+          <li class="nav-item theme-toggle">
+            <button id="theme-toggle" class="nav-link" aria-label="Toggle theme">
+              <i data-lucide="moon" class="icon" id="theme-icon"></i>
+              <span class="link-text">Dark Mode</span>
+            </button>
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <a href="{% url 'login' %}" class="nav-link">
+              <i data-lucide="log-in" class="icon"></i>
+              <span class="link-text">Login</span>
+            </a>
+          </li>
+        {% endif %}
+      </ul>
+      
+      <!-- Collapse Toggle -->
+      <div class="sidebar-footer">
+        <button class="collapse-toggle" id="sidebarCollapse">
+          <i data-lucide="chevron-left" class="icon"></i>
+          <span>Collapse</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Main Content Wrapper -->
+  <div class="main-content-wrapper" id="mainContent">
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+      <div class="d-flex justify-content-between align-items-center">
+        <button class="sidebar-toggler" id="sidebarToggler">
+          <i data-lucide="menu" class="icon"></i>
+        </button>
+        <div class="d-flex align-items-center">
+          <div class="hud-clock" id="hudClock"></div>
+        </div>
+      </div>
+    </nav>
+    <!-- Page Content -->
+    <main class="main-content">
+      <div class="container-fluid">
+        <!-- System Status Bar -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    <span class="badge bg-success rounded-pill">ONLINE</span>
+                    <small class="ms-2 text-muted">System Status</small>
+                </div>
+                <div class="vr me-3"></div>
+                <div class="hud-clock" id="hudClock">
+                    <i class="far fa-clock me-2"></i>
+                    <span id="currentTime">00:00:00</span> 
+                    <span id="currentDate" class="ms-2">01 JAN 2025</span>
+                </div>
+            </div>
+            <div>
+                <button class="btn btn-sm btn-tactical btn-tactical-outline" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert-tactical alert-tactical-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        {% if message.tags == 'success' %}
+                            <i class="fas fa-check-circle me-2"></i>
+                        {% elif message.tags == 'error' %}
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                        {% elif message.tags == 'warning' %}
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                        {% else %}
+                            <i class="fas fa-info-circle me-2"></i>
+                        {% endif %}
+                        <div>{{ message }}</div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <!-- Page Content -->
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+    
+    <footer class="main-footer">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12 text-center">
+            <p class="mb-0">&copy; {% now "Y" %} Combat Readiness System. All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>
+<!-- Toast Notification Container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container" style="z-index:3000;"></div>
+<!-- Footer -->
+<!-- Footer -->
+<footer class="footer py-4 mt-auto" style="background: rgba(10, 15, 10, 0.95); border-top: 1px solid var(--tactical-gold);">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Brand and Description -->
+            <div class="col-lg-4 mb-4 mb-lg-0">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="fas fa-shield-alt me-2" style="color: var(--tactical-gold);"></i>
+                    <h5 class="mb-0" style="color: var(--tactical-gold);">COMBAT READINESS SYSTEM</h5>
+                </div>
+                    <i class="fas fa-shield-alt fs-4 me-2 text-accent"></i>
+                    <h5 class="mb-0 text-uppercase fw-bold">Combat Readiness</h5>
+                </div>
+                <p class="small text-muted mb-3">
+                    A comprehensive system for managing military personnel, equipment, and mission readiness with precision and efficiency.
+                </p>
+                <div class="social-links">
+                    <a href="#" class="text-muted me-2" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-muted me-2" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-muted me-2" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="text-muted" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            
+            <!-- Quick Links -->
+            <div class="col-6 col-md-4 col-lg-2">
+                <h6 class="text-uppercase text-accent fw-bold mb-3">Quick Links</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="{% url 'home' %}" class="text-muted text-decoration-none small">Home</a></li>
+                    {% if user.is_authenticated %}
+                        <li class="mb-2"><a href="{% url 'dashboard' %}" class="text-muted text-decoration-none small">Dashboard</a></li>
+                        <li class="mb-2"><a href="{% url 'soldier-list' %}" class="text-muted text-decoration-none small">Soldiers</a></li>
+                        <li class="mb-2"><a href="{% url 'mission-list' %}" class="text-muted text-decoration-none small">Missions</a></li>
+                        <li class="mb-2"><a href="{% url 'equipment-list' %}" class="text-muted text-decoration-none small">Equipment</a></li>
+                    {% else %}
+                        <li class="mb-2"><a href="{% url 'login' %}" class="text-muted text-decoration-none small">Login</a></li>
+                        <li class="mb-2"><a href="{% url 'register' %}" class="text-muted text-decoration-none small">Register</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            
+            <!-- Support -->
+            <div class="col-6 col-md-4 col-lg-3">
+                <h6 class="text-uppercase text-accent fw-bold mb-3">Support</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="#" class="text-muted text-decoration-none small">Help Center</a></li>
+                    <li class="mb-2"><a href="#" class="text-muted text-decoration-none small">Documentation</a></li>
+                    <li class="mb-2"><a href="#" class="text-muted text-decoration-none small">API Reference</a></li>
+                    <li class="mb-2"><a href="#" class="text-muted text-decoration-none small">Status</a></li>
+                </ul>
+            </div>
+            
+            <!-- Contact -->
+            <div class="col-md-4 col-lg-3">
+                <h6 class="text-uppercase text-accent fw-bold mb-3">Contact Us</h6>
+                <ul class="list-unstyled small text-muted">
+                    <li class="mb-2">
+                        <i class="fas fa-map-marker-alt me-2 text-accent"></i>
+                        <span>123 Military Base, City, Country</span>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-phone me-2 text-accent"></i>
+                        <span>+1 (555) 123-4567</span>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-envelope me-2 text-accent"></i>
+                        <a href="mailto:support@combatreadiness.com" class="text-muted text-decoration-none">support@combatreadiness.com</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <hr class="my-4 border-secondary">
+        
+        <div class="row align-items-center">
+            <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                <p class="mb-0 small text-muted">
+                    &copy; {% now "Y" %} Combat Readiness. All rights reserved.
+                </p>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <ul class="list-inline mb-0">
+                    <li class="list-inline-item"><a href="#" class="text-muted small text-decoration-none">Privacy Policy</a></li>
+                    <li class="list-inline-item"><span class="text-muted mx-2">•</span></li>
+                    <li class="list-inline-item"><a href="#" class="text-muted small text-decoration-none">Terms of Service</a></li>
+                    <li class="list-inline-item"><span class="text-muted mx-2">•</span></li>
+                    <li class="list-inline-item"><a href="#" class="text-muted small text-decoration-none">Cookie Policy</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Back to Top Button -->
+<button id="backToTop" class="btn btn-sm btn-accent rounded-circle position-fixed bottom-0 end-0 m-4 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; display: none !important;">
+    <i class="fas fa-arrow-up"></i>
+</button>
+
+<!-- Bootstrap JS Bundle with Popper -->
+<!-- JavaScript Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Custom JavaScript -->
+<script src="{% static 'js/tactical.js' %}"></script>
+<script src="{% static 'js/theme-switcher.js' %}"></script>
+
+<!-- Initialize Components -->
+<script>
+    // Initialize HUD Clock
+    function updateHUDClock() {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-US', { hour12: false });
+        const dateStr = now.toLocaleDateString('en-US', { 
+            day: '2-digit', 
+            month: 'short', 
+            year: 'numeric' 
+        }).toUpperCase();
+        
+        document.getElementById('currentTime').textContent = timeStr;
+        document.getElementById('currentDate').textContent = dateStr;
+    }
+    
+    // Update clock every second
+    updateHUDClock();
+    setInterval(updateHUDClock, 1000);
+    
+    // Check for system alerts
+    function checkSystemAlerts() {
+        // Example: Check for low inventory (replace with actual check)
+        // fetch('/api/inventory/status/')
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         if (data.lowInventory) {
+        //             document.getElementById('alertMessage').textContent = 
+        //                 'SYSTEM ALERT: Low inventory detected for ' + data.items.join(', ');
+        //             document.getElementById('systemAlert').style.display = 'block';
+        //         }
+        //     });
+    }
+    
+    // Check alerts every 5 minutes
+    checkSystemAlerts();
+    setInterval(checkSystemAlerts, 300000);
+    
+    // Theme Toggle
+    document.getElementById('themeToggle').addEventListener('click', function() {
+        const html = document.documentElement;
+        const currentTheme = html.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        // Update theme
+        html.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        
+        // Update icon
+        const icon = this.querySelector('i');
+        icon.className = newTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+    });
+</script>
+
+{% block extra_js %}{% endblock %}
+<script>
+// Back to Top Button Functionality
+const backToTopButton = document.getElementById('backToTop');
+if (backToTopButton) {
+  window.addEventListener('scroll', () => {
+    if (window.pageYOffset > 300) {
+      backToTopButton.style.display = 'flex';
+    } else {
+      backToTopButton.style.display = 'none';
+    }
+  });
+
+  backToTopButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  });
+}
+
+// Real-time notification polling
+function updateNotifications() {
+  fetch('{% url "notifications_json" %}')
+    .then(response => response.json())
+    .then(data => {
+      // Update bell badge
+      const bell = document.querySelector('#notificationsDropdown .fa-bell');
+      if (bell) {
+        const existingBadge = bell.parentNode.querySelector('.badge');
+        if (existingBadge) existingBadge.remove();
+        
+        if (data.unread_count > 0) {
+          const newBadge = document.createElement('span');
+          newBadge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger';
+          newBadge.textContent = data.unread_count;
+          bell.parentNode.appendChild(newBadge);
+        }
+      }
+
+      // Update dropdown content
+      const dropdown = document.querySelector('.dropdown-notifications-list');
+      if (dropdown) {
+        let html = '';
+        if (data.recent_notifications && data.recent_notifications.length > 0) {
+          data.recent_notifications.forEach(notification => {
+            const isUnread = !notification.is_read;
+            html += `
+              <a class="dropdown-item d-flex justify-content-between align-items-center ${isUnread ? 'fw-bold text-warning' : ''}" 
+                 href="${notification.link || '#'}">
+                <span>${notification.message || 'New notification'}</span>
+                <small class="text-muted ms-2">${notification.created_at || ''}</small>
+              </a>`;
+          });
+        } else {
+          html = '<span class="dropdown-item text-muted">No notifications</span>';
+        }
+        dropdown.innerHTML = html;
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching notifications:', error);
+    });
+}
+
+// Initialize tooltips
+function initTooltips() {
+  const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  tooltipTriggerList.map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+}
+
+// Global Loader Logic
+(function() {
+  // Show loader when page is loading
+  const loader = document.getElementById('global-loader');
+  if (loader) {
+    document.onreadystatechange = function() {
+      if (document.readyState !== 'complete') {
+        loader.style.display = 'flex';
+      } else {
+        // Small delay to allow for smooth transition
+        setTimeout(() => {
+          loader.style.display = 'none';
+        }, 300);
+      }
+    };
+  }
+
+    // Initialize components when DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize Lucide icons
+      lucide.createIcons();
+      
+      initTooltips();
+      
+      // Initialize notification polling if user is authenticated
+      {% if user.is_authenticated %}
+        // Initial fetch
+        updateNotifications();
+        // Poll every 60 seconds
+        setInterval(updateNotifications, 60000);
+      {% endif %}
+    });
+})();
+
+// Toast Notification Utility
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  
+  const toast = document.createElement('div');
+  toast.className = `toast align-items-center text-bg-${type} border-0 show mb-2`;
+  toast.role = 'alert';
+  toast.setAttribute('aria-live', 'assertive');
+  toast.setAttribute('aria-atomic', 'true');
+  
+  toast.innerHTML = `
+    <div class="d-flex">
+      <div class="toast-body">
+        <i class="${getToastIcon(type)} me-2"></i>
+        ${message}
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>`;
+  
+  container.appendChild(toast);
+  
+  // Auto-remove after delay
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 150);
+  }, 4000);
+  
+  return toast;
+}
+
+// Helper function to get appropriate icon for toast type
+function getToastIcon(type) {
+  const icons = {
+    success: '<i data-lucide="check-circle" class="icon"></i>',
+    error: '<i data-lucide="alert-circle" class="icon"></i>',
+    warning: '<i data-lucide="alert-triangle" class="icon"></i>',
+    info: '<i data-lucide="info" class="icon"></i>'
+  };
+  return icons[type] || '<i data-lucide="info" class="icon"></i>';
+}
+</script>
+</body>
+</html> 

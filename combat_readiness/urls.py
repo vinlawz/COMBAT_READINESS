@@ -83,8 +83,9 @@ urlpatterns = [
     path('verify/<uidb64>/<token>/', verify_view, name='verify'),
 
     # Notifications URLs
-    path('notifications/', NotificationsListView.as_view(), name='notifications-list'),
+    path('notifications/', NotificationsListView.as_view(), name='notifications'),
     path('notifications/bulk-mark-read/', BulkMarkNotificationsReadView.as_view(), name='notifications-bulk-mark-read'),
+    path('notifications/<int:pk>/', NotificationsListView.as_view(), name='notification-detail'),
 ]
 
 # Serve media files in development

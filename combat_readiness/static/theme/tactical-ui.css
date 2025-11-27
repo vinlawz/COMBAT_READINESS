@@ -1,0 +1,206 @@
+/* Tactical UI core variables */
+:root {
+  --bg-900: #0b0d0c;
+  --bg-800: #111312;
+  --accent-khaki: #c6b676;
+  --accent-olive: #6b7a3b;
+  --crt-green: #05ff73;
+  --tech-blue: #4de3ff;
+  --danger-red: #ff3b3b;
+  --muted: #9aa19a;
+  --glass: rgba(255,255,255,0.03);
+  --scanline-opacity: 0.04;
+  --hud-glow: 0 0 8px rgba(198,182,118,0.18);
+}
+
+/* base resets for theme */
+body {
+  background: linear-gradient(180deg,var(--bg-900),var(--bg-800));
+  color: #d7d9d7;
+  font-family: "Montserrat", "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* scanline overlay */
+.tactical-scanlines {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(255,255,255,var(--scanline-opacity)),
+    rgba(255,255,255,var(--scanline-opacity)) 1px,
+    transparent 2px,
+    transparent 24px
+  );
+  mix-blend-mode: overlay;
+  z-index: 9000;
+  opacity: 0.55;
+}
+
+/* subtle grid (optional) */
+.tactical-grid {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.01) 1px, transparent 1px);
+  background-size: 120px 120px;
+  z-index: 8998;
+  opacity: 0.5;
+}
+
+/* global container cards */
+.tactical-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.03));
+  border: 1px solid rgba(198,182,118,0.12);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.65);
+  position: relative;
+  overflow: hidden;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.tactical-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--hud-glow);
+}
+
+/* card title and tiny LED */
+.tactical-card .card-title {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: var(--accent-khaki);
+  font-family: "Stardos Stencil", "Montserrat", sans-serif;
+  font-size: .95rem;
+}
+
+.tactical-led {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(0,0,0,0.4) inset;
+  border: 1px solid rgba(0,0,0,0.5);
+  display: inline-block;
+}
+
+.tactical-led.online { 
+  background: var(--crt-green); 
+  box-shadow: 0 0 8px rgba(5,255,115,0.18);
+}
+
+.tactical-led.alert { 
+  background: var(--danger-red); 
+  box-shadow: 0 0 12px rgba(255,59,59,0.16);
+}
+
+.tactical-led.warn { 
+  background: var(--accent-khaki); 
+  box-shadow: 0 0 8px rgba(198,182,118,0.12); 
+}
+
+/* status badges */
+.status-badge {
+  display: inline-block;
+  padding: .25rem .5rem;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: .72rem;
+  color: #0a0b0b;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.03);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.status-badge.operational { 
+  color: var(--crt-green); 
+  border-color: rgba(5,255,115,0.08);
+}
+
+.status-badge.warning { 
+  color: var(--accent-khaki); 
+  border-color: rgba(198,182,118,0.08);
+}
+
+.status-badge.critical { 
+  color: var(--danger-red); 
+  border-color: rgba(255,59,59,0.08);
+}
+
+/* radar circle */
+.tactical-radar {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 2px solid rgba(198,182,118,0.12);
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(198,182,118,0.02), transparent 40%);
+}
+
+.tactical-radar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(rgba(77,227,255,0.06), transparent 40%);
+  transform: rotate(0deg);
+  animation: radar-sweep 3.5s linear infinite;
+  mix-blend-mode: screen;
+  opacity: .85;
+}
+
+@keyframes radar-sweep {
+  to { transform: rotate(360deg); }
+}
+
+/* segmented progress bar */
+.segmented-bar { 
+  height: 12px; 
+  background: rgba(255,255,255,0.02); 
+  border-radius: 8px; 
+  overflow: hidden; 
+  border: 1px solid rgba(255,255,255,0.02); 
+}
+
+.segmented-bar .segment {
+  height: 100%;
+  display: inline-block;
+  background: linear-gradient(90deg, var(--accent-khaki), var(--crt-green));
+  box-shadow: var(--hud-glow);
+  transition: width .9s cubic-bezier(.2,.9,.3,1);
+}
+
+/* small terminal console */
+.tactical-console {
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.02);
+  font-family: "Share Tech Mono", monospace;
+  font-size: .82rem;
+  padding: .75rem;
+  border-radius: 8px;
+}
+
+/* responsive tweaks */
+@media (max-width: 768px) {
+  .tactical-radar { 
+    width: 110px; 
+    height: 110px; 
+  }
+  
+  .tactical-card { 
+    padding: .8rem; 
+    border-radius: 10px;
+  }
+}
