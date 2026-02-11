@@ -1,0 +1,23 @@
+/* Equipment page styles */
+.equipment-bg {
+  background: url('/static/img/camo-bg.jpg') center center/cover no-repeat;
+  border-radius: 18px;
+  box-shadow: 0 0 32px #232d23cc, 0 0 8px #3a3f2d99;
+  min-height: 100vh;
+  padding: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Add overlay for better text readability */
+.equipment-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: -1;
+  border-radius: 18px;
+}
