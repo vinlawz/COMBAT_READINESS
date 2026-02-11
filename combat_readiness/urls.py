@@ -14,6 +14,7 @@ from .views import (
     verify_view, CustomLoginView, DashboardView, MarkAllNotificationsReadView, CalendarView, MissionEventsJsonView, AdvancedSearchView, ExportMissionsCSVView, ExportReadinessCSVView, AuditLogView, NotificationsJsonView, BulkAssignEquipmentView, NotificationsListView, BulkMarkNotificationsReadView,
     MedicalRecordListView, MedicalRecordDetailView, MedicalRecordUpdateView
 )
+from .views_network import NetworkStatusView
 
 # Main URL patterns
 urlpatterns = [
@@ -83,10 +84,13 @@ urlpatterns = [
     path('readiness/', include(('readiness.urls', 'readiness'), namespace='readiness')),
     path('verify/<uidb64>/<token>/', verify_view, name='verify'),
 
-    # Notifications URLs
+    #  Notifications URLs
     path('notifications/', NotificationsListView.as_view(), name='notifications'),
     path('notifications/bulk-mark-read/', BulkMarkNotificationsReadView.as_view(), name='notifications-bulk-mark-read'),
     path('notifications/<int:pk>/', NotificationsListView.as_view(), name='notification-detail'),
+
+    #  API Endpoints
+    path('api/network-status/', NetworkStatusView.as_view(), name='network-status'),
 
     # Medical Record URLs
     path('medical-records/', MedicalRecordListView.as_view(), name='medical-record-list'),
