@@ -1,0 +1,619 @@
+/* Tactical CSS - Military-Grade Styling */
+
+/* CSS Variables */
+:root {
+    --tactical-black: #0a0f0a;
+    --tactical-dark: #1a1f1a;
+    --tactical-green: #2a4a2a;
+    --tactical-gold: #d4af37;
+    --tactical-gold-light: #e6c558;
+    --tactical-red: #8b0000;
+    --tactical-blue: #1e3a8a;
+    --tactical-gray: #6b7280;
+    --tactical-white: #e0e0e0;
+    --primary-green: #2a4a2a;
+    --accent-gold: #d4af37;
+    --text-light: #e0e0e0;
+    --text-muted: #9ca3af;
+    --transition-speed: 0.3s;
+}
+
+/* Base Styles */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--tactical-black);
+    color: var(--text-light);
+    font-family: 'Rajdhani', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+    letter-spacing: 0.5px;
+    overflow-x: hidden;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--tactical-gold);
+    margin-bottom: 1rem;
+}
+
+.display-1, .display-2, .display-3, .display-4, .display-5, .display-6 {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* Tactical Cards */
+.card-tactical {
+    background: rgba(26, 31, 26, 0.9);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 12px;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    transition: all var(--transition-speed) ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-tactical::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--tactical-gold), var(--tactical-gold-light));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--transition-speed) ease;
+}
+
+.card-tactical:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border-color: var(--tactical-gold);
+}
+
+.card-tactical:hover::before {
+    transform: scaleX(1);
+}
+
+.card-tactical .card-header {
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    color: var(--tactical-gold);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 1rem 1.5rem;
+}
+
+.card-tactical .card-body {
+    padding: 1.5rem;
+}
+
+/* Tactical Buttons */
+.btn-tactical {
+    background: linear-gradient(135deg, var(--tactical-green), var(--primary-green));
+    color: white;
+    border: 1px solid var(--tactical-gold);
+    border-radius: 6px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all var(--transition-speed) ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-tactical::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.3), transparent);
+    transition: left var(--transition-speed) ease;
+}
+
+.btn-tactical:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    border-color: var(--tactical-gold-light);
+    color: var(--tactical-gold);
+}
+
+.btn-tactical:hover::before {
+    left: 100%;
+}
+
+.btn-tactical-outline {
+    background: transparent;
+    color: var(--tactical-gold);
+    border: 2px solid var(--tactical-gold);
+}
+
+.btn-tactical-outline:hover {
+    background: var(--tactical-gold);
+    color: var(--tactical-black);
+}
+
+/* Tactical Progress Bars */
+.progress-tactical {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--tactical-gold);
+    border-radius: 15px;
+    overflow: hidden;
+    height: 20px;
+    position: relative;
+}
+
+.progress-tactical .progress-bar {
+    background: linear-gradient(90deg, var(--tactical-gold), var(--tactical-gold-light));
+    border-radius: 15px;
+    transition: width 1s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-tactical .progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.progress-tactical .progress-bar.high {
+    background: linear-gradient(90deg, #28a745, #34ce57);
+}
+
+.progress-tactical .progress-bar.medium {
+    background: linear-gradient(90deg, #ffc107, #ffcd39);
+}
+
+.progress-tactical .progress-bar.low {
+    background: linear-gradient(90deg, #dc3545, #e4606d);
+}
+
+/* Tactical Alerts */
+.alert-tactical {
+    border: 1px solid var(--tactical-gold);
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.alert-tactical::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--tactical-gold);
+}
+
+.alert-tactical-success {
+    background: rgba(40, 167, 69, 0.1);
+    border-color: #28a745;
+    color: #34ce57;
+}
+
+.alert-tactical-success::before {
+    background: #28a745;
+}
+
+.alert-tactical-warning {
+    background: rgba(255, 193, 7, 0.1);
+    border-color: #ffc107;
+    color: #ffcd39;
+}
+
+.alert-tactical-warning::before {
+    background: #ffc107;
+}
+
+.alert-tactical-danger {
+    background: rgba(220, 53, 69, 0.1);
+    border-color: #dc3545;
+    color: #e4606d;
+}
+
+.alert-tactical-danger::before {
+    background: #dc3545;
+}
+
+/* Tactical Forms */
+.form-tactical .form-control,
+.form-tactical .form-select {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    color: var(--text-light);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    transition: all var(--transition-speed) ease;
+}
+
+.form-tactical .form-control:focus,
+.form-tactical .form-select:focus {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--tactical-gold);
+    box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25);
+    color: white;
+}
+
+.form-tactical .form-label {
+    color: var(--tactical-gold);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+
+/* Tactical Tables */
+.table-tactical {
+    background: rgba(26, 31, 26, 0.9);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table-tactical thead {
+    background: rgba(0, 0, 0, 0.5);
+    border-bottom: 2px solid var(--tactical-gold);
+}
+
+.table-tactical thead th {
+    color: var(--tactical-gold);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 1rem;
+    border: none;
+}
+
+.table-tactical tbody tr {
+    border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+    transition: background var(--transition-speed) ease;
+}
+
+.table-tactical tbody tr:hover {
+    background: rgba(212, 175, 55, 0.1);
+}
+
+.table-tactical tbody td {
+    padding: 0.75rem 1rem;
+    color: var(--text-light);
+    border: none;
+}
+
+/* Tactical Navigation */
+.nav-tactical {
+    background: rgba(26, 31, 26, 0.95);
+    border-bottom: 2px solid var(--tactical-gold);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+
+.nav-tactical .navbar-brand {
+    color: var(--tactical-gold) !important;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.nav-tactical .nav-link {
+    color: var(--text-light) !important;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0.5rem 1rem !important;
+    border-radius: 4px;
+    transition: all var(--transition-speed) ease;
+}
+
+.nav-tactical .nav-link:hover,
+.nav-tactical .nav-link.active {
+    background: rgba(212, 175, 55, 0.2);
+    color: var(--tactical-gold) !important;
+}
+
+/* Tactical Sidebar */
+.sidebar {
+    background: rgba(10, 15, 10, 0.98);
+    border-right: 2px solid var(--tactical-gold);
+    min-height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 280px;
+    z-index: 1000;
+    transition: transform var(--transition-speed) ease;
+}
+
+.sidebar.collapsed {
+    transform: translateX(-280px);
+}
+
+.sidebar-header {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 1.5rem;
+    border-bottom: 2px solid var(--tactical-gold);
+}
+
+.sidebar-brand {
+    color: var(--tactical-gold) !important;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-nav .nav-item {
+    border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+.sidebar-nav .nav-link {
+    color: var(--text-light) !important;
+    padding: 1rem 1.5rem !important;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    transition: all var(--transition-speed) ease;
+}
+
+.sidebar-nav .nav-link:hover,
+.sidebar-nav .nav-item.active .nav-link {
+    background: rgba(212, 175, 55, 0.2);
+    color: var(--tactical-gold) !important;
+    border-left: 4px solid var(--tactical-gold);
+}
+
+.sidebar-nav .nav-link i {
+    margin-right: 1rem;
+    width: 20px;
+    text-align: center;
+}
+
+/* Tactical Badges */
+.badge-tactical {
+    background: var(--tactical-gold);
+    color: var(--tactical-black);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+
+/* Tactical Status Indicators */
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-indicator::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    animation: pulse 2s infinite;
+}
+
+.status-indicator.operational {
+    background: rgba(40, 167, 69, 0.2);
+    color: #34ce57;
+    border: 1px solid #28a745;
+}
+
+.status-indicator.operational::before {
+    background: #28a745;
+}
+
+.status-indicator.warning {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffcd39;
+    border: 1px solid #ffc107;
+}
+
+.status-indicator.warning::before {
+    background: #ffc107;
+}
+
+.status-indicator.critical {
+    background: rgba(220, 53, 69, 0.2);
+    color: #e4606d;
+    border: 1px solid #dc3545;
+}
+
+.status-indicator.critical::before {
+    background: #dc3545;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Tactical Grid Overlay */
+.tactical-grid-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.05;
+    background-image: 
+        linear-gradient(90deg, rgba(212, 175, 55, 0.3) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(212, 175, 55, 0.3) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-280px);
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .main-content-wrapper {
+        margin-left: 0;
+    }
+    
+    .card-tactical {
+        margin-bottom: 1rem;
+    }
+    
+    .btn-tactical {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.slide-in-left {
+    animation: slideInLeft 0.6s ease-out;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--tactical-gold);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--tactical-gold-light);
+}
+
+/* Utility Classes */
+.text-tactical {
+    color: var(--tactical-gold) !important;
+}
+
+.bg-tactical {
+    background: var(--tactical-dark) !important;
+}
+
+.border-tactical {
+    border-color: var(--tactical-gold) !important;
+}
+
+.shadow-tactical {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+.rounded-tactical {
+    border-radius: 8px !important;
+}
+
+/* Section Dividers */
+.section-divider {
+    display: flex;
+    align-items: center;
+    margin: 3rem 0;
+    position: relative;
+}
+
+.divider-line {
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--tactical-gold), transparent);
+}
+
+.divider-icon {
+    padding: 0 2rem;
+    color: var(--tactical-gold);
+    font-size: 1.5rem;
+}
+
+/* Loading States */
+.loading-skeleton {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 4px;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
