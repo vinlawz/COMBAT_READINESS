@@ -1,41 +1,436 @@
-{% extends "base.html" %}
 {% load static %}
-{% block title %}Login | Combat Readiness{% endblock %}
-{% block content %}
-<div class="row justify-content-center align-items-center" style="min-height:70vh;">
-  <div class="col-md-6 col-lg-4">
-    <div class="card bg-dark bg-opacity-75 shadow-lg text-white p-4">
-      <h2 class="text-center mb-4 text-uppercase"><i data-lucide="shield" class="icon me-2" style="color: #c7ff41"></i>Login</h2>
-      <form method="post" autocomplete="off">
-        {% csrf_token %}
-        {% for field in form %}
-          <div class="mb-3">
-            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-            <div class="input-group">
-              {% if field.name == 'username' %}
-                <span class="input-group-text bg-dark"><i data-lucide="user" class="icon" style="color: #c7ff41"></i></span>
-              {% elif field.name == 'password' %}
-                <span class="input-group-text bg-dark"><i data-lucide="lock" class="icon" style="color: #c7ff41"></i></span>
-              {% endif %}
-              {{ field }}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Access | Combat Readiness System</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    
+    <!-- CSS Libraries -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Stardos+Stencil&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/lucide@latest/font/lucide.css">
+    
+    <!-- Tactical UI CSS -->
+    <link rel="stylesheet" href="{% static 'theme/tactical-ui.css' %}">
+    <link rel="stylesheet" href="{% static 'css/tactical.css' %}">
+    
+    <style>
+        /* Full Screen Login Styles */
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow: hidden;
+            font-family: 'Rajdhani', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        .login-container {
+            min-height: 100vh;
+            width: 100vw;
+            background: linear-gradient(135deg, rgba(10, 15, 10, 0.98) 0%, rgba(26, 31, 26, 0.99) 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(90deg, rgba(212, 175, 55, 0.03) 1px, transparent 1px),
+                linear-gradient(180deg, rgba(212, 175, 55, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            animation: gridMove 20s linear infinite;
+        }
+        
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(60px, 60px); }
+        }
+        
+        .login-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(212, 175, 55, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(212, 175, 55, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 40% 60%, rgba(212, 175, 55, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .login-card {
+            background: rgba(26, 31, 26, 0.95);
+            border: 2px solid var(--tactical-gold);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
+            position: relative;
+            overflow: hidden;
+            z-index: 10;
+            max-width: 450px;
+            width: 90%;
+        }
+        
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--tactical-gold), var(--tactical-gold-light));
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+        
+        .login-header {
+            background: rgba(0, 0, 0, 0.6);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .login-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--tactical-gold);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 25px rgba(212, 175, 55, 0.4);
+        }
+        
+        .login-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0;
+        }
+        
+        .login-body {
+            padding: 2.5rem;
+        }
+        
+        .form-tactical .form-control {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: var(--text-light);
+            border-radius: 10px;
+            padding: 1.2rem 1.5rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-tactical .form-control:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--tactical-gold);
+            box-shadow: 0 0 0 0.3rem rgba(212, 175, 55, 0.25);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .form-tactical .form-label {
+            color: var(--tactical-gold);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 0.75rem;
+            font-size: 0.85rem;
+        }
+        
+        .input-group-text {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: var(--tactical-gold);
+            border-radius: 10px 0 0 10px;
+        }
+        
+        .btn-login {
+            background: linear-gradient(135deg, var(--tactical-gold), var(--tactical-gold-light));
+            color: var(--tactical-black);
+            border: none;
+            border-radius: 10px;
+            padding: 1.2rem 2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(212, 175, 55, 0.4);
+            color: var(--tactical-black);
+        }
+        
+        .btn-login:hover::before {
+            left: 100%;
+        }
+        
+        .security-notice {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 10px;
+            padding: 1.2rem;
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+        
+        .security-notice i {
+            color: var(--tactical-gold);
+            margin-right: 0.5rem;
+        }
+        
+        .login-footer {
+            background: rgba(0, 0, 0, 0.4);
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .login-footer a {
+            color: var(--tactical-gold);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin: 0.25rem 0;
+        }
+        
+        .login-footer a:hover {
+            color: var(--tactical-gold-light);
+            transform: translateY(-1px);
+        }
+        
+        .access-level {
+            display: inline-block;
+            background: rgba(40, 167, 69, 0.2);
+            color: #34ce57;
+            border: 1px solid #28a745;
+            border-radius: 25px;
+            padding: 0.4rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+        
+        .corner-decoration {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border: 2px solid var(--tactical-gold);
+            opacity: 0.3;
+        }
+        
+        .corner-decoration.top-left {
+            top: 20px;
+            left: 20px;
+            border-right: none;
+            border-bottom: none;
+        }
+        
+        .corner-decoration.top-right {
+            top: 20px;
+            right: 20px;
+            border-left: none;
+            border-bottom: none;
+        }
+        
+        .corner-decoration.bottom-left {
+            bottom: 20px;
+            left: 20px;
+            border-right: none;
+            border-top: none;
+        }
+        
+        .corner-decoration.bottom-right {
+            bottom: 20px;
+            right: 20px;
+            border-left: none;
+            border-top: none;
+        }
+        
+        @media (max-width: 768px) {
+            .login-card {
+                margin: 1rem;
+                width: 95%;
+            }
+            
+            .login-body {
+                padding: 2rem 1.5rem;
+            }
+            
+            .login-title {
+                font-size: 1.8rem;
+            }
+            
+            .corner-decoration {
+                width: 50px;
+                height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Background Elements -->
+        <div class="login-background"></div>
+        
+        <!-- Corner Decorations -->
+        <div class="corner-decoration top-left"></div>
+        <div class="corner-decoration top-right"></div>
+        <div class="corner-decoration bottom-left"></div>
+        <div class="corner-decoration bottom-right"></div>
+        
+        <!-- Login Card -->
+        <div class="login-card">
+            <!-- Login Header -->
+            <div class="login-header">
+                <div class="access-level">
+                    <i data-lucide="shield-check" class="icon me-1"></i>
+                    CLASSIFIED ACCESS
+                </div>
+                <h1 class="login-title">
+                    <i data-lucide="shield" class="icon me-2"></i>
+                    AUTHENTICATION
+                </h1>
+                <p class="login-subtitle">Combat Readiness System v2.0</p>
             </div>
-            {% if field.errors %}
-              <div class="text-danger small">{{ field.errors|striptags }}</div>
-            {% endif %}
-          </div>
-        {% endfor %}
-        <div class="d-grid mb-2">
-          <button type="submit" class="btn btn-warning fw-bold text-uppercase"><i data-lucide="log-in" class="icon me-2" style="color: #1a1f1a"></i>Login</button>
+            
+            <!-- Login Form -->
+            <div class="login-body">
+                <form method="post" autocomplete="off" class="form-tactical">
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                        <div class="mb-4">
+                            <label for="{{ field.id_for_label }}" class="form-label">
+                                {% if field.name == 'username' %}
+                                    <i data-lucide="user" class="icon me-1"></i>
+                                    OPERATOR ID
+                                {% elif field.name == 'password' %}
+                                    <i data-lucide="lock" class="icon me-1"></i>
+                                    SECURITY CODE
+                                {% else %}
+                                    {{ field.label }}
+                                {% endif %}
+                            </label>
+                            <div class="input-group">
+                                {% if field.name == 'username' %}
+                                    <span class="input-group-text">
+                                        <i data-lucide="user" class="icon"></i>
+                                    </span>
+                                {% elif field.name == 'password' %}
+                                    <span class="input-group-text">
+                                        <i data-lucide="lock" class="icon"></i>
+                                    </span>
+                                {% endif %}
+                                {{ field }}
+                            </div>
+                            {% if field.errors %}
+                                <div class="text-danger small mt-1">
+                                    <i data-lucide="alert-triangle" class="icon me-1"></i>
+                                    {{ field.errors|striptags }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-login">
+                            <i data-lucide="log-in" class="icon me-2"></i>
+                            SECURE ACCESS
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Security Notice -->
+                <div class="security-notice">
+                    <i data-lucide="info" class="icon"></i>
+                    This is a secure military system. Unauthorized access is prohibited and subject to prosecution.
+                </div>
+            </div>
+            
+            <!-- Login Footer -->
+            <div class="login-footer">
+                <div class="mb-2">
+                    <a href="{% url 'register' %}">
+                        <i data-lucide="user-plus" class="icon me-1"></i>
+                        Request Access
+                    </a>
+                </div>
+                <div>
+                    <a href="{% url 'password_reset' %}">
+                        <i data-lucide="key" class="icon me-1"></i>
+                        Reset Security Code
+                    </a>
+                </div>
+            </div>
         </div>
-      </form>
-      <p class="mt-3 text-center">
-        Don't have an account?
-        <a href="{% url 'register' %}" class="text-warning">Sign up here</a>
-      </p>
-      <div class="text-center mt-3">
-        <a href="{% url 'password_reset' %}" class="text-warning">Forgot Password?</a>
-      </div>
     </div>
-  </div>
-</div>
-{% endblock %}
+    
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+        
+        // Add form field styling dynamically
+        document.addEventListener('DOMContentLoaded', function() {
+            const formControls = document.querySelectorAll('.form-control');
+            formControls.forEach(control => {
+                control.classList.add('form-control');
+            });
+        });
+    </script>
+</body>
+</html>

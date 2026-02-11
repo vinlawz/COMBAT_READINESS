@@ -11,7 +11,8 @@ from .views import (
     ReadinessReportListView, ReadinessReportCreateView, ReadinessReportRetrieveUpdateDeleteView,
     HomeView, RegisterView, ProfileView, profile_edit_view, AdminDashboardView, MedicalOfficerDashboardView,
     dashboard_view, MissionListView, MissionDetailView, MissionCreateView, MissionUpdateView, MissionDeleteView,
-    verify_view, CustomLoginView, DashboardView, MarkAllNotificationsReadView, CalendarView, MissionEventsJsonView, AdvancedSearchView, ExportMissionsCSVView, ExportReadinessCSVView, AuditLogView, NotificationsJsonView, BulkAssignEquipmentView, NotificationsListView, BulkMarkNotificationsReadView
+    verify_view, CustomLoginView, DashboardView, MarkAllNotificationsReadView, CalendarView, MissionEventsJsonView, AdvancedSearchView, ExportMissionsCSVView, ExportReadinessCSVView, AuditLogView, NotificationsJsonView, BulkAssignEquipmentView, NotificationsListView, BulkMarkNotificationsReadView,
+    MedicalRecordListView, MedicalRecordDetailView, MedicalRecordUpdateView
 )
 
 # Main URL patterns
@@ -86,6 +87,11 @@ urlpatterns = [
     path('notifications/', NotificationsListView.as_view(), name='notifications'),
     path('notifications/bulk-mark-read/', BulkMarkNotificationsReadView.as_view(), name='notifications-bulk-mark-read'),
     path('notifications/<int:pk>/', NotificationsListView.as_view(), name='notification-detail'),
+
+    # Medical Record URLs
+    path('medical-records/', MedicalRecordListView.as_view(), name='medical-record-list'),
+    path('medical-records/<int:pk>/', MedicalRecordDetailView.as_view(), name='medical-record-detail'),
+    path('medical-records/<int:pk>/edit/', MedicalRecordUpdateView.as_view(), name='medical-record-edit'),
 ]
 
 # Serve media files in development

@@ -394,122 +394,163 @@
     </div>
     
     <div class="sidebar-content">
-      <ul class="sidebar-nav">
-        <li class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
-          <a href="{% url 'home' %}" class="nav-link">
-            <i data-lucide="home" class="icon"></i>
-            <span class="link-text">Dashboard</span>
-          </a>
-        </li>
-        {% if user.is_authenticated %}
+      <!-- Strategic Navigation -->
+      <div class="nav-section">
+        <div class="nav-section-title">
+          <i data-lucide="compass" class="icon"></i>
+          <span>STRATEGIC COMMAND</span>
+        </div>
+        <ul class="sidebar-nav">
+          <li class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+            <a href="{% url 'home' %}" class="nav-link">
+              <i data-lucide="monitor" class="icon"></i>
+              <span class="link-text">Command Center</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      {% if user.is_authenticated %}
+      <!-- Operations Section -->
+      <div class="nav-section">
+        <div class="nav-section-title">
+          <i data-lucide="target" class="icon"></i>
+          <span>OPERATIONS</span>
+        </div>
+        <ul class="sidebar-nav">
           {% if user.role == 'admin' or user.role == 'medical_officer' %}
-            <li class="nav-item {% if 'soldier' in request.resolver_match.url_name %}active{% endif %}">
-              <a href="{% url 'soldier-list' %}" class="nav-link">
-                <i data-lucide="users" class="icon"></i>
-                <span class="link-text">Personnel</span>
-              </a>
-            </li>
-            
-            {% if user.role == 'admin' or user.role == 'medical_officer' %}
-            <li class="nav-item {% if 'medical' in request.resolver_match.url_name %}active{% endif %}">
-              <a href="{% url 'medical-record-list' %}" class="nav-link">
-                <i data-lucide="heart-pulse" class="icon"></i>
-                <span class="link-text">Medical</span>
-              </a>
-            </li>
-            {% endif %}
+          <li class="nav-item {% if 'soldier' in request.resolver_match.url_name %}active{% endif %}">
+            <a href="{% url 'soldier-list' %}" class="nav-link">
+              <i data-lucide="users" class="icon"></i>
+              <span class="link-text">Personnel Management</span>
+            </a>
+          </li>
+          
+          <li class="nav-item {% if 'medical' in request.resolver_match.url_name %}active{% endif %}">
+            <a href="{% url 'medical-record-list' %}" class="nav-link">
+              <i data-lucide="heart-pulse" class="icon"></i>
+              <span class="link-text">Medical Operations</span>
+            </a>
+          </li>
           {% endif %}
           
           <li class="nav-item {% if 'mission' in request.resolver_match.url_name %}active{% endif %}">
             <a href="{% url 'mission-list' %}" class="nav-link">
               <i data-lucide="crosshair" class="icon"></i>
-              <span class="link-text">Missions</span>
+              <span class="link-text">Mission Control</span>
             </a>
           </li>
           
           <li class="nav-item {% if 'equipment' in request.resolver_match.url_name %}active{% endif %}">
             <a href="{% url 'equipment-list' %}" class="nav-link">
               <i data-lucide="package" class="icon"></i>
-              <span class="link-text">Equipment</span>
+              <span class="link-text">Equipment Inventory</span>
             </a>
           </li>
-          
+        </ul>
+      </div>
+
+      <!-- Intelligence Section -->
+      <div class="nav-section">
+        <div class="nav-section-title">
+          <i data-lucide="brain" class="icon"></i>
+          <span>INTELLIGENCE</span>
+        </div>
+        <ul class="sidebar-nav">
           {% if user.role == 'admin' %}
           <li class="nav-item {% if 'admin' in request.resolver_match.url_name %}active{% endif %}">
             <a href="{% url 'admin-dashboard' %}" class="nav-link">
-              <i data-lucide="shield" class="icon"></i>
-              <span class="link-text">Admin</span>
+              <i data-lucide="shield-check" class="icon"></i>
+              <span class="link-text">System Admin</span>
             </a>
           </li>
           {% endif %}
-          <!-- Notifications -->
+          
           <li class="nav-item notifications {% if 'notifications' in request.resolver_match.url_name %}active{% endif %}">
             <a href="{% url 'notifications' %}" class="nav-link">
               <i data-lucide="bell" class="icon"></i>
-              <span class="link-text">Notifications</span>
+              <span class="link-text">Alerts & Intel</span>
               {% if user.notifications.unread.exists %}
                 <span class="badge bg-danger">{{ user.notifications.unread.count }}</span>
               {% endif %}
             </a>
           </li>
-          
-          <!-- User Profile -->
-          <li class="nav-item user-profile">
-            <div class="profile-header">
-              {% if user.profile and user.profile.profile_image %}
-                <img src="{{ user.profile.profile_image.url }}" alt="Profile" class="profile-img">
-              {% else %}
-                <div class="profile-avatar">
-                  <i data-lucide="user" class="icon"></i>
-                </div>
-              {% endif %}
-              <div class="profile-info">
-                <div class="profile-name">{{ user.get_full_name|default:user.username }}</div>
-                <div class="profile-role">{{ user.get_role_display }}</div>
-              </div>
-              <button class="profile-toggle" type="button">
-                <i data-lucide="chevron-down" class="icon"></i>
-              </button>
+        </ul>
+      </div>
+
+      <!-- User Profile Section -->
+      <div class="nav-section user-section">
+        <div class="profile-header">
+          {% if user.profile and user.profile.profile_image %}
+            <img src="{{ user.profile.profile_image.url }}" alt="Profile" class="profile-img">
+          {% else %}
+            <div class="profile-avatar">
+              <i data-lucide="user" class="icon"></i>
             </div>
-            <ul class="profile-menu">
-              <li><a href="{% url 'profile' %}"><i data-lucide="user" class="icon"></i> Profile</a></li>
-              <li><a href="{% url 'profile-edit' %}"><i data-lucide="settings" class="icon"></i> Settings</a></li>
-              <li class="divider"></li>
-              <li>
-                <form method="post" action="{% url 'logout' %}" class="logout-form">
-                  {% csrf_token %}
-                  <button type="submit" class="btn-logout">
-                    <i data-lucide="log-out" class="icon"></i> Logout
-                  </button>
-                </form>
-              </li>
-            </ul>
+          {% endif %}
+          <div class="profile-info">
+            <div class="profile-name">{{ user.get_full_name|default:user.username }}</div>
+            <div class="profile-role">{{ user.get_role_display }}</div>
+          </div>
+          <button class="profile-toggle" type="button">
+            <i data-lucide="chevron-down" class="icon"></i>
+          </button>
+        </div>
+        <ul class="profile-menu">
+          <li><a href="{% url 'profile' %}"><i data-lucide="user" class="icon"></i> My Profile</a></li>
+          <li><a href="{% url 'profile-edit' %}"><i data-lucide="settings" class="icon"></i> Settings</a></li>
+          <li class="divider"></li>
+          <li>
+            <form method="post" action="{% url 'logout' %}" class="logout-form">
+              {% csrf_token %}
+              <button type="submit" class="btn-logout">
+                <i data-lucide="log-out" class="icon"></i> Logout
+              </button>
+            </form>
           </li>
-          
-          <!-- Theme Toggle -->
-          <li class="nav-item theme-toggle">
-            <button id="theme-toggle" class="nav-link" aria-label="Toggle theme">
-              <i data-lucide="moon" class="icon" id="theme-icon"></i>
-              <span class="link-text">Dark Mode</span>
-            </button>
-          </li>
-        {% else %}
+        </ul>
+      </div>
+      {% else %}
+      <!-- Login Section -->
+      <div class="nav-section">
+        <div class="nav-section-title">
+          <i data-lucide="lock" class="icon"></i>
+          <span>SYSTEM ACCESS</span>
+        </div>
+        <ul class="sidebar-nav">
           <li class="nav-item">
             <a href="{% url 'login' %}" class="nav-link">
               <i data-lucide="log-in" class="icon"></i>
               <span class="link-text">Login</span>
             </a>
           </li>
-        {% endif %}
-      </ul>
-      
-      <!-- Collapse Toggle -->
-      <div class="sidebar-footer">
-        <button class="collapse-toggle" id="sidebarCollapse">
-          <i data-lucide="chevron-left" class="icon"></i>
-          <span>Collapse</span>
-        </button>
+        </ul>
       </div>
+      {% endif %}
+      
+      <!-- System Controls -->
+      <div class="nav-section">
+        <div class="nav-section-title">
+          <i data-lucide="sliders" class="icon"></i>
+          <span>SYSTEM CONTROLS</span>
+        </div>
+        <ul class="sidebar-nav">
+          <li class="nav-item theme-toggle">
+            <button id="theme-toggle" class="nav-link" aria-label="Toggle theme">
+              <i data-lucide="moon" class="icon" id="theme-icon"></i>
+              <span class="link-text">Dark Mode</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+    
+    <!-- Collapse Toggle -->
+    <div class="sidebar-footer">
+      <button class="collapse-toggle" id="sidebarCollapse">
+        <i data-lucide="chevron-left" class="icon"></i>
+        <span>Collapse</span>
+      </button>
     </div>
   </div>
   
@@ -575,118 +616,54 @@
         {% block content %}{% endblock %}
       </div>
     </main>
-    
-    <footer class="main-footer">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-12 text-center">
-            <p class="mb-0">&copy; {% now "Y" %} Combat Readiness System. All rights reserved.</p>
-          </div>
-        </div>
-      </div>
-    </footer>
   </div>
 </div>
 <!-- Toast Notification Container -->
 <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container" style="z-index:3000;"></div>
-<!-- Footer -->
-<!-- Footer -->
-<footer class="footer py-4 mt-auto" style="background: rgba(10, 15, 10, 0.95); border-top: 1px solid var(--tactical-gold);">
-    <div class="container">
-        <div class="row g-4">
-            <!-- Brand and Description -->
-            <div class="col-lg-4 mb-4 mb-lg-0">
-                <div class="d-flex align-items-center mb-3">
-                    <i class="fas fa-shield-alt me-2" style="color: var(--tactical-gold);"></i>
-                    <h5 class="mb-0" style="color: var(--tactical-gold);">COMBAT READINESS SYSTEM</h5>
+
+<!-- Sidebar Toggle Button (for when sidebar is hidden) -->
+<button class="sidebar-toggle-btn" id="sidebarToggleBtn" aria-label="Toggle Sidebar">
+    <i data-lucide="menu" class="icon"></i>
+    <span class="text">MENU</span>
+</button>
+
+<!-- Tactical Footer -->
+<footer class="tactical-footer">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <div class="footer-brand">
+                    <i data-lucide="shield" class="icon me-2" style="color: var(--tactical-gold);"></i>
+                    <span class="footer-title">COMBAT READINESS SYSTEM</span>
                 </div>
-                    <i class="fas fa-shield-alt fs-4 me-2 text-accent"></i>
-                    <h5 class="mb-0 text-uppercase fw-bold">Combat Readiness</h5>
-                </div>
-                <p class="small text-muted mb-3">
-                    A comprehensive system for managing military personnel, equipment, and mission readiness with precision and efficiency.
+                <p class="footer-description">
+                    Strategic military command and control platform for operational readiness management.
                 </p>
-                <div class="social-links">
-                    <a href="#" class="text-muted me-2" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="text-muted me-2" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="text-muted me-2" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-                    <a href="#" class="text-muted" aria-label="GitHub"><i class="fab fa-github"></i></a>
+            </div>
+            <div class="col-md-6">
+                <div class="footer-info">
+                    <div class="info-item">
+                        <i data-lucide="clock" class="icon"></i>
+                        <span>System Status: <span class="status-online">OPERATIONAL</span></span>
+                    </div>
+                    <div class="info-item">
+                        <i data-lucide="shield-check" class="icon"></i>
+                        <span>Security Level: <span class="status-secure">CLASSIFIED</span></span>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- Quick Links -->
-            <div class="col-6 col-md-4 col-lg-2">
-                <h6 class="text-uppercase text-accent fw-bold mb-3">Quick Links</h6>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><a href="{% url 'home' %}" class="text-muted text-decoration-none small">Home</a></li>
-                    {% if user.is_authenticated %}
-                        <li class="mb-2"><a href="{% url 'dashboard' %}" class="text-muted text-decoration-none small">Dashboard</a></li>
-                        <li class="mb-2"><a href="{% url 'soldier-list' %}" class="text-muted text-decoration-none small">Soldiers</a></li>
-                        <li class="mb-2"><a href="{% url 'mission-list' %}" class="text-muted text-decoration-none small">Missions</a></li>
-                        <li class="mb-2"><a href="{% url 'equipment-list' %}" class="text-muted text-decoration-none small">Equipment</a></li>
-                    {% else %}
-                        <li class="mb-2"><a href="{% url 'login' %}" class="text-muted text-decoration-none small">Login</a></li>
-                        <li class="mb-2"><a href="{% url 'register' %}" class="text-muted text-decoration-none small">Register</a></li>
-                    {% endif %}
-                </ul>
-            </div>
-            
-            <!-- Support -->
-            <div class="col-6 col-md-4 col-lg-3">
-                <h6 class="text-uppercase text-accent fw-bold mb-3">Support</h6>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><a href="#" class="text-muted text-decoration-none small">Help Center</a></li>
-                    <li class="mb-2"><a href="#" class="text-muted text-decoration-none small">Documentation</a></li>
-                    <li class="mb-2"><a href="#" class="text-muted text-decoration-none small">API Reference</a></li>
-                    <li class="mb-2"><a href="#" class="text-muted text-decoration-none small">Status</a></li>
-                </ul>
-            </div>
-            
-            <!-- Contact -->
-            <div class="col-md-4 col-lg-3">
-                <h6 class="text-uppercase text-accent fw-bold mb-3">Contact Us</h6>
-                <ul class="list-unstyled small text-muted">
-                    <li class="mb-2">
-                        <i class="fas fa-map-marker-alt me-2 text-accent"></i>
-                        <span>123 Military Base, City, Country</span>
-                    </li>
-                    <li class="mb-2">
-                        <i class="fas fa-phone me-2 text-accent"></i>
-                        <span>+1 (555) 123-4567</span>
-                    </li>
-                    <li class="mb-2">
-                        <i class="fas fa-envelope me-2 text-accent"></i>
-                        <a href="mailto:support@combatreadiness.com" class="text-muted text-decoration-none">support@combatreadiness.com</a>
-                    </li>
-                </ul>
             </div>
         </div>
-        
-        <hr class="my-4 border-secondary">
-        
-        <div class="row align-items-center">
-            <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                <p class="mb-0 small text-muted">
-                    &copy; {% now "Y" %} Combat Readiness. All rights reserved.
-                </p>
-            </div>
-            <div class="col-md-6 text-center text-md-end">
-                <ul class="list-inline mb-0">
-                    <li class="list-inline-item"><a href="#" class="text-muted small text-decoration-none">Privacy Policy</a></li>
-                    <li class="list-inline-item"><span class="text-muted mx-2">•</span></li>
-                    <li class="list-inline-item"><a href="#" class="text-muted small text-decoration-none">Terms of Service</a></li>
-                    <li class="list-inline-item"><span class="text-muted mx-2">•</span></li>
-                    <li class="list-inline-item"><a href="#" class="text-muted small text-decoration-none">Cookie Policy</a></li>
-                </ul>
+        <div class="footer-bottom">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p class="footer-copyright">
+                        &copy; {% now "Y" %} Combat Readiness System | Version 1.0 | All Rights Reserved
+                    </p>
+                </div>
             </div>
         </div>
     </div>
 </footer>
-
-<!-- Back to Top Button -->
-<button id="backToTop" class="btn btn-sm btn-accent rounded-circle position-fixed bottom-0 end-0 m-4 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; display: none !important;">
-    <i class="fas fa-arrow-up"></i>
-</button>
 
 <!-- Bootstrap JS Bundle with Popper -->
 <!-- JavaScript Libraries -->
@@ -827,6 +804,52 @@ function initTooltips() {
   tooltipTriggerList.map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
 }
 
+// Sidebar Toggle Functionality
+function initSidebarToggle() {
+  const sidebar = document.getElementById('sidebar');
+  const mainContent = document.getElementById('mainContent');
+  const toggleBtn = document.getElementById('sidebarToggleBtn');
+  const sidebarCollapse = document.getElementById('sidebarCollapse');
+  const sidebarToggler = document.getElementById('sidebarToggler');
+  
+  let isSidebarVisible = true;
+  
+  // Toggle sidebar visibility
+  function toggleSidebar() {
+    if (isSidebarVisible) {
+      // Hide sidebar
+      sidebar.classList.add('collapsed');
+      mainContent.classList.add('sidebar-collapsed');
+      toggleBtn.classList.add('show');
+      isSidebarVisible = false;
+    } else {
+      // Show sidebar
+      sidebar.classList.remove('collapsed');
+      mainContent.classList.remove('sidebar-collapsed');
+      toggleBtn.classList.remove('show');
+      isSidebarVisible = true;
+    }
+  }
+  
+  // Event listeners
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', toggleSidebar);
+  }
+  
+  if (sidebarCollapse) {
+    sidebarCollapse.addEventListener('click', toggleSidebar);
+  }
+  
+  if (sidebarToggler) {
+    sidebarToggler.addEventListener('click', toggleSidebar);
+  }
+  
+  // Initialize Lucide icons after toggle
+  setTimeout(() => {
+    lucide.createIcons();
+  }, 100);
+}
+
 // Global Loader Logic
 (function() {
   // Show loader when page is loading
@@ -850,6 +873,7 @@ function initTooltips() {
       lucide.createIcons();
       
       initTooltips();
+      initSidebarToggle();
       
       // Initialize notification polling if user is authenticated
       {% if user.is_authenticated %}

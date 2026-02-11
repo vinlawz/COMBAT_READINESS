@@ -1,276 +1,323 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Tactical Dashboard | Combat Readiness{% endblock %}
-
-{% block extra_css %}
-<style>
-    /* Tactical Grid Overlay */
-    body::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: -1;
-        opacity: 0.08;
-        background-image: 
-            linear-gradient(90deg, 
-                rgba(40, 80, 40, 0.2) 1px, 
-                transparent 1px),
-            linear-gradient(180deg, 
-                rgba(40, 80, 40, 0.2) 1px, 
-                transparent 1px),
-            linear-gradient(60deg, 
-                rgba(30, 70, 30, 0.15) 1px, 
-                transparent 1px),
-            linear-gradient(-60deg, 
-                rgba(30, 70, 30, 0.15) 1px, 
-                transparent 1px);
-        background-size: 40px 40px, 40px 40px, 80px 80px, 80px 80px;
-        background-position: 0 0, 0 0, 0 40px, 40px 0;
-    }
-
-    /* Dashboard specific styles */
-    .dashboard-header {
-        background: linear-gradient(135deg, rgba(26, 31, 26, 0.9) 0%, rgba(42, 52, 42, 0.95) 100%);
-        border-radius: 12px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        border: 1px solid var(--tactical-gold);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    }
-    
-    .stat-card {
-        transition: all 0.3s ease;
-        height: 100%;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: var(--tactical-gold);
-        transform: scaleX(0);
-        transform-origin: left;
-        transition: transform 0.3s ease;
-    }
-    
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    }
-    
-    .stat-card:hover::before {
-        transform: scaleX(1);
-    }
-    
-    .stat-icon {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-        color: var(--tactical-gold);
-    }
-    
-    .stat-value {
-        font-size: 2.5rem;
-        font-weight: 700;
-        font-family: var(--font-primary);
-        margin: 0.5rem 0;
-        color: white;
-        line-height: 1;
-    }
-    
-    .stat-label {
-        font-size: 1rem;
-        color: #b0b0b0;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    
-    .quick-actions .btn {
-        margin: 0.25rem;
-        min-width: 120px;
-    }
-    
-    .recent-activity {
-        max-height: 400px;
-        overflow-y: auto;
-    }
-    
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-        width: 8px;
-    }
-    
-    ::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 4px;
-    }
-    
-    ::-webkit-scrollbar-thumb {
-        background: var(--tactical-gold);
-        border-radius: 4px;
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-        background: var(--tactical-gold-light);
-    }
-</style>
-{% endblock %}
+{% block title %}Tactical Command Center | Combat Readiness System{% endblock %}
 
 {% block content %}
-<!-- Welcome Banner with User Greeting -->
-<div class="dashboard-header text-center animate-on-scroll">
-    <div class="d-flex justify-content-center align-items-center mb-3">
-        <i data-lucide="shield" class="icon me-3" style="color: #c7ff41"></i>
-        <h1 class="mb-0" style="color: var(--tactical-gold);">TACTICAL DASHBOARD</h1>
-    </div>
-    <p class="lead mb-0">Welcome back, <span class="fw-bold">{{ user.get_full_name|default:user.username }}</span></p>
-    <p class="text-muted mb-0">Your mission status is <span class="text-success">ACTIVE</span></p>
-</div>
-
-<!-- System Status Overview -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card-tactical">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i data-lucide="activity" class="icon me-2" style="color: #c7ff41"></i>System Status</h5>
-                <span class="badge bg-success">OPERATIONAL</span>
+<div class="command-center">
+    <!-- Header Section -->
+    <header class="command-header">
+        <div class="header-content">
+            <div class="system-status">
+                <div class="status-indicator online"></div>
+                <span class="status-text">SYSTEM ONLINE</span>
             </div>
-            <div class="main-content position-relative">
-                <!-- Tactical Hexagon Overlay -->
-                <div class="tactical-overlay"></div>
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <h6 class="mb-3">Combat Readiness Status</h6>
-                        {% with readiness=88 %}
-<div class="progress-tactical mb-3" style="height: 28px;">
-    <div class="progress-bar {% if readiness >= 70 %}high{% elif readiness >= 30 %}medium{% else %}low{% endif %}" 
-         role="progressbar" 
-         style="width: {{ readiness }}%" 
-         aria-valuenow="{{ readiness }}" 
-         aria-valuemin="0" 
-         aria-valuemax="100"
-         aria-label="Combat Readiness: {{ readiness }}%">
-        {{ readiness }}%
-    </div>
-</div>
-{% endwith %}                        </div>
-                        <p class="small text-muted mb-0">Overall system readiness based on personnel, equipment, and mission status.</p>
+            <div class="operator-info">
+                <h1 class="system-title">
+                    <i data-lucide="shield" class="icon"></i>
+                    COMBAT READINESS SYSTEM
+                </h1>
+                <div class="operator-details">
+                    <span class="operator-label">OPERATOR:</span>
+                    <span class="operator-name">{{ user.get_full_name|default:user.username|upper }}</span>
+                    <span class="operator-rank">{{ user.role|default:"SOLDIER"|upper }}</span>
+                </div>
+            </div>
+            <div class="mission-time" id="missionTime">
+                <i data-lucide="clock" class="icon"></i>
+                <span>--:--:--Z</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Command Interface -->
+    <main class="command-interface">
+        <!-- Quick Actions Panel -->
+        <section class="quick-actions">
+            <div class="panel-header">
+                <h2><i data-lucide="zap" class="icon"></i> QUICK ACTIONS</h2>
+            </div>
+            <div class="actions-grid">
+                <button class="action-btn primary" onclick="location.href='{% url 'soldier-create' %}'">
+                    <i data-lucide="user-plus" class="icon"></i>
+                    <span>ADD PERSONNEL</span>
+                </button>
+                <button class="action-btn secondary" onclick="location.href='{% url 'mission-create' %}'">
+                    <i data-lucide="target" class="icon"></i>
+                    <span>NEW MISSION</span>
+                </button>
+                <button class="action-btn secondary" onclick="location.href='{% url 'equipment-create' %}'">
+                    <i data-lucide="package" class="icon"></i>
+                    <span>ADD EQUIPMENT</span>
+                </button>
+                <button class="action-btn warning" onclick="location.href='{% url 'readiness-create' %}'">
+                    <i data-lucide="file-plus" class="icon"></i>
+                    <span>REPORT STATUS</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Strategic Overview -->
+        <section class="strategic-overview">
+            <div class="overview-header">
+                <h2><i data-lucide="globe" class="icon"></i> STRATEGIC OVERVIEW</h2>
+            </div>
+            
+            <div class="overview-grid">
+                <!-- Personnel Status -->
+                <div class="overview-card personnel">
+                    <div class="card-header">
+                        <i data-lucide="users" class="icon"></i>
+                        <h3>PERSONNEL STATUS</h3>
                     </div>
-                    <div class="col-md-4 text-center">
-                        <div class="radar-scan" style="width: 150px; height: 150px; margin: 0 auto; position: relative; border: 2px solid var(--tactical-gold); border-radius: 50%;">
-                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2rem; color: var(--tactical-gold);">
-                                <i data-lucide="radar" class="icon" style="color: #c7ff41"></i>
+                    <div class="card-content">
+                        <div class="stat-display">
+                            <div class="stat-number">{{ num_soldiers|default:'0' }}</div>
+                            <div class="stat-label">TOTAL PERSONNEL</div>
+                        </div>
+                        <div class="status-breakdown">
+                            <div class="status-item">
+                                <span class="status-dot available"></span>
+                                <span>{{ num_available_soldiers|default:'0' }} AVAILABLE</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-dot deployed"></span>
+                                <span>DEPLOYED</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Equipment Status -->
+                <div class="overview-card equipment">
+                    <div class="card-header">
+                        <i data-lucide="truck" class="icon"></i>
+                        <h3>EQUIPMENT STATUS</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="stat-display">
+                            <div class="stat-number">{{ num_equipment|default:'0' }}</div>
+                            <div class="stat-label">TOTAL ASSETS</div>
+                        </div>
+                        <div class="status-breakdown">
+                            <div class="status-item">
+                                <span class="status-dot operational"></span>
+                                <span>{{ equipment_available|default:'0' }} OPERATIONAL</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-dot maintenance"></span>
+                                <span>MAINTENANCE</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mission Status -->
+                <div class="overview-card missions">
+                    <div class="card-header">
+                        <i data-lucide="flag" class="icon"></i>
+                        <h3>MISSION STATUS</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="stat-display">
+                            <div class="stat-number">{{ num_missions|default:'0' }}</div>
+                            <div class="stat-label">ACTIVE MISSIONS</div>
+                        </div>
+                        <div class="status-breakdown">
+                            <div class="status-item">
+                                <span class="status-dot active"></span>
+                                <span>{{ active_missions|default:'0' }} IN PROGRESS</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-dot completed"></span>
+                                <span>COMPLETED</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alert Status -->
+                <div class="overview-card alerts">
+                    <div class="card-header">
+                        <i data-lucide="alert-triangle" class="icon"></i>
+                        <h3>ALERT STATUS</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="stat-display">
+                            <div class="stat-number">{{ num_alerts|default:'0' }}</div>
+                            <div class="stat-label">SYSTEM ALERTS</div>
+                        </div>
+                        <div class="status-breakdown">
+                            <div class="status-item">
+                                <span class="status-dot critical"></span>
+                                <span>{{ critical_alerts|default:'0' }} CRITICAL</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-dot warning"></span>
+                                <span>WARNING</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
+        </section>
 
-<!-- Quick Stats -->
-<div class="row mb-4 g-4">
-    <!-- Soldiers -->
-    <div class="col-12 col-sm-6 col-lg-3">
-        <div class="card-tactical stat-card text-center p-4">
-            <i data-lucide="users" class="icon stat-icon" style="color: #c7ff41"></i>
-            <div class="stat-value">{{ num_soldiers|default:'0' }}</div>
-            <div class="stat-label">Active Personnel</div>
-            <div class="mt-2">
-                <span class="badge bg-success">{{ num_available_soldiers|default:'0' }} Available</span>
+        <!-- Tactical Radar Display -->
+        <div class="tactical-display">
+            <div class="panel-header">
+              <h2><i data-lucide="radar" class="icon"></i> Network Scanner</h2>
             </div>
-        </div>
-    </div>
-    
-    <!-- Equipment -->
-    <div class="col-12 col-sm-6 col-lg-3">
-        <div class="card-tactical stat-card text-center p-4">
-            <i data-lucide="truck" class="icon stat-icon" style="color: #c7ff41"></i>
-            <div class="stat-value">{{ num_equipment|default:'0' }}</div>
-            <div class="stat-label">Total Equipment</div>
-            <div class="mt-2">
-                <span class="badge bg-{{ equipment_status|default:'success' }}">{{ equipment_available|default:'0' }} Available</span>
+            <div class="radar-container">
+              <div class="radar-screen">
+                <div class="radar-grid"></div>
+                <div class="radar-sweep"></div>
+                <div class="radar-center">
+                  <div class="center-dot"></div>
+                </div>
+                <!-- Network Signal Indicators -->
+                <div class="network-signals" id="networkSignals">
+                  <div class="signal-point strong" style="top: 30%; left: 40%;"></div>
+                  <div class="signal-point medium" style="top: 60%; left: 70%;"></div>
+                  <div class="signal-point weak" style="top: 45%; left: 25%;"></div>
+                  <div class="signal-point strong" style="top: 70%; left: 50%;"></div>
+                </div>
+              </div>
+              <div class="radar-info">
+                <div class="info-item">
+                  <span class="info-label">Signal Strength:</span>
+                  <span class="info-value strong" id="signalStrength">85%</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Active Nodes:</span>
+                  <span class="info-value" id="activeNodes">12</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Network Status:</span>
+                  <span class="info-value scanning" id="networkStatus">SCANNING</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Latency:</span>
+                  <span class="info-value" id="networkLatency">12ms</span>
+                </div>
+              </div>
             </div>
-        </div>
-    </div>
-    
-    <!-- Missions -->
-    <div class="col-12 col-sm-6 col-lg-3">
-        <div class="card-tactical stat-card text-center p-4">
-            <i data-lucide="flag" class="icon stat-icon" style="color: #c7ff41"></i>
-            <div class="stat-value">{{ num_missions|default:'0' }}</div>
-            <div class="stat-label">Active Missions</div>
-            <div class="mt-2">
-                <span class="badge bg-{{ missions_status|default:'warning' }}">{{ active_missions|default:'0' }} In Progress</span>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Alerts -->
-    <div class="col-12 col-sm-6 col-lg-3">
-        <div class="card-tactical stat-card text-center p-4">
-            <i data-lucide="bell" class="icon stat-icon" style="color: #c7ff41"></i>
-            <div class="stat-value">{{ num_alerts|default:'0' }}</div>
-            <div class="stat-label">Active Alerts</div>
-            <div class="mt-2">
-                <span class="badge bg-{{ alerts_status|default:'danger' }}">{{ critical_alerts|default:'0' }} Critical</span>
-            </div>
-        </div>
-    </div>
-</div>
+          </div>
 
-<!-- Section Divider -->
-<div class="section-divider"><div class="divider-line"></div><span class="divider-icon"><i data-lucide="user" class="icon" style="color: #c7ff41"></i></span><div class="divider-line"></div></div>
-
-<!-- Profile Card -->
-<div class="card shadow border-success border-2 mb-4" style="max-width: 400px; margin: 0 auto;">
-    <div class="card-body text-center">
-        <img src="{{ user.profile.profile_image.url }}" alt="Profile" class="rounded-circle border border-3 border-warning shadow mb-3" style="width:90px;height:90px;object-fit:cover;">
-        <h5 class="card-title mb-0">{{ user.username }}</h5>
-        <div class="text-muted mb-2">{{ user.email }}</div>
-        <span class="badge bg-success mb-2"><i data-lucide="user" class="icon me-1" style="color: #fff"></i>User</span>
-        <p class="mb-0">{{ user.profile.short_bio|default:'No bio provided.' }}</p>
-      </div>
-    </div>
-    <!-- Section Divider -->
-    <div class="section-divider"><div class="divider-line"></div><span class="divider-icon"><i data-lucide="bell" class="icon" style="color: #c7ff41"></i></span><div class="divider-line"></div></div>
-    <!-- Recent Notifications Widget -->
-    <div class="card shadow border-info border-2 mb-4">
-      <div class="card-header bg-info text-dark fw-bold"><i data-lucide="bell" class="icon me-2" style="color: #1a1f1a"></i>Recent Notifications</div>
-      <ul class="list-group list-group-flush">
-        {% for notification in recent_notifications %}
-          <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-            <span><span class="badge bg-{{ notification.get_type_color }} me-2">{{ notification.type|title }}</span>{{ notification.message }}</span>
-            <span class="badge bg-light text-dark mt-2 mt-md-0">{{ notification.created_at|date:"Y-m-d H:i" }}</span>
-          </li>
-        {% empty %}
-          <li class="list-group-item text-muted">No recent notifications.</li>
-        {% endfor %}
-      </ul>
-    </div>
-  </div>
+        <!-- System Readiness Meter -->
+        <section class="readiness-monitor">
+            <div class="monitor-header">
+                <h2><i data-lucide="activity" class="icon"></i> READINESS MONITOR</h2>
+            </div>
+            <div class="readiness-display">
+                <div class="readiness-gauge">
+                    <div class="gauge-container">
+                        <div class="gauge-value" id="readinessValue">88%</div>
+                        <div class="gauge-bar">
+                            <div class="gauge-fill" style="width: 88%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="readiness-breakdown">
+                    <div class="breakdown-item">
+                        <span class="item-label">PERSONNEL</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill high" style="width: 92%"></div>
+                        </div>
+                        <span class="item-value">92%</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span class="item-label">EQUIPMENT</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill medium" style="width: 85%"></div>
+                        </div>
+                        <span class="item-value">85%</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span class="item-label">TRAINING</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill high" style="width: 88%"></div>
+                        </div>
+                        <span class="item-value">88%</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 </div>
 {% endblock %}
+
 {% block extra_js %}
 <script>
-// Show back-to-top button on scroll for mobile
-window.addEventListener('scroll', function() {
-  var btn = document.getElementById('backToTopBtn');
-  if (window.scrollY > 200) {
-    btn.style.display = 'block';
-  } else {
-    btn.style.display = 'none';
-  }
-});
+// Initialize Lucide icons
+lucide.createIcons();
+
+// Mission Clock Update
+function updateMissionTime() {
+    const now = new Date();
+    const timeString = now.toISOString().split('T')[1].split('.')[0] + 'Z';
+    const missionTimeElement = document.getElementById('missionTime');
+    if (missionTimeElement) {
+        missionTimeElement.querySelector('span').textContent = timeString;
+    }
+}
+
+// Update time every second
+setInterval(updateMissionTime, 1000);
+updateMissionTime();
+
+// Dynamic Readiness Updates
+function updateReadiness() {
+    const value = 85 + Math.floor(Math.random() * 15);
+    document.getElementById('readinessValue').textContent = value + '%';
+    document.querySelector('.gauge-fill').style.width = value + '%';
+}
+
+// Update readiness periodically
+setInterval(updateReadiness, 5000);
+
+// Network Scanner Functionality
+function updateNetworkScanner() {
+    // Update signal strength
+    const signalStrength = 75 + Math.floor(Math.random() * 25);
+    document.getElementById('signalStrength').textContent = signalStrength + '%';
+    
+    // Update active nodes
+    const activeNodes = 8 + Math.floor(Math.random() * 8);
+    document.getElementById('activeNodes').textContent = activeNodes;
+    
+    // Update latency
+    const latency = 8 + Math.floor(Math.random() * 15);
+    document.getElementById('networkLatency').textContent = latency + 'ms';
+    
+    // Update network status
+    const statuses = ['SCANNING', 'ACTIVE', 'MONITORING', 'ANALYZING'];
+    const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+    const statusElement = document.getElementById('networkStatus');
+    statusElement.textContent = randomStatus;
+    
+    // Update signal points dynamically
+    const signalsContainer = document.getElementById('networkSignals');
+    if (signalsContainer) {
+        // Clear existing signals
+        signalsContainer.innerHTML = '';
+        
+        // Add new random signal points
+        const signalCount = 3 + Math.floor(Math.random() * 4);
+        const strengths = ['strong', 'medium', 'weak'];
+        
+        for (let i = 0; i < signalCount; i++) {
+            const signal = document.createElement('div');
+            signal.className = `signal-point ${strengths[Math.floor(Math.random() * strengths.length)]}`;
+            signal.style.top = (20 + Math.random() * 60) + '%';
+            signal.style.left = (20 + Math.random() * 60) + '%';
+            signal.style.animationDelay = (Math.random() * 2) + 's';
+            signalsContainer.appendChild(signal);
+        }
+    }
+}
+
+// Update network scanner periodically
+setInterval(updateNetworkScanner, 3000);
+updateNetworkScanner(); // Initial call
 </script>
-{% endblock %} 
+{% endblock %}
