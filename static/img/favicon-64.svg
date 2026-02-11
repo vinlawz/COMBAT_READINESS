@@ -1,0 +1,24 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="32" cy="32" r="30" fill="#0a0f0a" stroke="#d4af37" stroke-width="3"/>
+  
+  <!-- Shield Shape -->
+  <path d="M32 6 L16 16 L16 36 C16 44 24 52 32 56 C40 52 48 44 48 36 L48 16 L32 6Z" 
+        fill="none" stroke="#d4af37" stroke-width="3"/>
+  
+  <!-- Crosshair/Target -->
+  <circle cx="32" cy="28" r="8" fill="none" stroke="#d4af37" stroke-width="2"/>
+  <line x1="32" y1="20" x2="32" y2="36" stroke="#d4af37" stroke-width="2"/>
+  <line x1="24" y1="28" x2="40" y2="28" stroke="#d4af37" stroke-width="2"/>
+  
+  <!-- Center Dot -->
+  <circle cx="32" cy="28" r="3" fill="#d4af37"/>
+  
+  <!-- Tactical Elements -->
+  <path d="M12 12 L16 16 M48 12 L44 16 M12 48 L16 44 M48 48 L44 44" 
+        stroke="#d4af37" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Military Star -->
+  <path d="M32 14 L34 20 L40 20 L35 24 L37 30 L32 26 L27 30 L29 24 L24 20 L30 20 Z" 
+        fill="#d4af37"/>
+</svg>
