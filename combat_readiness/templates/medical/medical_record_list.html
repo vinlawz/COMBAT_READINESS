@@ -73,7 +73,7 @@
                             <i class="fas fa-eye"></i> View
                         </a>
                         {% if user.role in 'admin,medical_officer' %}
-                        <a href="{% url 'medical-record-update' record.id %}" class="btn btn-sm btn-outline-secondary">
+                        <a href="{% url 'medical-record-edit' record.id %}" class="btn btn-sm btn-outline-secondary">
                             <i class="fas fa-edit"></i> Edit
                         </a>
                         {% endif %}
